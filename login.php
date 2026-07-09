@@ -17,7 +17,13 @@ require_once __DIR__ . "/includes/general/notifications.php";
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="css/style.css?v=<?php echo filemtime('css/style.css'); ?>">
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon.png">`r`n    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">`r`n    <link rel="apple-touch-icon" href="/apple-touch-icon.png">`r`n    <link rel="icon" type="image/png" sizes="32x32" href="img/jcm.png">`r`n    <link rel="icon" type="image/png" sizes="192x192" href="img/jcm.png">`r`n    <link rel="shortcut icon" href="img/jcm.png">`r`n    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap"
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/jcm.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="img/jcm.png">
+    <link rel="shortcut icon" href="img/jcm.png">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap"
         rel="stylesheet">
     <link rel="icon" type="image/png" sizes="32x32" href="img/jcm.png?v=20260709">
     <link rel="icon" type="image/png" sizes="192x192" href="img/jcm.png?v=20260709">
@@ -70,7 +76,7 @@ require_once __DIR__ . "/includes/general/notifications.php";
 
                         <div class="text-center mt-3">
                             <p class="small text-secondary mb-0">Pas encore inscrit ? <a href="register.php"
-                                    class="link-judo fw-semibold text-decoration-none">Connectez-vous</a></p>
+                                    class="link-judo fw-semibold text-decoration-none">Inscrivez-vous</a></p>
                         </div>
 
                         <div class="text-center mt-3">

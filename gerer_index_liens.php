@@ -22,7 +22,13 @@ include __DIR__ . '/includes/liens/gerer_liens_index.php'
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css?v=<?php echo filemtime('css/style.css'); ?>">
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon.png">`r`n    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">`r`n    <link rel="apple-touch-icon" href="/apple-touch-icon.png">`r`n    <link rel="icon" type="image/png" sizes="32x32" href="img/jcm.png">`r`n    <link rel="icon" type="image/png" sizes="192x192" href="img/jcm.png">`r`n    <link rel="shortcut icon" href="img/jcm.png">`r`n</head>
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/jcm.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="img/jcm.png">
+    <link rel="shortcut icon" href="img/jcm.png">
+</head>
 
 <body class="bo-page mt-5 pt-5">
     <?php include __DIR__ . "/includes/general/navbar.php"; ?>

@@ -43,7 +43,7 @@ if (isset($_FILES['pdp']) && $_FILES['pdp']['error'] === UPLOAD_ERR_OK) {
 $emailResult = sendVerificationEmail($email, $firstname, $token);
 
 if ($emailResult['success']) {
-    header('Location: ../../login.php?success=' . urlencode('Compte créé ! Vérifiez votre boîte mail pour l\'activer. (le mail peut se trouver dans vos spams, pensez a les vérifier ! Le mail peut avoir un peu de délai, ne vous inquiétez pas !)'));
+    header('Location: ../../login.php?success=' . urlencode('Compte créé ! Vérifiez votre boîte mail pour l\'activer. (le mail peut se trouver dans vos spams, pensez a les vérifier ! Le mail peut avoir un peu de délai, ne vous inquiétez pas !) Si vous utilisez une boite mail Microsoft (outlook, hotmail, etc...), le mail aura très certainement du délai. Si vous ne l\'avez pas reçu dans les 1h qui suivent, utilisez un autre mail.'));
 } else {
     error_log('sendVerificationEmail failed : ' . $emailResult['error']);
     header('Location: ../../login.php?alert=' . urlencode('Compte créé mais l\'email de vérification n\'a pas pu être envoyé. Contactez un administrateur.'));
