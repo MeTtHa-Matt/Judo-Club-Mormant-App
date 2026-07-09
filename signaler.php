@@ -7,6 +7,7 @@ include __DIR__ . '/includes/general/signaler.php';
 ?>
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -19,8 +20,12 @@ include __DIR__ . '/includes/general/signaler.php';
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link rel="stylesheet" href="css/style.css?v=<?php echo filemtime('css/style.css'); ?>">
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" href="img/jcm.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/jcm.png?v=20260709">
+    <link rel="icon" type="image/png" sizes="192x192" href="img/jcm.png?v=20260709">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/jcm.png?v=20260709">
+    <link rel="shortcut icon" href="img/jcm.png?v=20260709">
 </head>
+
 <body>
     <?php include __DIR__ . '/includes/general/navbar.php'; ?>
 
@@ -32,7 +37,8 @@ include __DIR__ . '/includes/general/signaler.php';
             </div>
             <h1 class="display-4 fw-bolder text-uppercase tracking-wider hero-title">Signaler un problème</h1>
             <div class="hero-divider"></div>
-            <p class="lead fs-5 fw-light mt-3 hero-subtitle">Prévenez-nous d'un disfonctionnement du site ou du comportement malsain d'un utilisateur. Maximum 3 signalements par semaine.</p>
+            <p class="lead fs-5 fw-light mt-3 hero-subtitle">Prévenez-nous d'un disfonctionnement du site ou du
+                comportement malsain d'un utilisateur. Maximum 3 signalements par semaine.</p>
         </div>
     </header>
 
@@ -57,15 +63,21 @@ include __DIR__ . '/includes/general/signaler.php';
 
                             <div class="mb-4">
                                 <label for="reportSubject" class="form-label fw-semibold">Sujet</label>
-                                <input id="reportSubject" name="subject" type="text" class="form-control form-control-lg" placeholder="Sujet du signalement" required value="<?= htmlspecialchars($subject) ?>">
+                                <input id="reportSubject" name="subject" type="text"
+                                    class="form-control form-control-lg" placeholder="Sujet du signalement" required
+                                    value="<?= htmlspecialchars($subject) ?>">
                             </div>
 
                             <div class="mb-4">
                                 <label for="reportMessage" class="form-label fw-semibold">Message</label>
-                                <textarea id="reportMessage" name="message" rows="9" class="form-control form-control-lg" placeholder="Expliquez le problème en détail..." required><?= htmlspecialchars($message) ?></textarea>
+                                <textarea id="reportMessage" name="message" rows="9"
+                                    class="form-control form-control-lg"
+                                    placeholder="Expliquez le problème en détail..."
+                                    required><?= htmlspecialchars($message) ?></textarea>
                             </div>
 
-                            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">
+                            <div
+                                class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">
                                 <div class="text-muted small">
                                     <p class="mb-1"><strong>Limite :</strong> 3 signalements par semaine.</p>
                                     <p class="mb-0">Nous répondons rapidement à chaque message reçu.</p>
@@ -85,6 +97,8 @@ include __DIR__ . '/includes/general/signaler.php';
         <?php include __DIR__ . '/includes/general/footer.php' ?>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        crossorigin="anonymous"></script>
 </body>
+
 </html>

@@ -24,7 +24,10 @@ include __DIR__ . "/includes/general/profile.php";
     <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap"
         rel="stylesheet">
-    <link rel="icon" type="image/png" href="img/jcm.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/jcm.png?v=20260709">
+    <link rel="icon" type="image/png" sizes="192x192" href="img/jcm.png?v=20260709">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/jcm.png?v=20260709">
+    <link rel="shortcut icon" href="img/jcm.png?v=20260709">
 </head>
 
 <body>

@@ -6,16 +6,22 @@ include __DIR__ . '/includes/liens/liens_index_default.php';
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 
 <head>
+    <link rel="icon" type="image/png" sizes="32x32" href="img/jcm.png?v=20260709">
+    <link rel="icon" type="image/png" sizes="192x192" href="img/jcm.png?v=20260709">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/jcm.png?v=20260709">
+    <link rel="shortcut icon" href="img/jcm.png?v=20260709">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#000000">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="JCM">
-    <title>Accueil</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Judo Club Mormant</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
@@ -23,13 +29,13 @@ include __DIR__ . '/includes/liens/liens_index_default.php';
     <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap"
         rel="stylesheet">
-    <link rel="icon" type="image/png" href="img/jcm.png">
 </head>
 
 <body>
     <?php include __DIR__ . "/includes/general/navbar.php" ?>
 
     <header class="hero-judo text-center d-flex align-items-center justify-content-center">
+
         <div class="hero-pattern"></div>
         <div class="container position-relative text-white py-5">
             <div class="hero-badge">

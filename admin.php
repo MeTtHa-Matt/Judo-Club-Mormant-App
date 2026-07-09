@@ -61,7 +61,10 @@ $recentReports = $pdo->query(
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link rel="stylesheet" href="css/style.css?v=<?php echo filemtime('css/style.css'); ?>">
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" href="img/jcm.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/jcm.png?v=20260709">
+    <link rel="icon" type="image/png" sizes="192x192" href="img/jcm.png?v=20260709">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/jcm.png?v=20260709">
+    <link rel="shortcut icon" href="img/jcm.png?v=20260709">
 </head>
 
 <body class="bo-page mt-5 pt-5">

@@ -22,7 +22,10 @@ include __DIR__ . '/includes/general/mailing.php';
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css?v=<?php echo filemtime('css/style.css'); ?>">
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" href="img/jcm.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/jcm.png?v=20260709">
+    <link rel="icon" type="image/png" sizes="192x192" href="img/jcm.png?v=20260709">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/jcm.png?v=20260709">
+    <link rel="shortcut icon" href="img/jcm.png?v=20260709">
 </head>
 
 <body>

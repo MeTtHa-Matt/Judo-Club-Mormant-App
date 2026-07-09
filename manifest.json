@@ -4,18 +4,20 @@
   "description": "Application Web du Judo Club de Mormant",
   "icons": [
     {
-      "src": "img/jcm.png",
+      "src": "img/jcm.png?v=20260709",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "img/jcm.png",
+      "src": "img/jcm.png?v=20260709",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     }
   ],
-  "start_url": "/index.php",
-  "scope": "/",
+  "start_url": "./index.php",
+  "scope": "./",
   "display": "standalone",
   "theme_color": "#000000",
   "background_color": "#ffffff",
