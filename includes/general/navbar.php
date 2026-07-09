@@ -120,4 +120,8 @@
     </div>
 </nav>
 
+<?php if (function_exists('jcm_render_notifications')): ?>
+    <?php jcm_render_notifications(); ?>
+<?php endif; ?>
+
 <script src="js/navbar.js"></script>

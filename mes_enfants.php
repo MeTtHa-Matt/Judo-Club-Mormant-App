@@ -32,8 +32,7 @@ unset($_SESSION['children_flash_success'], $_SESSION['children_flash_error']);
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link rel="stylesheet" href="css/style.css?v=<?php echo filemtime('css/style.css'); ?>">
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" href="img/jcm.png">
-</head>
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon.png">`r`n    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">`r`n    <link rel="apple-touch-icon" href="/apple-touch-icon.png">`r`n    <link rel="icon" type="image/png" sizes="32x32" href="img/jcm.png">`r`n    <link rel="icon" type="image/png" sizes="192x192" href="img/jcm.png">`r`n    <link rel="shortcut icon" href="img/jcm.png">`r`n</head>
 
 <body>
     <?php include __DIR__ . '/includes/general/navbar.php'; ?>
@@ -94,7 +93,8 @@ unset($_SESSION['children_flash_success'], $_SESSION['children_flash_error']);
                         </div>
                         <div class="mb-4">
                             <label class="form-label fw-semibold">Poids (kg)</label>
-                            <input type="number" name="Poids" id="childPoids" class="form-control" min="0" step="1">
+                            <input type="number" name="Poids" id="childPoids" class="form-control" min="0" step="1"
+                                required>
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             <button type="submit" id="childrenFormSubmit" class="btn btn-judo-red">Ajouter
@@ -217,3 +217,4 @@ unset($_SESSION['children_flash_success'], $_SESSION['children_flash_error']);
 </body>
 
 </html>
+

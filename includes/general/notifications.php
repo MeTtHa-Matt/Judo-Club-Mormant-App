@@ -24,8 +24,15 @@ foreach (['success', 'alert', 'info'] as $jcmType) {
         ];
     }
 }
-?>
-<?php if (!headers_sent()): ?>
+
+function jcm_render_notifications(): void
+{
+    global $jcmNotifications, $jcmIconMap;
+
+    if (empty($jcmNotifications)) {
+        return;
+    }
+    ?>
     <div id="jcm-toast-container" class="jcm-toast-container" aria-live="polite" aria-atomic="true">
         <?php foreach ($jcmNotifications as $notif): ?>
             <?php $icon = $jcmIconMap[$notif['type']]; ?>
@@ -45,4 +52,5 @@ foreach (['success', 'alert', 'info'] as $jcmType) {
 
     <script src="js/notifications.js?v=<?php echo @filemtime(__DIR__ . '/../../js/notifications.js') ?: time(); ?>"
         defer></script>
-<?php endif; ?>
+    <?php
+}
