@@ -1,0 +1,17 @@
+<Files ".env">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Ensure service worker and HTML/PHP are revalidated to avoid stale cached assets
+<Files "sw.js">
+    <IfModule mod_headers.c>
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+    </IfModule>
+</Files>
+
+<FilesMatch "\.(php|html)$">
+    <IfModule mod_headers.c>
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+    </IfModule>
+</FilesMatch>

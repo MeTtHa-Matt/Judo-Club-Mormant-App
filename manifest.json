@@ -1,0 +1,23 @@
+{
+  "name": "Judo Club de Mormant",
+  "short_name": "JC Mormant",
+  "description": "Application Web du Judo Club de Mormant",
+  "icons": [
+    {
+      "src": "img/jcm.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "img/jcm.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "/index.php",
+  "scope": "/",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff",
+  "orientation": "portrait"
+}
