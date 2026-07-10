@@ -25,8 +25,9 @@ if ((int) $me['admin'] !== 1) {
 $flashSuccess = null;
 $flashError = null;
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+$isAjaxRequest = isset($_REQUEST['ajax']) && $_REQUEST['ajax'] === '1';
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($_POST['action'] === 'toggle_ban') {
         $targetId = (int) ($_POST['user_id'] ?? 0);
 
@@ -73,6 +74,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
     }
 
+    if ($_POST['action'] === 'verify_email') {
+        $targetId = (int) ($_POST['user_id'] ?? 0);
+
+        if ($targetId === $userId) {
+            $flashError = "Vous ne pouvez pas valider votre propre adresse e-mail depuis cet écran.";
+        } else {
+            $stmt = $pdo->prepare("SELECT email_verified, firstname, lastname FROM account WHERE id = ?");
+            $stmt->execute([$targetId]);
+            $target = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$target) {
+                $flashError = "Utilisateur introuvable.";
+            } elseif ((int) $target['email_verified'] === 1) {
+                $flashError = "L'e-mail est déjà validé.";
+            } else {
+                $update = $pdo->prepare("UPDATE account SET email_verified = 1 WHERE id = ?");
+                $update->execute([$targetId]);
+                $flashSuccess = htmlspecialchars($target['firstname'] . ' ' . $target['lastname']) . " a désormais un e-mail validé.";
+            }
+        }
+    }
+
     if ($_POST['action'] === 'toggle_maintenance') {
         $stmt = $pdo->prepare("SELECT maintenance FROM account WHERE id = ?");
         $stmt->execute([$userId]);
@@ -88,7 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
 $maintenanceOn = (bool) $pdo->query("SELECT maintenance FROM account LIMIT 1")->fetchColumn();
 
-$search = trim($_GET['q'] ?? '');
+$search = trim($_GET['q'] ?? $_POST['q'] ?? '');
 
 if ($search !== '') {
     $cleanSearch = preg_replace('/\s+/', ' ', $search);
@@ -127,13 +150,13 @@ if ($search !== '') {
     }
 
     $sql = sprintf(
-        "SELECT id, firstname, lastname, email, pdp, admin, ban FROM account WHERE %s ORDER BY lastname, firstname",
+        "SELECT id, firstname, lastname, email, pdp, admin, ban, email_verified FROM account WHERE %s ORDER BY lastname, firstname",
         implode(' OR ', $conditions)
     );
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
 } else {
-    $stmt = $pdo->query("SELECT id, firstname, lastname, email, pdp, admin, ban FROM account ORDER BY lastname, firstname");
+    $stmt = $pdo->query("SELECT id, firstname, lastname, email, pdp, admin, ban, email_verified FROM account ORDER BY lastname, firstname");
 }
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -146,82 +169,69 @@ function renderUserResults(array $users, string $search, int $userId): string
                             <p class="mt-3 mb-0 text-muted">Aucun utilisateur ne correspond à cette recherche.</p>
                         </div>
                 <?php else: ?>
-                        <div class="card border-0 shadow-sm rounded-4 overflow-hidden users-table-card">
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0 custom-judo-table">
-                                    <thead class="table-dark text-uppercase small">
-                                        <tr>
-                                            <th scope="col" class="ps-4 py-3">Membre</th>
-                                            <th scope="col" class="py-3 d-none d-md-table-cell">Statut</th>
-                                            <th scope="col" class="py-3 text-end pe-4">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($users as $u): ?>
-                                                <?php $isSelf = ((int) $u['id'] === $userId); ?>
-                                                <tr>
-                                                    <td class="ps-4" data-label="Membre">
-                                                        <div class="d-flex align-items-center gap-2 flex-wrap">
-                                                            <?php $value = $u['pdp']; ?>
-                                                            <img src="<?= htmlspecialchars(!empty($u['pdp']) ? "img/pdps/$value" : 'img/pdps/pdp_base.png') ?>"
-                                                                alt="" class="table-user-avatar">
-                                                            <div>
-                                                                <div class="d-flex align-items-center gap-2 flex-wrap">
-                                                                    <span class="fw-bold"><?= htmlspecialchars($u['firstname'] . ' ' . $u['lastname']) ?></span>
-                                                                    <?php if ($isSelf): ?>
-                                                                            <span class="badge bg-light text-dark border">Vous</span>
-                                                                    <?php endif; ?>
-                                                                </div>
-                                                                <div class="d-flex align-items-center gap-1 flex-wrap mt-1 user-status-inline">
-                                                                    <?php if ((int) $u['admin'] === 1): ?>
-                                                                            <span class="badge-admin badge-sm"><i class="bi bi-shield-fill-check"></i>Admin</span>
-                                                                    <?php else: ?>
-                                                                            <span class="badge bg-light text-dark border badge-sm">Membre</span>
-                                                                    <?php endif; ?>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="d-none d-md-table-cell" data-label="Statut">
-                                                        <?php if ((int) $u['admin'] === 1): ?>
-                                                                <span class="badge-admin"><i class="bi bi-shield-fill-check me-1"></i>Admin</span>
-                                                        <?php else: ?>
-                                                                <span class="badge bg-light text-dark border">Membre</span>
-                                                        <?php endif; ?>
-                                                    </td>
-                                                    <td class="text-end pe-4" data-label="Actions">
-                                                        <div class="d-flex justify-content-end align-items-center gap-1 user-action-buttons">
-                                                            <form action="users.php" method="POST"
-                                                                onsubmit="return confirm('<?= $u['ban'] ? 'Débannir' : 'Bannir' ?> <?= htmlspecialchars(addslashes($u['firstname'] . ' ' . $u['lastname'])) ?> ?');">
-                                                                <input type="hidden" name="action" value="toggle_ban">
-                                                                <input type="hidden" name="user_id" value="<?= (int) $u['id'] ?>">
-                                                                <button type="submit" class="btn btn-sm btn-user-ban"
-                                                                    <?= $isSelf ? 'disabled title="Vous ne pouvez pas vous bannir vous-même"' : '' ?>>
-                                                                    <?= $u['ban'] ? "Débannir" : "Bannir" ?>
-                                                                </button>
-                                                            </form>
-                                                            <form action="users.php" method="POST"
-                                                                onsubmit="return confirm('<?= $u['admin'] ? 'Retirer les droits admin de' : 'Passer' ?> <?= htmlspecialchars(addslashes($u['firstname'] . ' ' . $u['lastname'])) ?> <?= $u['admin'] ? '' : 'administrateur' ?> ?');">
-                                                                <input type="hidden" name="action" value="toggle_admin">
-                                                                <input type="hidden" name="user_id" value="<?= (int) $u['id'] ?>">
-                                                                <button type="submit" class="btn btn-sm btn-user-admin"
-                                                                    <?= $isSelf ? 'disabled title="Vous ne pouvez pas modifier votre propre statut"' : '' ?>>
-                                                                    <?= $u['admin'] ? "Rétrograder" : "Passer admin" ?>
-                                                                </button>
-                                                            </form>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
+                        <div class="users-card-list">
+                            <?php foreach ($users as $u): ?>
+                                <?php $isSelf = ((int) $u['id'] === $userId); ?>
+                                <div class="user-card" data-user-id="<?= (int) $u['id'] ?>">
+                                    <div class="user-card-header" role="button" tabindex="0" aria-expanded="false">
+                                        <div class="d-flex align-items-center gap-3 flex-grow-1">
+                                            <?php $value = $u['pdp']; ?>
+                                            <img src="<?= htmlspecialchars(!empty($u['pdp']) ? "img/pdps/$value" : 'img/pdps/pdp_base.png') ?>"
+                                                alt="" class="table-user-avatar">
+                                            <div>
+                                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                                    <span class="fw-bold"><?= htmlspecialchars($u['firstname'] . ' ' . $u['lastname']) ?></span>
+                                                    <?php if ($isSelf): ?>
+                                                        <span class="badge bg-light text-dark border">Vous</span>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <span class="user-card-toggle"><i class="bi bi-chevron-down"></i></span>
+                                    </div>
+                                    <div class="user-card-body">
+                                        <div class="user-card-details">
+                                            <span class="badge <?= (int) $u['email_verified'] === 1 ? 'badge-active' : 'badge-banned' ?>">
+                                                <?= (int) $u['email_verified'] === 1 ? 'Email vérifié' : 'Mail non vérifié' ?>
+                                            </span>
+                                            <span class="badge <?= (int) $u['ban'] === 1 ? 'badge-banned' : 'badge-active' ?>">
+                                                <?= (int) $u['ban'] === 1 ? 'Banni' : 'Actif' ?>
+                                            </span>
+                                            <?php if ((int) $u['admin'] === 1): ?>
+                                                <span class="badge-admin">Admin</span>
+                                            <?php else: ?>
+                                                <span class="badge bg-light text-dark border badge-sm">Membre</span>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="user-card-actions">
+                                            <button type="button" class="btn btn-sm btn-user-action btn-user-ban"
+                                                data-user-action="toggle_ban"
+                                                data-user-id="<?= (int) $u['id'] ?>"
+                                                <?= $isSelf ? 'disabled title="Vous ne pouvez pas vous bannir vous-même"' : '' ?>>
+                                                <?= (int) $u['ban'] === 1 ? 'Débannir' : 'Bannir' ?>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-user-action btn-user-admin"
+                                                data-user-action="toggle_admin"
+                                                data-user-id="<?= (int) $u['id'] ?>"
+                                                <?= $isSelf ? 'disabled title="Vous ne pouvez pas modifier votre propre statut"' : '' ?>>
+                                                <?= (int) $u['admin'] === 1 ? 'Rétrograder' : 'Passer admin' ?>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-user-action btn-user-verify-email"
+                                                data-user-action="verify_email"
+                                                data-user-id="<?= (int) $u['id'] ?>"
+                                                <?= (int) $u['email_verified'] === 1 ? 'disabled' : '' ?>>
+                                                Valider le mail
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
                 <?php endif;
     return ob_get_clean();
 }
 
-if (isset($_GET['ajax']) && $_GET['ajax'] === '1') {
+if (isset($_REQUEST['ajax']) && $_REQUEST['ajax'] === '1') {
     header('Content-Type: application/json');
     echo json_encode(['success' => true, 'html' => renderUserResults($users, $search, $userId)]);
     exit;

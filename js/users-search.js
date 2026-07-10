@@ -35,6 +35,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (data.success && data.html) {
         resultsContainer.innerHTML = data.html;
+        if (typeof window.attachUserActions === "function") {
+          window.attachUserActions();
+        }
       }
     } catch (error) {
       console.error("Recherche utilisateur AJAX échouée:", error);

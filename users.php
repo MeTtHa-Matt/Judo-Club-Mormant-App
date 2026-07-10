@@ -123,8 +123,8 @@ include __DIR__ . '/includes/general/users.php'
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
     <script src="js/users-search.js?v=<?php echo filemtime('js/users-search.js'); ?>"></script>
+    <script src="js/users-admin.js?v=<?php echo filemtime('js/users-admin.js'); ?>"></script>
     <?php include __DIR__ . '/includes/general/footer.php'; ?>
 </body>
 
 </html>
-
