@@ -22,3 +22,17 @@ try {
 } catch (PDOException $e) {
     die('Erreur de connexion à la base de données : ' . $e->getMessage());
 }
+
+function cleanupExpiredUnverifiedAccounts(PDO $pdo): int
+{
+    $stmt = $pdo->prepare(
+        "DELETE FROM account
+         WHERE email_verified = 0
+           AND verification_token IS NOT NULL
+           AND verification_token_expires IS NOT NULL
+           AND verification_token_expires < NOW()"
+    );
+    $stmt->execute();
+
+    return $stmt->rowCount();
+}

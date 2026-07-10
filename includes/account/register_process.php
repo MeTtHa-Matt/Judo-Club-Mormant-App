@@ -2,6 +2,8 @@
 include "../general/db.php";
 include "../general/mailer.php";
 
+cleanupExpiredUnverifiedAccounts($pdo);
+
 $firstname = $_POST['firstname'];
 $lastname = $_POST['lastname'];
 $email = $_POST['email'];

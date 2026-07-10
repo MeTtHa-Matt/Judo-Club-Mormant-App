@@ -6,6 +6,8 @@ $status = 'error';
 $message = 'Lien de vérification invalide.';
 $alertClass = 'danger';
 
+cleanupExpiredUnverifiedAccounts($pdo);
+
 if (!empty($token)) {
     $stmt = $pdo->prepare("SELECT id, verification_token_expires, email_verified FROM account WHERE verification_token = ?");
     $stmt->execute([$token]);
@@ -18,7 +20,9 @@ if (!empty($token)) {
         $message = 'Votre adresse email est déjà vérifiée. Vous pouvez vous connecter.';
         $alertClass = 'success';
     } elseif (strtotime($account['verification_token_expires']) < time()) {
-        $message = 'Ce lien a expiré. Contactez un administrateur pour renvoyer un email.';
+        $stmt = $pdo->prepare("DELETE FROM account WHERE id = ?");
+        $stmt->execute([$account['id']]);
+        $message = 'Ce lien a expiré et le compte associé a été supprimé.';
     } else {
         $stmt = $pdo->prepare("UPDATE account SET email_verified = 1, verification_token = NULL, verification_token_expires = NULL WHERE id = ?");
         if ($stmt->execute([$account['id']])) {
@@ -73,7 +77,8 @@ if (!empty($token)) {
                 <div class="card-header card-header-judo text-white text-center py-4 border-0">
                     <i class="bi <?= $status === 'success' ? 'bi-check-circle-fill' : 'bi-x-circle-fill' ?> fs-1"></i>
                     <h2 class="fw-bold mt-2 mb-0">
-                        <?= $status === 'success' ? 'Vérification réussie' : 'Vérification impossible' ?></h2>
+                        <?= $status === 'success' ? 'Vérification réussie' : 'Vérification impossible' ?>
+                    </h2>
                 </div>
                 <div class="card-body p-4 p-sm-5 bg-white">
                     <div class="alert alert-<?= $alertClass ?> mb-4" role="alert">
@@ -96,4 +101,3 @@ if (!empty($token)) {
 </body>
 
 </html>
-

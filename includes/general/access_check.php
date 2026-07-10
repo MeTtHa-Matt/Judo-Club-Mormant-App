@@ -5,6 +5,8 @@ if (!isset($pdo)) {
     require_once __DIR__ . '/db.php';
 }
 
+cleanupExpiredUnverifiedAccounts($pdo);
+
 $currentPage = basename($_SERVER['PHP_SELF']);
 
 $maintenanceActive = (int) $pdo->query('SELECT maintenance FROM account LIMIT 1')->fetchColumn();
