@@ -101,6 +101,7 @@ $recentReports = $pdo->query(
                     <a href="mailing.php" class="bo-sidebar-link">Envoyer un mail</a>
                     <a href="gerer_competitions.php" class="bo-sidebar-link">Compétitions</a>
                     <a href="gerer_index_liens.php" class="bo-sidebar-link">Liens d'accueil</a>
+                    <a href="chat.php" class="bo-sidebar-link">Assistant IA</a>
                 </div>
 
                 <div class="bo-sidebar-section">
@@ -239,4 +240,3 @@ $recentReports = $pdo->query(
 </body>
 
 </html>
-

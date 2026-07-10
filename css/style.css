@@ -3381,6 +3381,82 @@ table.bo-table td.bo-date {
    redefines them, it only adds what index.php didn't already need.
    ========================================================================== */
 
+.ia-chat-panel {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.ia-chat-shell {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.ia-chat-messages {
+  max-height: 56rem;
+  min-height: 28rem;
+  overflow-y: auto;
+  padding: 1rem;
+  background: #f8f4e8;
+  border: 1px solid var(--bo-line);
+  border-radius: 18px;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.ia-chat-message {
+  padding: 1rem 1.3rem;
+  border-radius: 18px;
+  box-shadow: 0 10px 25px -20px rgba(0, 0, 0, 0.35);
+  line-height: 1.7;
+  max-width: 88%;
+}
+
+.ia-chat-message-user {
+  background: #ffffff;
+  border: 1px solid rgba(34, 34, 34, 0.08);
+  justify-self: end;
+  align-self: flex-end;
+}
+
+.ia-chat-message-assistant {
+  background: #e9f2ff;
+  border: 1px solid rgba(42, 123, 255, 0.18);
+  color: #17233d;
+  justify-self: start;
+}
+
+.ia-chat-message-system {
+  background: #fff8e3;
+  border: 1px solid rgba(214, 176, 76, 0.25);
+  color: #5f4a24;
+  justify-self: center;
+  max-width: 100%;
+}
+
+.ia-chat-message-error {
+  background: #ffe7e6;
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  color: #8c1d18;
+  justify-self: center;
+}
+
+.ia-chat-input {
+  min-height: 120px;
+}
+
+.ia-chat-status {
+  color: #5a5348;
+  font-size: 0.95rem;
+}
+
+.ia-chat-form .bo-btn {
+  min-width: 180px;
+}
+
+.ia-chat-form .bo-btn-outline {
+  background: transparent;
+}
+
 /* Slightly shorter hero on the profile page since it doesn't need the
    full-height treatment of the homepage hero */
 .profile-hero {

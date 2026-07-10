@@ -33,9 +33,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
     modalJourEl.addEventListener("hidden.bs.modal", function handler() {
       modalJourEl.removeEventListener("hidden.bs.modal", handler);
-      compModal.show(item); 
+      compModal.show(item);
     });
 
     bootstrap.Modal.getOrCreateInstance(modalJourEl).hide();
   });
+});
+
+// Accessibility: blur focused element inside a modal before it is hidden
+// This prevents a focused element inside a now-hidden container (aria-hidden)
+// which would cause accessibility warnings in some browsers / screen readers.
+document.addEventListener("hide.bs.modal", function (e) {
+  try {
+    if (document.activeElement && e.target.contains(document.activeElement)) {
+      document.activeElement.blur();
+    }
+  } catch (err) {
+    // defensive: if e.target or document.activeElement access fails, ignore
+    console.error("Error handling hide.bs.modal blur:", err);
+  }
 });
