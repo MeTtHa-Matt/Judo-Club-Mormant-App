@@ -60,48 +60,69 @@ if (!$me || (int) $me['admin'] !== 1) {
         </div>
     </header>
 
-    <main class="container pb-5">
-        <section class="mx-auto" style="max-width: 1024px;">
-            <div class="bo-toolbar mt-5 mb-3 justify-content-between align-items-start">
+    <main class="container-fluid pb-5" style="height: 100vh; display: flex; flex-direction: column;">
+        <section class="flex-grow-1 d-flex flex-column" style="max-width: 1200px; margin: 0 auto; width: 100%; padding: 2rem 1rem;">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h2>Conversation IA</h2>
-                    <p class="mb-0 text-muted">Posez plusieurs questions et échangez avec l'assistant sans perdre le
-                        contexte.</p>
+                    <h2 class="mb-0">Assistant IA Llama 3.1</h2>
+                    <p class="mb-0 text-muted small">Conversez avec votre assistant d'administration</p>
                 </div>
-                <a href="admin.php" class="bo-btn bo-btn-outline mt-3 mt-md-0">
-                    <i class="bi bi-arrow-left"></i> Retour à l'administration
+                <a href="admin.php" class="bo-btn bo-btn-outline">
+                    <i class="bi bi-arrow-left"></i> Retour
                 </a>
             </div>
 
-            <div class="bo-card">
-                <div class="bo-card-head">
-                    <h3>Chat IA</h3>
-                </div>
-                <div class="bo-card-body">
-                    <div class="ia-chat-shell">
-                        <div id="iaChatMessages" class="ia-chat-messages">
-                            <div class="ia-chat-message ia-chat-message-system">Bonjour administrateur, je suis votre
-                                assistant IA. Posez une question sur les comptes, les compétitions, les inscriptions,
-                                les signalements ou toute autre donnée du site.</div>
+            <!-- Chat Container -->
+            <div class="d-flex flex-column flex-grow-1 bg-white rounded-3 shadow-sm" style="min-height: 500px; max-height: 70vh; border: 1px solid #e0e0e0;">
+                
+                <!-- Messages Area -->
+                <div id="iaChatMessages" class="flex-grow-1 p-4 overflow-y-auto" style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div class="d-flex justify-content-center">
+                        <div class="bg-light rounded-3 px-4 py-3 text-center" style="max-width: 500px;">
+                            <div class="mb-2">
+                                <i class="bi bi-database" style="font-size: 2rem; color: #4a90e2;"></i>
+                            </div>
+                            <p class="mb-0 fw-semibold">Assistant d'Administration</p>
+                            <p class="mb-0 small text-muted mt-2">
+                                Posez vos questions sur la base de données : comptes, compétitions, inscriptions, 
+                                signalements... Les données seront recherchées en temps réel pour vous.
+                            </p>
                         </div>
-
-                        <form id="iaChatForm" class="ia-chat-form">
-                            <div class="bo-field">
-                                <label for="iaChatInput">Votre question</label>
-                                <textarea id="iaChatInput" class="form-control ia-chat-input" rows="4"
-                                    placeholder="Ex : Combien de comptes sont encore non vérifiés ?"
-                                    required></textarea>
-                            </div>
-                            <div class="d-flex flex-column flex-sm-row align-items-stretch gap-2">
-                                <button type="submit" class="bo-btn bo-btn-primary flex-grow-1">Envoyer</button>
-                                <button type="button" id="iaChatReset" class="bo-btn bo-btn-outline">Réinitialiser
-                                    la conversation</button>
-                            </div>
-                            <div class="mt-3">
-                                <span id="iaChatStatus" class="ia-chat-status"></span>
-                            </div>
-                        </form>
                     </div>
+                </div>
+
+                <!-- Divider -->
+                <div style="border-top: 1px solid #e0e0e0;"></div>
+
+                <!-- Input Area -->
+                <div class="p-4" style="background-color: #f9f9f9;">
+                    <form id="iaChatForm" class="d-flex flex-column gap-2">
+                        <div class="position-relative">
+                            <textarea 
+                                id="iaChatInput" 
+                                class="form-control" 
+                                placeholder="Posez votre question... (Shift+Entrée pour nouvelle ligne, Entrée pour envoyer)"
+                                rows="2"
+                                style="padding-right: 50px; resize: none; max-height: 120px;"
+                            ></textarea>
+                            <button 
+                                type="submit" 
+                                id="iaChatSendBtn"
+                                class="btn btn-primary rounded-circle"
+                                style="position: absolute; right: 8px; bottom: 8px; width: 40px; height: 40px; padding: 0; display: flex; align-items: center; justify-content: center;"
+                                title="Envoyer (Entrée)"
+                            >
+                                <i class="bi bi-send-fill"></i>
+                            </button>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span id="iaChatStatus" class="small text-muted"></span>
+                            <button type="button" id="iaChatReset" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-arrow-clockwise"></i> Nouvelle conversation
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </section>

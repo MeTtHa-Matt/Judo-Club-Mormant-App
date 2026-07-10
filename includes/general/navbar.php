@@ -31,91 +31,87 @@
                         <a class="nav-link" href="<?= $appRoot ?>/admin.php">Administration</a>
                     </li>
                 <?php endif; ?>
+            </ul>
 
-                <?php
-                if (!isset($_SESSION['firstname'])) {
+            <?php if (!isset($_SESSION['firstname'])): ?>
+                <div class="d-flex flex-column flex-lg-row gap-2 mt-3 mt-lg-0 align-items-center navbar-buttons-custom">
+                    <a href="login.php" class="btn btn-judo-outline me-lg-2">Connexion</a>
+                    <a href="register.php" class="btn btn-judo-red">Inscription</a>
+                </div>
+            <?php else: ?>
+                <div class="dropdown profile-dropdown-judo mx-auto mx-lg-0">
+                    <?php
+                    $navbarPdp = 'pdp_base.png';
+                    if (!empty($_SESSION['pdp'])) {
+                        $candidate = basename($_SESSION['pdp']);
+                        $candidateFile = __DIR__ . '/../../img/pdps/' . $candidate;
+                        if (file_exists($candidateFile) && is_file($candidateFile)) {
+                            $navbarPdp = $candidate;
+                        }
+                    }
                     ?>
 
-                    <div class="d-flex flex-column flex-lg-row gap-2 mt-3 mt-lg-0 align-items-center navbar-buttons-custom">
-                        <a href="login.php" class="btn btn-judo-outline me-lg-2">Connexion</a>
-                        <a href="register.php" class="btn btn-judo-red">Inscription</a>
-                    </div>
+                    <button id="profileDropdownToggle" class="profile-toggle-judo dropdown-toggle" type="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="profile-avatar-wrapper">
+                            <img src="img/pdps/<?= htmlspecialchars($navbarPdp) ?>" alt="Avatar"
+                                class="profile-avatar-img">
+                            <?php if (isset($_SESSION['admin']) && (int) $_SESSION['admin'] === 1): ?>
+                                <span class="profile-admin-badge"><i class="bi bi-shield-fill-check"></i></span>
+                            <?php endif; ?>
+                        </span>
+                    </button>
 
-                <?php } else { ?>
-                    <div class="dropdown profile-dropdown-judo mx-auto mx-lg-0">
-                        <?php
-                        $navbarPdp = 'pdp_base.png';
-                        if (!empty($_SESSION['pdp'])) {
-                            $candidate = basename($_SESSION['pdp']);
-                            $candidateFile = __DIR__ . '/../../img/pdps/' . $candidate;
-                            if (file_exists($candidateFile) && is_file($candidateFile)) {
-                                $navbarPdp = $candidate;
-                            }
-                        }
-                        ?>
-
-                        <button id="profileDropdownToggle" class="profile-toggle-judo dropdown-toggle" type="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                            <span class="profile-avatar-wrapper">
-                                <img src="img/pdps/<?= htmlspecialchars($navbarPdp) ?>" alt="Avatar"
-                                    class="profile-avatar-img">
+                    <ul class="dropdown-menu dropdown-menu-end profile-menu-judo">
+                        <li class="profile-menu-header">
+                            <img src="img/pdps/<?= htmlspecialchars($navbarPdp) ?>" alt="Avatar"
+                                class="profile-menu-avatar">
+                            <div class="profile-menu-info">
+                                <span class="profile-menu-name"><?= htmlspecialchars($_SESSION['firstname']) ?></span>
                                 <?php if (isset($_SESSION['admin']) && (int) $_SESSION['admin'] === 1): ?>
-                                    <span class="profile-admin-badge"><i class="bi bi-shield-fill-check"></i></span>
+                                    <span class="profile-menu-role">Administrateur</span>
+                                <?php else: ?>
+                                    <span class="profile-menu-role">Membre</span>
                                 <?php endif; ?>
-                            </span>
-                        </button>
+                            </div>
+                            <button type="button" class="profile-menu-close d-lg-none" aria-label="Fermer">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </li>
 
-                        <ul class="dropdown-menu dropdown-menu-end profile-menu-judo">
-                            <li class="profile-menu-header">
-                                <img src="img/pdps/<?= htmlspecialchars($navbarPdp) ?>" alt="Avatar"
-                                    class="profile-menu-avatar">
-                                <div class="profile-menu-info">
-                                    <span class="profile-menu-name"><?= htmlspecialchars($_SESSION['firstname']) ?></span>
-                                    <?php if (isset($_SESSION['admin']) && (int) $_SESSION['admin'] === 1): ?>
-                                        <span class="profile-menu-role">Administrateur</span>
-                                    <?php else: ?>
-                                        <span class="profile-menu-role">Membre</span>
-                                    <?php endif; ?>
-                                </div>
-                                <button type="button" class="profile-menu-close d-lg-none" data-bs-toggle="dropdown"
-                                    data-bs-target="#profileDropdownToggle" aria-label="Fermer">
-                                    <i class="bi bi-x-lg"></i>
-                                </button>
-                            </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
 
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
+                        <li>
+                            <a class="dropdown-item profile-menu-item" href="<?= $appRoot ?>/profile.php">
+                                <i class="bi bi-person-circle"></i><span>Modifier mon profil</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item profile-menu-item" href="<?= $appRoot ?>/mes_enfants.php">
+                                <i class="bi bi-people-fill"></i><span>Mes enfants</span>
+                            </a>
+                        </li>
 
-                            <li>
-                                <a class="dropdown-item profile-menu-item" href="<?= $appRoot ?>/profile.php">
-                                    <i class="bi bi-person-circle"></i><span>Modifier mon profil</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item profile-menu-item" href="<?= $appRoot ?>/mes_enfants.php">
-                                    <i class="bi bi-people-fill"></i><span>Mes enfants</span>
-                                </a>
-                            </li>
+                        <li>
+                            <a class="dropdown-item profile-menu-item" href="<?= $appRoot ?>/signaler.php">
+                                <i class="bi bi-flag-fill"></i><span>Signaler un problème</span>
+                            </a>
+                        </li>
 
-                            <li>
-                                <a class="dropdown-item profile-menu-item" href="<?= $appRoot ?>/signaler.php">
-                                    <i class="bi bi-flag-fill"></i><span>Signaler un problème</span>
-                                </a>
-                            </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
 
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-
-                            <li>
-                                <a class="dropdown-item profile-menu-item text-danger" href="includes/account/logout.php">
-                                    <i class="bi bi-box-arrow-right"></i><span>Se déconnecter</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                <?php } ?>
+                        <li>
+                            <a class="dropdown-item profile-menu-item text-danger" href="includes/account/logout.php">
+                                <i class="bi bi-box-arrow-right"></i><span>Se déconnecter</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 </nav>
