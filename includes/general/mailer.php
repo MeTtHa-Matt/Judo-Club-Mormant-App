@@ -80,6 +80,13 @@ function sanitizeMailName(string $name): string
     return trim(str_replace(["\r", "\n"], '', (string) $name));
 }
 
+function configureMailerCharacterEncoding(PHPMailer $mail): void
+{
+    $mail->CharSet = 'UTF-8';
+    $mail->Encoding = 'base64';
+    $mail->setLanguage('fr');
+}
+
 function configureSecureSmtpMailer(PHPMailer $mail, array $settings, ?string $replyTo = null, ?string $replyToName = null, bool $isBulk = false): void
 {
     $mail->isSMTP();
@@ -92,10 +99,7 @@ function configureSecureSmtpMailer(PHPMailer $mail, array $settings, ?string $re
     $mail->Port = $settings['port'];
     $mail->SMTPAutoTLS = true;
     $mail->Timeout = 20;
-    $mail->CharSet = 'UTF-8';
-    $mail->SMTPUTF8 = true;
-    $mail->Encoding = 'base64';
-    $mail->setLanguage('fr');
+    configureMailerCharacterEncoding($mail);
     $mail->Priority = 3;
     $mail->SMTPOptions = [
         'ssl' => [
