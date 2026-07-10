@@ -6,6 +6,20 @@ require_once __DIR__ . '/includes/general/access_check.php';
 require_once __DIR__ . "/includes/general/notifications.php";
 
 include __DIR__ . '/includes/competitions/charger_competitions.php';
+
+function userHasCompetitionInscription(int $competitionId, ?int $userId): bool
+{
+    if (!$userId) {
+        return false;
+    }
+
+    global $pdo;
+
+    $stmt = $pdo->prepare("SELECT 1 FROM inscrits WHERE id_account = ? AND id_competition = ? LIMIT 1");
+    $stmt->execute([$userId, $competitionId]);
+
+    return (bool) $stmt->fetchColumn();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -108,6 +122,7 @@ include __DIR__ . '/includes/competitions/charger_competitions.php';
                                     . ' data-informations="' . htmlspecialchars($comp['informations'] ?? '') . '"'
                                     . ' data-image="' . htmlspecialchars(getCompetitionImageUrl($comp['image'])) . '"'
                                     . ' data-registration-open="' . (isCompetitionRegistrationOpen($comp['date'] ?? null, $comp['date_limite_inscription'] ?? null) ? '1' : '0') . '"'
+                                    . ' data-has-my-inscription="' . ((isset($_SESSION['id']) && userHasCompetitionInscription((int) $comp['id'], (int) $_SESSION['id'])) ? '1' : '0') . '"'
                                     . ' data-id="' . (int) $comp['id'] . '" role="button" tabindex="0">'
                                     . '<span class="upcoming-name">' . htmlspecialchars($comp['nom']) . '</span>'
                                     . '<i class="bi bi-chevron-right upcoming-arrow"></i>'
@@ -144,6 +159,7 @@ include __DIR__ . '/includes/competitions/charger_competitions.php';
                                         data-informations="<?= htmlspecialchars($comp['informations'] ?? '') ?>"
                                         data-image="<?= htmlspecialchars(getCompetitionImageUrl($comp['image'])) ?>"
                                         data-registration-open="<?= isCompetitionRegistrationOpen($comp['date'] ?? null, $comp['date_limite_inscription'] ?? null) ? '1' : '0' ?>"
+                                        data-has-my-inscription="<?= isset($_SESSION['id']) && userHasCompetitionInscription((int) $comp['id'], (int) $_SESSION['id']) ? '1' : '0' ?>"
                                         data-id="<?= (int) $comp['id'] ?>">
                                         <?= htmlspecialchars($comp['nom']) ?>
                                     </button>
@@ -183,6 +199,7 @@ include __DIR__ . '/includes/competitions/charger_competitions.php';
                                 data-informations="<?= htmlspecialchars($comp['informations'] ?? '') ?>"
                                 data-image="<?= htmlspecialchars(getCompetitionImageUrl($comp['image'])) ?>"
                                 data-registration-open="<?= isCompetitionRegistrationOpen($comp['date'] ?? null, $comp['date_limite_inscription'] ?? null) ? '1' : '0' ?>"
+                                data-has-my-inscription="<?= isset($_SESSION['id']) && userHasCompetitionInscription((int) $comp['id'], (int) $_SESSION['id']) ? '1' : '0' ?>"
                                 data-id="<?= (int) $comp['id'] ?>" role="button" tabindex="0">
                                 <div class="upcoming-date">
                                     <i class="bi bi-calendar-event me-2 text-judo-red"></i><?= formatDateFr($comp['date']) ?>
@@ -285,6 +302,13 @@ include __DIR__ . '/includes/competitions/charger_competitions.php';
                         aria-label="Fermer"></button>
                 </div>
                 <div class="modal-body p-4">
+                    <div class="alert alert-warning d-flex align-items-start gap-2 mb-3" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill mt-1"></i>
+                        <div>
+                            <strong>Attention :</strong> pensez à mettre à jour les informations de votre enfant avant
+                            de l’inscrire à une compétition.
+                        </div>
+                    </div>
                     <div id="modalChildProfilesContent" class="child-profiles-list"></div>
                 </div>
                 <div class="modal-footer">
@@ -403,4 +427,3 @@ include __DIR__ . '/includes/competitions/charger_competitions.php';
 </body>
 
 </html>
-

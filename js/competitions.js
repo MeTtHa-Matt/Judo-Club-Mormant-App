@@ -207,6 +207,8 @@ modalCompetition.addEventListener("show.bs.modal", (event) => {
 
   const bodyIsAdmin = document.body.dataset.isAdmin === "1";
   const isClosed = !registrationOpen && !bodyIsAdmin;
+  const hasMyInscription =
+    trigger.getAttribute("data-has-my-inscription") === "1";
 
   const registerLink = document.getElementById("modalCompetitionRegisterLink");
 
@@ -226,6 +228,10 @@ modalCompetition.addEventListener("show.bs.modal", (event) => {
       registerLink.removeAttribute("aria-disabled");
       registerLink.style.pointerEvents = "";
     }
+  }
+
+  if (viewMineBtn) {
+    viewMineBtn.classList.toggle("d-none", !hasMyInscription);
   }
 
   if (registerBtn) {
