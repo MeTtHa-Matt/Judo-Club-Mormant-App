@@ -93,6 +93,7 @@ function configureSecureSmtpMailer(PHPMailer $mail, array $settings, ?string $re
     $mail->SMTPAutoTLS = true;
     $mail->Timeout = 20;
     $mail->CharSet = 'UTF-8';
+    $mail->SMTPUTF8 = true;
     $mail->Encoding = 'base64';
     $mail->setLanguage('fr');
     $mail->Priority = 3;
