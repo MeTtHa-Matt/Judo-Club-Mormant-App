@@ -24,7 +24,7 @@
             </div>
         </div>
         <div class="footer-bottom text-center mt-4 pt-4 border-top">
-            <p class="mb-0 ">Site réalisé par Matthew</p>
+            <p class="mb-0 ">Site réalisé par <a href="fruit_ninja.php" style="text-decoration:none; color:white;">Matthew</a></p>
             <p class="mb-0 mt-2">© <?= date('Y') ?> Judo Club de Mormant. Tous droits réservés.</p>
         </div>
     </div>
