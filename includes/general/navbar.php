@@ -52,7 +52,7 @@
                     ?>
 
                     <button id="profileDropdownToggle" class="profile-toggle-judo dropdown-toggle" type="button"
-                        data-bs-toggle="dropdown" aria-expanded="false">
+                        aria-expanded="false">
                         <span class="profile-avatar-wrapper">
                             <img src="img/pdps/<?= htmlspecialchars($navbarPdp) ?>" alt="Avatar"
                                 class="profile-avatar-img">
