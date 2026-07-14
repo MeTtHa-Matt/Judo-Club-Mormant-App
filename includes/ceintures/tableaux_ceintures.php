@@ -2,9 +2,9 @@
 
 $ceintures = [
     [
-        'id' => 'liseret1',
-        'nom' => '1 Liseret',
-        'image' => '1liseret.jpg',
+        'id' => 'lisere1',
+        'nom' => '1 lisere',
+        'image' => '1lisere.jpg',
         'prises' => ['O soto gari', 'Ko uchi gari', 'Tai otoshi', 'Uki-goshi', 'Tate-shiho-gatame', 'Yoko-shiho-gatame'],
         'retournements' => ['Retournement sur le côté – coude à deux mains', 'Retournement sur le côté – coude et cheville', 'Retournement de face'],
         'situations' => ['Maîtrise des chutes', 'Retourner un adversaire'],
@@ -25,9 +25,9 @@ $ceintures = [
         ],
     ],
     [
-        'id' => 'liseret2',
-        'nom' => '2 Liserets',
-        'image' => '2liseret.jpg',
+        'id' => 'lisere2',
+        'nom' => '2 liseres',
+        'image' => '2lisere.jpg',
         'prises' => ['O soto gari', 'Ko soto gari', 'Hiza guruma', 'Morote seoï nage', 'O-goshi', 'Tate-shiho-gatame', 'Yoko-shiho-gatame', 'Hon-gesa-gatame'],
         'retournements' => ['Retournement sur le côté – coude à deux mains', 'Retournement sur le côté – coude et cheville', 'Retournement de face'],
         'situations' => ['Maîtrise des chutes', 'Projeter un adversaire'],

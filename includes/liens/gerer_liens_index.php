@@ -24,6 +24,12 @@ $defaultLinks = [
         'url' => 'https://market-factory.fr/judo-club-mormant/',
     ],
     [
+        'key' => 'home_mon_compte',
+        'description' => 'Bouton "Mon compte FFJudo"',
+        'title' => 'Mon compte FFJudo',
+        'url' => 'https://moncompte.ffjudo.com',
+    ],
+    [
         'key' => 'home_craqs',
         'description' => 'Bouton "Commander les barres"',
         'title' => 'Commander les barres',
@@ -55,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $stmt = $pdo->prepare(
                 'INSERT INTO index_links_jcm (link_key, label, title, url, display_order) VALUES (?, ?, ?, ?, ?) '
-                . 'ON DUPLICATE KEY UPDATE label = VALUES(label), title = VALUES(title), url = VALUES(url), display_order = VALUES(display_order)'
+                    . 'ON DUPLICATE KEY UPDATE label = VALUES(label), title = VALUES(title), url = VALUES(url), display_order = VALUES(display_order)'
             );
 
             foreach ($defaultLinks as $index => $link) {

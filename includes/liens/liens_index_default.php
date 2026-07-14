@@ -16,6 +16,11 @@ $defaultIndexLinks = [
         'title' => 'Vêtements Club',
         'url' => 'https://market-factory.fr/judo-club-mormant/',
     ],
+    'home_mon_compte' => [
+        'label' => 'Mon compte FFJudo',
+        'title' => 'Mon compte FFJudo',
+        'url' => 'https://moncompte.ffjudo.com',
+    ],
     'home_craqs' => [
         'label' => 'Partenaire Les Craq\'s',
         'title' => 'Commander les barres',
@@ -44,4 +49,5 @@ try {
 $homeInscriptionLink = $indexLinks['home_inscription'];
 $homeKimonosLink = $indexLinks['home_kimonos'];
 $homeVetementsLink = $indexLinks['home_vetements'];
+$homeMonCompteLink = $indexLinks['home_mon_compte'];
 $homeCraqsLink = $indexLinks['home_craqs'];

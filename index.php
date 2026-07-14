@@ -210,7 +210,7 @@ include __DIR__ . '/includes/liens/liens_index_default.php';
 
             <section id="inscriptions" class="mb-5 scroll-margin">
                 <div class="row g-4 text-center">
-                    <div class="col-md-4">
+                    <div class="col-md-6 col-lg-3">
                         <div class="card h-100 border-0 shadow-sm p-4 rounded-4 hover-lift">
                             <div class="icon-shape bg-red-light text-judo-red mx-auto mb-3"><i
                                     class="bi bi-pencil-square fs-3"></i></div>
@@ -223,7 +223,7 @@ include __DIR__ . '/includes/liens/liens_index_default.php';
                                 class="btn btn-judo-red mt-auto"><?= htmlspecialchars($homeInscriptionLink['title']) ?></a>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6 col-lg-3">
                         <div class="card h-100 border-0 shadow-sm p-4 rounded-4 hover-lift">
                             <div class="icon-shape bg-dark-light text-dark mx-auto mb-3"><i
                                     class="bi bi-bag-check fs-3"></i></div>
@@ -242,7 +242,20 @@ include __DIR__ . '/includes/liens/liens_index_default.php';
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card h-100 border-0 shadow-sm p-4 rounded-4 hover-lift">
+                            <div class="icon-shape bg-primary-subtle text-primary mx-auto mb-3"><i
+                                    class="bi bi-person-circle fs-3"></i></div>
+                            <h3 class="h5 fw-bold"><?= htmlspecialchars($homeMonCompteLink['label']) ?></h3>
+                            <p class="text-muted small">Accédez à votre espace personnel FFJudo pour gérer votre compte
+                                facilement.</p>
+                            <a href="<?= htmlspecialchars($homeMonCompteLink['url'], ENT_QUOTES, 'UTF-8') ?>"
+                                target="_blank" rel="noopener noreferrer"
+                                title="<?= htmlspecialchars($homeMonCompteLink['title']) ?>"
+                                class="btn btn-primary mt-auto"><?= htmlspecialchars($homeMonCompteLink['title']) ?></a>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
                         <div class="card h-100 border-0 shadow-sm p-4 rounded-4 hover-lift">
                             <div class="icon-shape bg-warning-light text-warning mx-auto mb-3"><i
                                     class="bi bi-cart3 fs-3"></i></div>
@@ -365,4 +378,3 @@ include __DIR__ . '/includes/liens/liens_index_default.php';
 </body>
 
 </html>
-
