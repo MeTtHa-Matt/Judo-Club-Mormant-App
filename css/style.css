@@ -4961,3 +4961,88 @@ table.bo-table td.bo-date {
     opacity: 1;
   }
 }
+
+/* ---------------------------------------------------------------
+           Petites retouches propres à cette page (n'écrasent rien
+           dans style.css, n'ajoutent que ce dont admin.php a besoin)
+           --------------------------------------------------------------- */
+
+        /* Alerte maintenance : variante "avertissement" plus visible que
+           le vert par défaut de .bo-alert (qui reste utilisé ailleurs) */
+        .bo-alert-warning {
+            background: #fff4e5;
+            border-color: #f6c98a;
+            color: #8a4b06;
+        }
+
+        .bo-alert-warning i {
+            color: var(--bo-red);
+        }
+
+        /* Icône ronde dans chaque carte de stat, cohérente avec
+           .maintenance-icon déjà présent dans le thème */
+        .bo-stat-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.05rem;
+            background: rgba(179, 34, 43, 0.08);
+            color: var(--bo-red);
+            margin-bottom: 0.65rem;
+        }
+
+        .bo-stat-card {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bo-stat-card p:first-of-type {
+            margin-top: -0.15rem;
+        }
+
+        /* Puce de statut dans la liste "Statut rapide" */
+        .bo-stat-item strong {
+            color: var(--bo-red);
+            font-family: "JetBrains Mono", monospace;
+        }
+
+        /* Ligne d'un signalement récent : sujet + auteur sur une ligne,
+           date en dessous sur mobile pour éviter l'écrasement */
+        .bo-report-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+            background: #f8f4e8;
+            border: 1px solid var(--bo-line);
+            border-radius: 14px;
+            padding: 0.85rem 1rem;
+        }
+
+        .bo-report-subject {
+            font-weight: 700;
+            color: var(--bo-ink);
+            font-size: 0.92rem;
+        }
+
+        .bo-report-meta {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 0.5rem;
+            color: #5a5348;
+            font-size: 0.8rem;
+        }
+
+        .bo-report-date {
+            font-family: "JetBrains Mono", monospace;
+            color: var(--bo-blue);
+        }
+
+        @media (min-width: 576px) {
+            .bo-report-meta {
+                font-size: 0.85rem;
+        }
+            }
