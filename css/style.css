@@ -205,31 +205,78 @@ button:focus-visible,
   }
 
   /* Mobile performance: reduce expensive effects and smooth collapse */
+  /* New animation: slide down with a gentle overshoot (fast, lightweight) */
+  @keyframes navDropIn {
+    0% {
+      opacity: 0;
+      transform: translateY(-18px) scaleY(0.96);
+    }
+    65% {
+      opacity: 1;
+      transform: translateY(8px) scaleY(1.02);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scaleY(1);
+    }
+  }
+
+  @keyframes navDropOut {
+    0% {
+      opacity: 1;
+      transform: translateY(0) scaleY(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-12px) scaleY(0.98);
+    }
+  }
+
   .navbar-collapse {
-    transition:
-      height 260ms ease,
-      opacity 200ms ease;
-    will-change: height, opacity, transform;
+    transform-origin: top center;
+    will-change: transform, opacity;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
-    transform: translateZ(0);
+    opacity: 0;
+    transform: translateZ(0) translateY(-18px) scaleY(0.96);
+    overflow: hidden;
+    pointer-events: none;
   }
 
   .navbar-collapse.collapsing {
-    transition:
-      height 260ms cubic-bezier(0.2, 0.8, 0.2, 1),
-      opacity 200ms ease;
-    opacity: 0.98;
+    animation: navDropOut 200ms cubic-bezier(0.33, 0.0, 0.67, 1) forwards;
+    box-shadow: none;
+    pointer-events: none;
   }
 
   .navbar-collapse.show {
-    opacity: 1;
+    animation: navDropIn 360ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.12));
+    pointer-events: auto;
+  }
+
+  /* Respect users who prefer reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .navbar-collapse,
+    .navbar-collapse.collapsing,
+    .navbar-collapse.show {
+      animation: none !important;
+      transition: none !important;
+      transform: none !important;
+      opacity: 1 !important;
+    }
   }
 
   /* Disable heavy blur on small screens while menu animates */
   .custom-navbar .navbar-collapse {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
+  }
+
+  /* Re-enable a subtle blur when the menu is visible for a premium look */
+  .custom-navbar .navbar-collapse.show {
+    backdrop-filter: blur(6px) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
   }
 
   /* Reduce transform-based hover effects for touch devices to avoid jank */
@@ -240,6 +287,17 @@ button:focus-visible,
 
   .custom-navbar .nav-link::after {
     transition: width 180ms ease;
+  }
+
+  /* Ensure toggler stays above the collapsed menu on small screens */
+  .custom-navbar .navbar-toggler {
+    position: relative;
+    z-index: 2147483649;
+  }
+
+  .custom-navbar .navbar-collapse {
+    position: relative;
+    z-index: 2147483648;
   }
 }
 

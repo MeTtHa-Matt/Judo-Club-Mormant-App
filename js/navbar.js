@@ -24,28 +24,74 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  if (toggler && collapse) {
-    toggler.addEventListener("click", function (event) {
-      event.preventDefault();
-      const isExpanded = toggler.getAttribute("aria-expanded") === "true";
-      toggler.setAttribute("aria-expanded", String(!isExpanded));
-      collapse.classList.toggle("show", !isExpanded);
-    });
+  function setupCollapseBehavior() {
+    if (!toggler || !collapse) return;
 
-    collapse.querySelectorAll("a").forEach((link) => {
-      link.addEventListener("click", function () {
-        collapse.classList.remove("show");
-        toggler.setAttribute("aria-expanded", "false");
+    // If Bootstrap's Collapse API is available, use it to avoid conflicts
+    let collapseInstance = null;
+    if (window.bootstrap && window.bootstrap.Collapse) {
+      collapseInstance = window.bootstrap.Collapse.getOrCreateInstance(collapse, { toggle: false });
+
+      toggler.addEventListener("click", function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        collapseInstance.toggle();
       });
-    });
 
-    document.addEventListener("click", function (event) {
-      if (!collapse.contains(event.target) && !toggler.contains(event.target)) {
-        collapse.classList.remove("show");
-        toggler.setAttribute("aria-expanded", "false");
-      }
+      collapse.addEventListener('shown.bs.collapse', function () {
+        toggler.setAttribute('aria-expanded', 'true');
+      });
+
+      collapse.addEventListener('hidden.bs.collapse', function () {
+        toggler.setAttribute('aria-expanded', 'false');
+      });
+
+      collapse.querySelectorAll("a").forEach((link) => {
+        link.addEventListener("click", function () {
+          collapseInstance.hide();
+        });
+      });
+
+      document.addEventListener("click", function (event) {
+        if (!collapse.contains(event.target) && !toggler.contains(event.target)) {
+          collapseInstance.hide();
+        }
+      });
+    } else {
+      // Fallback if Bootstrap isn't loaded yet: use previous manual handling
+      toggler.addEventListener("click", function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        const isExpanded = toggler.getAttribute("aria-expanded") === "true";
+        toggler.setAttribute("aria-expanded", String(!isExpanded));
+        collapse.classList.toggle("show", !isExpanded);
+      });
+
+      collapse.querySelectorAll("a").forEach((link) => {
+        link.addEventListener("click", function () {
+          collapse.classList.remove("show");
+          toggler.setAttribute("aria-expanded", "false");
+        });
+      });
+
+      document.addEventListener("click", function (event) {
+        if (!collapse.contains(event.target) && !toggler.contains(event.target)) {
+          collapse.classList.remove("show");
+          toggler.setAttribute("aria-expanded", "false");
+        }
+      });
+    }
+  }
+
+  // If bootstrap is already loaded, set up immediately, otherwise wait for load
+  if (window.bootstrap && window.bootstrap.Collapse) {
+    setupCollapseBehavior();
+  } else {
+    window.addEventListener('load', function () {
+      setupCollapseBehavior();
     });
   }
+  
 
   if (profileToggle && profileMenu) {
     profileToggle.addEventListener("click", function (event) {
