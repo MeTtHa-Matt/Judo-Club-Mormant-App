@@ -7,14 +7,56 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 $dotenv = Dotenv\Dotenv::createUnsafeImmutable(__DIR__ . '/../../');
 $dotenv->load();
 
+function loadEnvOverridesFromDotenv(): void
+{
+    $envFile = __DIR__ . '/../../.env';
+    if (!is_file($envFile)) {
+        return;
+    }
+
+    $lines = @file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    if (!is_array($lines)) {
+        return;
+    }
+
+    foreach ($lines as $line) {
+        $trimmed = trim($line);
+        if ($trimmed === '' || str_starts_with($trimmed, '#')) {
+            continue;
+        }
+
+        $separatorPosition = strpos($trimmed, '=');
+        if ($separatorPosition === false) {
+            continue;
+        }
+
+        $key = trim(substr($trimmed, 0, $separatorPosition));
+        $value = trim(substr($trimmed, $separatorPosition + 1));
+
+        if ($value !== '' && (($value[0] === '"' && substr($value, -1) === '"') || ($value[0] === "'" && substr($value, -1) === "'"))) {
+            $value = substr($value, 1, -1);
+        }
+
+        if ($key === '') {
+            continue;
+        }
+
+        putenv($key . '=' . $value);
+        $_ENV[$key] = $value;
+        $_SERVER[$key] = $value;
+    }
+}
+
+loadEnvOverridesFromDotenv();
+
 function getMailerSettings(): array
 {
-    $host = trim((string) getenv('MAIL_HOST'));
-    $port = (int) getenv('MAIL_PORT');
-    $username = trim((string) getenv('MAIL_USERNAME'));
-    $from = trim((string) getenv('MAIL_FROM'));
-    $fromName = trim((string) getenv('MAIL_FROM_NAME'));
-    $encryption = strtolower(trim((string) getenv('MAIL_ENCRYPTION')));
+    $host = trim((string) getEnvValue('MAIL_HOST', ''));
+    $port = (int) getEnvValue('MAIL_PORT', '0');
+    $username = trim((string) getEnvValue('MAIL_USERNAME', ''));
+    $from = trim((string) getEnvValue('MAIL_FROM', ''));
+    $fromName = trim((string) getEnvValue('MAIL_FROM_NAME', ''));
+    $encryption = strtolower(trim((string) getEnvValue('MAIL_ENCRYPTION', '')));
     $secure = $encryption === 'tls' ? PHPMailer::ENCRYPTION_STARTTLS : PHPMailer::ENCRYPTION_SMTPS;
 
     return [
@@ -33,7 +75,7 @@ function testMailerConfiguration(): array
     $issues = [];
     $settings = getMailerSettings();
 
-    if (empty(getenv('MAIL_PASSWORD'))) {
+    if (empty(getEnvValue('MAIL_PASSWORD', ''))) {
         $issues[] = 'MAIL_PASSWORD absent ou vide';
     }
 
@@ -69,6 +111,108 @@ function getApplicationBaseUrl(): string
     return $scheme . '://' . $host;
 }
 
+function getEnvValue(string $key, ?string $default = null): ?string
+{
+    $value = getenv($key);
+    if ($value !== false && $value !== null && trim((string) $value) !== '') {
+        return trim((string) $value);
+    }
+
+    if (isset($_ENV[$key]) && trim((string) $_ENV[$key]) !== '') {
+        return trim((string) $_ENV[$key]);
+    }
+
+    if (isset($_SERVER[$key]) && trim((string) $_SERVER[$key]) !== '') {
+        return trim((string) $_SERVER[$key]);
+    }
+
+    $envFile = __DIR__ . '/../../.env';
+    if (is_file($envFile)) {
+        $lines = @file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        if (is_array($lines)) {
+            foreach ($lines as $line) {
+                $trimmed = trim($line);
+                if ($trimmed === '' || str_starts_with($trimmed, '#')) {
+                    continue;
+                }
+
+                $separatorPosition = strpos($trimmed, '=');
+                if ($separatorPosition === false) {
+                    continue;
+                }
+
+                $candidateKey = trim(substr($trimmed, 0, $separatorPosition));
+                if ($candidateKey !== $key) {
+                    continue;
+                }
+
+                $candidateValue = trim(substr($trimmed, $separatorPosition + 1));
+                if ($candidateValue !== '' && (($candidateValue[0] === '"' && substr($candidateValue, -1) === '"') || ($candidateValue[0] === "'" && substr($candidateValue, -1) === "'"))) {
+                    $candidateValue = substr($candidateValue, 1, -1);
+                }
+
+                if (trim((string) $candidateValue) !== '') {
+                    return trim((string) $candidateValue);
+                }
+            }
+        }
+    }
+
+    return $default;
+}
+
+function getReportRecipient(): string
+{
+    $recipient = getEnvValue('MAIL_REPORT_TO');
+    if ($recipient !== null && $recipient !== '') {
+        return $recipient;
+    }
+
+    $envFile = __DIR__ . '/../../.env';
+    if (is_file($envFile)) {
+        $lines = @file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        if (is_array($lines)) {
+            foreach ($lines as $line) {
+                $trimmed = trim($line);
+                if ($trimmed === '' || str_starts_with($trimmed, '#')) {
+                    continue;
+                }
+
+                $separatorPosition = strpos($trimmed, '=');
+                if ($separatorPosition === false) {
+                    continue;
+                }
+
+                $key = trim(substr($trimmed, 0, $separatorPosition));
+                if ($key !== 'MAIL_REPORT_TO') {
+                    continue;
+                }
+
+                $value = trim(substr($trimmed, $separatorPosition + 1));
+                if ($value !== '' && (($value[0] === '"' && substr($value, -1) === '"') || ($value[0] === "'" && substr($value, -1) === "'"))) {
+                    $value = substr($value, 1, -1);
+                }
+
+                if (trim((string) $value) !== '') {
+                    return trim((string) $value);
+                }
+            }
+        }
+    }
+
+    return '24mgimenez@gmail.com';
+}
+
+function getReportRecipientName(): string
+{
+    $name = getEnvValue('MAIL_REPORT_NAME');
+    if ($name !== null && $name !== '') {
+        return $name;
+    }
+
+    return 'Signalements JCM';
+}
+
 function getMailDomainFromAddress(string $address): string
 {
     $parts = explode('@', $address, 2);
@@ -94,7 +238,7 @@ function configureSecureSmtpMailer(PHPMailer $mail, array $settings, ?string $re
     $mail->SMTPAuth = true;
     $mail->Host = $settings['host'];
     $mail->Username = $settings['username'];
-    $mail->Password = getenv('MAIL_PASSWORD');
+    $mail->Password = getEnvValue('MAIL_PASSWORD', '');
     $mail->SMTPSecure = $settings['secure'];
     $mail->Port = $settings['port'];
     $mail->SMTPAutoTLS = true;
@@ -115,7 +259,6 @@ function configureSecureSmtpMailer(PHPMailer $mail, array $settings, ?string $re
     $mail->addCustomHeader('X-XSS-Protection', '1; mode=block');
     $mail->addCustomHeader('Referrer-Policy', 'no-referrer');
     $mail->addCustomHeader('Auto-Submitted', 'auto-generated');
-    $mail->addCustomHeader('Message-ID', '<' . bin2hex(random_bytes(16)) . '@' . getMailDomainFromAddress($settings['from']) . '>');
     $mail->addCustomHeader('X-Mailer', 'JCM-App');
 
     if ($isBulk) {
@@ -276,7 +419,16 @@ function sendSiteContactEmail(string $subject, string $htmlBody, ?string $replyT
         };
 
         configureSecureSmtpMailer($mail, $settings, $replyTo, $replyToName);
-        $mail->addAddress($settings['from'], $settings['fromName']);
+
+        $reportRecipient = getReportRecipient();
+        $reportRecipientName = getReportRecipientName();
+        if (!filter_var($reportRecipient, FILTER_VALIDATE_EMAIL)) {
+            $reportRecipient = $settings['from'];
+            $reportRecipientName = $settings['fromName'];
+        }
+
+        $mail->clearAddresses();
+        $mail->addAddress($reportRecipient, $reportRecipientName);
 
         $mail->isHTML(true);
         $mail->Subject = $subject;
