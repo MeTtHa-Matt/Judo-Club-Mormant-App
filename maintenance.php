@@ -25,12 +25,11 @@ require_once __DIR__ . "/includes/general/notifications.php";
     <link rel="shortcut icon" href="img/jcm.png">
 </head>
 
-<body>
-    <main class="container py-5">
-        <div class="card border-0 shadow-sm rounded-4 p-5 text-center">
+<body class="maintenance-page">
+    <main class="container py-5 maintenance-main">
+        <div class="card border-0 shadow-sm rounded-4 p-5 text-center maintenance-card">
             <h1 class="display-6 fw-bold text-judo-red">Site en maintenance</h1>
             <p class="lead mt-4">Le site est temporairement indisponible. Nous revenons très bientôt.</p>
-            <a href="index.php" class="btn btn-judo-outline mt-3">Retour à l'accueil</a>
         </div>
     </main>
 

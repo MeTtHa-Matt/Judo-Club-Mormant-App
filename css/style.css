@@ -37,6 +37,23 @@ body {
   text-size-adjust: 100%;
 }
 
+body.maintenance-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.maintenance-main {
+  flex: 1 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.maintenance-card {
+  width: min(100%, 720px);
+}
+
 a,
 button,
 input,

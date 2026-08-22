@@ -8,6 +8,9 @@ if (!isset($pdo)) {
 cleanupExpiredUnverifiedAccounts($pdo);
 
 $currentPage = basename($_SERVER['PHP_SELF']);
+$appBasePath = rtrim(dirname($_SERVER['SCRIPT_NAME'] ?? '/'), '/\\');
+$appBasePath = $appBasePath === '/' ? '' : $appBasePath;
+$redirectBase = $appBasePath . '/';
 
 $maintenanceActive = (int) $pdo->query('SELECT maintenance FROM account LIMIT 1')->fetchColumn();
 
@@ -17,7 +20,7 @@ if (isset($_SESSION['id'])) {
     $ban = (int) $stmt->fetchColumn();
 
     if ($ban === 1 && $currentPage !== 'ban.php') {
-        header('Location: /JCM-App/ban.php');
+        header('Location: ' . $redirectBase . 'ban.php');
         exit;
     }
 }
@@ -30,7 +33,7 @@ if (
     && !in_array($currentPage, $allowedDuringMaintenance, true)
     && !$isAdmin
 ) {
-    header('Location: /JCM-App/maintenance.php');
+    header('Location: ' . $redirectBase . 'maintenance.php');
     exit;
 }
 
@@ -47,6 +50,6 @@ if (
     && !(isset($_SESSION['reglement_accepte']) && (int) $_SESSION['reglement_accepte'] === 1)
     && !$isAdmin
 ) {
-    header('Location: /JCM-App/reglement_accept.php');
+    header('Location: ' . $redirectBase . 'reglement_accept.php');
     exit;
 }
