@@ -72,6 +72,12 @@ document.addEventListener("DOMContentLoaded", function () {
           event.stopPropagation();
           if (button.disabled) return;
 
+          if (action === "delete_account") {
+            const userName = button.closest(".user-card")?.querySelector(".fw-bold")?.textContent?.trim() || "ce compte";
+            const confirmed = window.confirm(`Voulez-vous vraiment supprimer ${userName} ?`);
+            if (!confirmed) return;
+          }
+
           button.disabled = true;
           button.classList.add("opacity-75");
 

@@ -107,6 +107,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             ? "Le mode maintenance est activé. Le site est désormais inaccessible aux membres non-admin."
             : "Le mode maintenance est désactivé. Le site est de nouveau accessible à tous.";
     }
+
+    if ($_POST['action'] === 'delete_account') {
+        $targetId = (int) ($_POST['user_id'] ?? 0);
+
+        if ($targetId === $userId) {
+            $flashError = "Vous ne pouvez pas supprimer votre propre compte depuis cette interface.";
+        } else {
+            $stmt = $pdo->prepare("SELECT firstname, lastname FROM account WHERE id = ?");
+            $stmt->execute([$targetId]);
+            $target = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$target) {
+                $flashError = "Utilisateur introuvable.";
+            } else {
+                $delete = $pdo->prepare("DELETE FROM account WHERE id = ?");
+                $delete->execute([$targetId]);
+                $flashSuccess = htmlspecialchars($target['firstname'] . ' ' . $target['lastname']) . " a été supprimé.";
+            }
+        }
+    }
 }
 
 $maintenanceOn = (bool) $pdo->query("SELECT maintenance FROM account LIMIT 1")->fetchColumn();
@@ -221,6 +241,12 @@ function renderUserResults(array $users, string $search, int $userId): string
                                                 data-user-id="<?= (int) $u['id'] ?>"
                                                 <?= (int) $u['email_verified'] === 1 ? 'disabled' : '' ?>>
                                                 Valider le mail
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-user-action btn-user-delete btn-outline-danger"
+                                                data-user-action="delete_account"
+                                                data-user-id="<?= (int) $u['id'] ?>"
+                                                <?= $isSelf ? 'disabled title="Vous ne pouvez pas supprimer votre propre compte"' : '' ?>>
+                                                Supprimer
                                             </button>
                                         </div>
                                     </div>
