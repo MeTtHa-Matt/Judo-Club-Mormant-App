@@ -122,6 +122,9 @@ button:focus-visible,
   z-index: 2147483648;
   overflow: visible;
   animation: slideDown 0.6s ease-out;
+  transition: background 300ms cubic-bezier(0.22,1,0.36,1),
+              box-shadow 300ms cubic-bezier(0.22,1,0.36,1),
+              -webkit-backdrop-filter 300ms cubic-bezier(0.22,1,0.36,1);
 }
 
 @keyframes slideDown {
@@ -205,15 +208,15 @@ button:focus-visible,
   }
 
   /* Mobile performance: reduce expensive effects and smooth collapse */
-  /* New animation: slide down with a gentle overshoot (fast, lightweight) */
+  /* New animation: slide down with a gentle overshoot and staggered items */
   @keyframes navDropIn {
     0% {
       opacity: 0;
-      transform: translateY(-18px) scaleY(0.96);
+      transform: translateY(-18px) scaleY(0.98);
     }
-    65% {
+    55% {
       opacity: 1;
-      transform: translateY(8px) scaleY(1.02);
+      transform: translateY(10px) scaleY(1.02);
     }
     100% {
       opacity: 1;
@@ -228,7 +231,7 @@ button:focus-visible,
     }
     100% {
       opacity: 0;
-      transform: translateY(-12px) scaleY(0.98);
+      transform: translateY(-12px) scaleY(0.99);
     }
   }
 
@@ -238,22 +241,78 @@ button:focus-visible,
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
     opacity: 0;
-    transform: translateZ(0) translateY(-18px) scaleY(0.96);
+    transform: translateZ(0) translateY(-18px) scaleY(0.98);
     overflow: hidden;
     pointer-events: none;
   }
 
   .navbar-collapse.collapsing {
-    animation: navDropOut 200ms cubic-bezier(0.33, 0.0, 0.67, 1) forwards;
+    animation: navDropOut 220ms cubic-bezier(0.33, 0.0, 0.67, 1) forwards;
     box-shadow: none;
     pointer-events: none;
   }
 
   .navbar-collapse.show {
-    animation: navDropIn 360ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation: navDropIn 420ms cubic-bezier(0.22, 1.2, 0.36, 1) forwards;
     filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.12));
     pointer-events: auto;
+    overflow: visible !important;
   }
+
+  /* Disable container animation to avoid overflow visual artifacts
+     Keep item transitions (stagger) intact so menu items still fade/slide. */
+  .navbar-collapse,
+  .navbar-collapse.collapsing,
+  .navbar-collapse.show {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    pointer-events: auto !important;
+  }
+
+  /* When menu is open, give header a slightly stronger backdrop and shadow */
+  .custom-navbar.menu-open {
+    -webkit-backdrop-filter: blur(22px);
+    backdrop-filter: blur(22px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.16);
+  }
+
+  /* Staggered fade/slide for menu items for a more natural entrance */
+  .navbar-collapse .navbar-nav .nav-item {
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 320ms cubic-bezier(0.22, 1, 0.36, 1), transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .navbar-collapse.show .navbar-nav .nav-item {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .navbar-collapse.show .navbar-nav .nav-item:nth-child(1) { transition-delay: 80ms; }
+  .navbar-collapse.show .navbar-nav .nav-item:nth-child(2) { transition-delay: 120ms; }
+  .navbar-collapse.show .navbar-nav .nav-item:nth-child(3) { transition-delay: 160ms; }
+  .navbar-collapse.show .navbar-nav .nav-item:nth-child(4) { transition-delay: 200ms; }
+  .navbar-collapse.show .navbar-nav .nav-item:nth-child(5) { transition-delay: 240ms; }
+  .navbar-collapse.show .navbar-nav .nav-item:nth-child(6) { transition-delay: 280ms; }
+
+  /* Animated header items: brand, toggler, buttons, profile, nav items */
+  .animated-header-item {
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 320ms cubic-bezier(0.22, 1, 0.36, 1), transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+  }
+
+  .animated-header-item.visible {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+  }
+
+  /* Ensure brand and toggler animate nicely (slightly faster) */
+  .navbar-brand-custom.animated-header-item { transition-duration: 260ms; }
+  .navbar-toggler.animated-header-item { transition-duration: 220ms; }
 
   /* Respect users who prefer reduced motion */
   @media (prefers-reduced-motion: reduce) {
@@ -4296,19 +4355,25 @@ table.bo-table td.bo-date {
   overflow: hidden;
   min-width: 260px;
   position: absolute !important;
+    /* Position the menu directly under the profile toggle (desktop)
+      Center it under the avatar using left:50% and translateX(-50%). */
+    top: calc(100% + 8px) !important;
+      left: 50% !important;
+      right: auto !important;
+      transform: translateX(-50%) !important;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   animation: profileMenuFade 0.18s ease-out;
-  z-index: 2147483648;
+  z-index: 2147483650;
 }
 
 @keyframes profileMenuFade {
   from {
     opacity: 0;
-    transform: translateY(-8px);
+    transform: translate(-50%, -8px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate(-50%, 0);
   }
 }
 
@@ -4391,12 +4456,11 @@ table.bo-table td.bo-date {
     transform: none !important;
   }
 
+  /* By default on small screens, profile menu is a centered modal. However
+     when inside the opened navbar (collapse), show it anchored under the avatar
+     so it appears in the flow of the menu. */
   .profile-menu-judo,
   .profile-menu-judo.show {
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
     width: min(320px, calc(100vw - 1rem));
     max-width: calc(100vw - 1rem);
     border-radius: 16px;
@@ -4408,6 +4472,28 @@ table.bo-table td.bo-date {
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
     pointer-events: auto;
   }
+
+  /* Centered modal (when not inside the collapsed navbar) */
+  body :not(.navbar-collapse) > .profile-menu-judo,
+  .profile-menu-judo.modal-centered {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+  }
+
+  /* When the navbar is open, anchor the menu under the avatar within the collapse */
+  .navbar-collapse .profile-menu-judo,
+  .navbar-collapse .profile-menu-judo.show {
+    position: absolute !important;
+    top: calc(100% + 6px) !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    z-index: 2147483650;
+    width: min(320px, calc(100vw - 2rem));
+  }
 }
 
 /* Centrage du bouton profil dans la navbar */
@@ -4417,6 +4503,21 @@ table.bo-table td.bo-date {
   position: relative;
   overflow: visible;
   z-index: 2147483648;
+}
+
+/* Desktop: force menu anchored to avatar using absolute positioning
+   This overrides Popper/bootstrap inline positioning via !important. */
+@media (min-width: 992px) {
+  .profile-dropdown-judo { position: relative !important; }
+  .profile-menu-judo {
+    position: absolute !important;
+    top: calc(100% + 8px) !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    max-width: 320px;
+    width: auto;
+  }
 }
 
 /* Sur mobile : le bouton profil prend toute la largeur dispo et se centre */

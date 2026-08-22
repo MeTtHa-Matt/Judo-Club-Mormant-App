@@ -51,7 +51,7 @@
                     }
                     ?>
 
-                    <button id="profileDropdownToggle" class="profile-toggle-judo dropdown-toggle" type="button"
+                    <button id="profileDropdownToggle" class="profile-toggle-judo" type="button"
                         aria-expanded="false">
                         <span class="profile-avatar-wrapper">
                             <img src="img/pdps/<?= htmlspecialchars($navbarPdp) ?>" alt="Avatar"
