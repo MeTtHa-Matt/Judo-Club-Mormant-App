@@ -4194,6 +4194,23 @@ table.bo-table td.bo-date {
     height: 34px;
   }
 
+  /* Presence dot overlay on small avatars */
+  .user-avatar-wrapper { position: relative; display: inline-block; }
+  .user-status-dot {
+    position: absolute;
+    right: -2px;
+    bottom: -2px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #9aa0a6; /* default offline gray */
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.04);
+    transition: background-color 0.15s ease-in-out, transform 0.15s;
+  }
+  .user-status-dot.online { background: #23c552; transform: scale(1); }
+  .user-status-dot.offline { background: #9aa0a6; }
+
   .users-table-card {
     border-radius: 1rem;
   }

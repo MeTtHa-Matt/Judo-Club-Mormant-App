@@ -6,6 +6,7 @@ CREATE TABLE account (
     password VARCHAR(100) NOT NULL,
     pdp VARCHAR(255) NOT NULL DEFAULT "pdp_base.png",
     admin TINYINT(1) NOT NULL DEFAULT 0,
+    last_activity DATETIME DEFAULT NULL,
     ban TINYINT(1) NOT NULL DEFAULT 0,
     maintenance TINYINT(1) NOT NULL DEFAULT 0,
     accept_email TINYINT(1) NOT NULL DEFAULT 1,

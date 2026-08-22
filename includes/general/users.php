@@ -196,8 +196,11 @@ function renderUserResults(array $users, string $search, int $userId): string
                                     <div class="user-card-header" role="button" tabindex="0" aria-expanded="false">
                                         <div class="d-flex align-items-center gap-3 flex-grow-1">
                                             <?php $value = $u['pdp']; ?>
-                                            <img src="<?= htmlspecialchars(!empty($u['pdp']) ? "img/pdps/$value" : 'img/pdps/pdp_base.png') ?>"
-                                                alt="" class="table-user-avatar">
+                                            <div class="user-avatar-wrapper" style="position:relative; display:inline-block">
+                                                <img src="<?= htmlspecialchars(!empty($u['pdp']) ? "img/pdps/$value" : 'img/pdps/pdp_base.png') ?>"
+                                                    alt="" class="table-user-avatar">
+                                                <span class="user-status-dot" data-user-id="<?= (int) $u['id'] ?>" aria-hidden="true"></span>
+                                            </div>
                                             <div>
                                                 <div class="d-flex align-items-center gap-2 flex-wrap">
                                                     <span class="fw-bold"><?= htmlspecialchars($u['firstname'] . ' ' . $u['lastname']) ?></span>

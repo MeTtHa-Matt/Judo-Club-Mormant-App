@@ -64,11 +64,7 @@ include __DIR__ . '/includes/general/users.php'
             </div>
         <?php endif; ?>
 
-        <div class="bo-toolbar">
-            <a href="admin.php" class="bo-btn bo-btn-outline">
-                <i class="bi bi-arrow-left"></i> Retour a l'administration
-            </a>
-        </div>
+        
 
         <section
             class="maintenance-card card border-0 shadow-sm rounded-4 p-4 mb-5 <?= $maintenanceOn ? 'maintenance-active' : '' ?>">
@@ -124,6 +120,7 @@ include __DIR__ . '/includes/general/users.php'
         crossorigin="anonymous"></script>
     <script src="js/users-search.js?v=<?php echo filemtime('js/users-search.js'); ?>"></script>
     <script src="js/users-admin.js?v=<?php echo filemtime('js/users-admin.js'); ?>"></script>
+    <script src="js/users-presence.js?v=<?php echo filemtime('js/users-presence.js'); ?>"></script>
     <?php include __DIR__ . '/includes/general/footer.php'; ?>
 </body>
 

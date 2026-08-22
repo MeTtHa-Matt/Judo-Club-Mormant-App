@@ -85,7 +85,12 @@ document.addEventListener("DOMContentLoaded", function () {
       });
 
       collapse.querySelectorAll("a").forEach((link) => {
-        link.addEventListener("click", function () {
+        link.addEventListener("click", function (e) {
+          // Do not hide the navbar collapse when clicking a dropdown toggle
+          // (we want the dropdown to open instead).
+          if (link.classList.contains('dropdown-toggle') || link.getAttribute('data-bs-toggle') === 'dropdown') {
+            return;
+          }
           collapseInstance.hide();
         });
       });
@@ -144,6 +149,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
       collapse.querySelectorAll("a").forEach((link) => {
         link.addEventListener("click", function () {
+          // Ignore clicks on dropdown toggles so the submenu can open on mobile
+          if (link.classList.contains('dropdown-toggle') || link.getAttribute('data-bs-toggle') === 'dropdown') {
+            return;
+          }
           collapse.classList.remove("show");
           toggler.setAttribute("aria-expanded", "false");
         });

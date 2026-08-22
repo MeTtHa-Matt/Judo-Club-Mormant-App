@@ -68,7 +68,7 @@ if (!$me || (int) $me['admin'] !== 1) {
                     <h2 class="mb-0">Assistant IA Llama 3.1</h2>
                     <p class="mb-0 text-muted small">Conversez avec votre assistant d'administration</p>
                 </div>
-                <a href="admin.php" class="bo-btn bo-btn-outline">
+                <a href="users.php" class="bo-btn bo-btn-outline">
                     <i class="bi bi-arrow-left"></i> Retour
                 </a>
             </div>

@@ -8,6 +8,14 @@ if (!empty($token) && is_string($token)) {
 }
 
 if (isset($_SESSION['firstname'])) {
+    // mark user offline by clearing last_activity
+    if (isset($_SESSION['id'])) {
+        try {
+            $pdo->prepare('UPDATE account SET last_activity = NULL WHERE id = ?')->execute([(int) $_SESSION['id']]);
+        } catch (Exception $e) {
+            // ignore DB errors
+        }
+    }
     session_unset();
     session_destroy();
     header('Location:../../index.php?info=Vous avez bien été déconnecté');

@@ -27,8 +27,15 @@
                     <a class="nav-link" href="<?= $appRoot ?>/reglement.php">Règlement intérieur</a>
                 </li>
                 <?php if (isset($_SESSION['admin']) && (int) $_SESSION['admin'] === 1): ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?= $appRoot ?>/admin.php">Administration</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Administration</a>
+                        <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                            <li><a class="dropdown-item" href="<?= $appRoot ?>/users.php">Utilisateurs</a></li>
+                            <li><a class="dropdown-item" href="<?= $appRoot ?>/mailing.php">Envoyer un mail</a></li>
+                            <li><a class="dropdown-item" href="<?= $appRoot ?>/gerer_competitions.php">Compétitions</a></li>
+                            <li><a class="dropdown-item" href="<?= $appRoot ?>/gerer_index_liens.php">Liens d'accueil</a></li>
+                            <li><a class="dropdown-item" href="<?= $appRoot ?>/chat.php">Assistant IA</a></li>
+                        </ul>
                     </li>
                 <?php endif; ?>
             </ul>
@@ -118,6 +125,14 @@
 
 <?php if (function_exists('jcm_render_notifications')): ?>
     <?php jcm_render_notifications(); ?>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['id'])): ?>
+    <script>
+        window.JCM = window.JCM || {};
+        window.JCM.appRoot = '<?= $appRoot ?>';
+    </script>
+    <script src="js/users-presence.js?v=<?php echo filemtime(__DIR__ . '/../../js/users-presence.js'); ?>"></script>
 <?php endif; ?>
 
 <script src="js/navbar.js"></script>

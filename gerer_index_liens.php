@@ -47,11 +47,6 @@ include __DIR__ . '/includes/liens/gerer_liens_index.php'
     </header>
 
     <main class="container pb-5">
-        <div class="bo-toolbar">
-            <a href="admin.php" class="bo-btn bo-btn-outline">
-                <i class="bi bi-arrow-left"></i> Retour à l'administration
-            </a>
-        </div>
 
         <?php if ($success): ?>
             <div class="bo-alert"><i class="bi bi-check-circle-fill"></i> Les liens ont bien été enregistrés.</div>

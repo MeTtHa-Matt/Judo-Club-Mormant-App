@@ -47,11 +47,6 @@ include __DIR__ . '/includes/general/mailing.php';
     </header>
 
     <main class="container">
-        <div class="bo-toolbar">
-            <a href="admin.php" class="bo-btn bo-btn-outline">
-                <i class="bi bi-arrow-left"></i> Retour a l'administration
-            </a>
-        </div>
         <div class="mailing-shell mx-auto">
             <div class="card mailing-card">
                 <div class="card-body p-4 p-md-5">
