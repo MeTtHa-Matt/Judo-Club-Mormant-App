@@ -370,11 +370,39 @@ include __DIR__ . '/includes/liens/liens_index_default.php';
 
     </main>
 
+    <div class="modal fade install-modal" id="install-app-modal" tabindex="-1" aria-labelledby="install-app-modal-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <div class="modal-title-wrap">
+                        <div class="install-modal-icon">
+                            <i class="bi bi-phone-fill"></i>
+                        </div>
+                        <div>
+                            <h3 class="modal-title fw-bold text-dark mb-0" id="install-app-modal-title">Installer l'application</h3>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+                <div class="modal-body text-center px-4 pb-4 pt-2">
+                    <p class="mb-4 install-modal-text">
+                        Vous êtes sur un navigateur mobile, mais la web app n'est pas encore installée sur votre appareil.
+                    </p>
+                    <div class="install-modal-actions d-flex flex-column flex-sm-row justify-content-center gap-3">
+                        <button type="button" class="btn btn-judo-outline" data-bs-dismiss="modal">Je sais</button>
+                        <a href="installer.php" class="btn btn-judo-red">Comment l'installer ?</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <?php include __DIR__ . '/includes/general/footer.php'; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
+    <script src="js/install-popup.js?v=<?php echo filemtime('js/install-popup.js'); ?>"></script>
 </body>
 
 </html>
