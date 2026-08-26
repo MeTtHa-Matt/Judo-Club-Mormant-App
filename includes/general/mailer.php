@@ -449,6 +449,38 @@ function sendSiteContactEmail(string $subject, string $htmlBody, ?string $replyT
     }
 }
 
+function sendReportVerificationCodeEmail(string $email, string $code): array
+{
+    $mail = new PHPMailer(true);
+    $settings = getMailerSettings();
+
+    try {
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return ['success' => false, 'error' => 'Adresse email invalide.'];
+        }
+
+        configureSecureSmtpMailer($mail, $settings);
+        $mail->clearAddresses();
+        $mail->addAddress($email);
+        $mail->isHTML(true);
+        $mail->Subject = 'Votre code de vérification - Judo Club Mormant';
+        $safeCode = htmlspecialchars($code, ENT_QUOTES, 'UTF-8');
+        $mail->Body = '<div style="font-family:Arial,sans-serif;line-height:1.6;color:#222">'
+            . '<h2>Vérification de votre signalement</h2>'
+            . '<p>Utilisez ce code pour confirmer votre adresse email :</p>'
+            . '<p style="font-size:28px;font-weight:700;letter-spacing:8px;color:#b30000">' . $safeCode . '</p>'
+            . '<p>Ce code expire dans 15 minutes. Si vous n’êtes pas à l’origine de cette demande, ignorez cet email.</p>'
+            . '</div>';
+        $mail->AltBody = "Votre code de vérification pour le signalement est : $code\n\nCe code expire dans 15 minutes.";
+        $mail->send();
+
+        return ['success' => true];
+    } catch (Exception $e) {
+        error_log('Erreur envoi code signalement : ' . ($mail->ErrorInfo ?: $e->getMessage()));
+        return ['success' => false, 'error' => 'Impossible d’envoyer le code de vérification.'];
+    }
+}
+
 function buildVerificationEmailHtml($firstname, $link)
 {
     return <<<HTML

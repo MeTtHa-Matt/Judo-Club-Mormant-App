@@ -1,0 +1,20 @@
+[
+    {
+        "id": "65bd3896ebbdd674c3671331",
+        "email": "24mgimenez@gmail.com",
+        "subject": "je sais pas trop",
+        "message": "j'ai un gros probleme que j'arrive pas a régler",
+        "created_at": "2026-08-26T15:42:32+00:00",
+        "ip_address": "::1",
+        "user_agent": "Mozilla/5.0 (Linux; Android 8.0.0; SM-G955U Build/R16NW) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Mobile Safari/537.36"
+    },
+    {
+        "id": "4b87dd67f06f0e338d81fb87",
+        "email": "24mgimenez@gmail.com",
+        "subject": "j'ai un probleme",
+        "message": "jfheoishfioeqhfhqhfiuhqiufheifhoirehsfiuhrifuhresfres",
+        "created_at": "2026-08-26T15:47:15+00:00",
+        "ip_address": "::1",
+        "user_agent": "Mozilla/5.0 (Linux; Android 8.0.0; SM-G955U Build/R16NW) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Mobile Safari/537.36"
+    }
+]

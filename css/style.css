@@ -790,6 +790,52 @@ button:focus-visible,
   box-shadow: 0 6px 20px rgba(230, 0, 18, 0.3);
 }
 
+.report-launcher {
+  position: fixed;
+  right: 1.75rem;
+  bottom: calc(2rem + env(safe-area-inset-bottom));
+  z-index: 1040;
+  width: 3.5rem;
+  height: 3.5rem;
+  border: 0;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--judo-red, #b3000e);
+  box-shadow: 0 8px 24px rgba(179, 0, 14, .35);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.report-launcher:hover,
+.report-launcher:focus-visible {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(179, 0, 14, .45);
+}
+
+.report-launcher i { font-size: 1.25rem; }
+
+.report-help-modal { border: 0; border-radius: 18px; }
+.report-help-icon {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  color: var(--judo-red, #b3000e);
+  background: #fff0f1;
+  font-size: 1.35rem;
+}
+
+.letter-spacing-code { letter-spacing: .55rem; font-weight: 700; }
+
+.report-thread { border-left: 4px solid var(--judo-red, #b3000e) !important; }
+.report-message { padding: 1.15rem 0; border-top: 1px solid #edf0f2; }
+.report-message:first-child { border-top: 0; }
+.report-message-content { white-space: normal; color: #40464d; line-height: 1.65; }
+
+@media (max-width: 575.98px) {
+  .report-launcher { right: 1.25rem; bottom: calc(1.5rem + env(safe-area-inset-bottom)); width: 3.25rem; height: 3.25rem; }
+}
+
 .btn-judo-red::before {
   content: "";
   position: absolute;

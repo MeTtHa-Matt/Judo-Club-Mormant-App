@@ -34,6 +34,7 @@
                             <li><a class="dropdown-item" href="<?= $appRoot ?>/mailing.php">Envoyer un mail</a></li>
                             <li><a class="dropdown-item" href="<?= $appRoot ?>/gerer_competitions.php">Compétitions</a></li>
                             <li><a class="dropdown-item" href="<?= $appRoot ?>/gerer_index_liens.php">Liens d'accueil</a></li>
+                            <li><a class="dropdown-item" href="<?= $appRoot ?>/reports.php">Signalements</a></li>
                             <li><a class="dropdown-item" href="<?= $appRoot ?>/chat.php">Assistant IA</a></li>
                         </ul>
                     </li>
@@ -98,12 +99,6 @@
                         <li>
                             <a class="dropdown-item profile-menu-item" href="<?= $appRoot ?>/mes_enfants.php">
                                 <i class="bi bi-people-fill"></i><span>Mes enfants</span>
-                            </a>
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item profile-menu-item" href="<?= $appRoot ?>/signaler.php">
-                                <i class="bi bi-flag-fill"></i><span>Signaler un problème</span>
                             </a>
                         </li>
 

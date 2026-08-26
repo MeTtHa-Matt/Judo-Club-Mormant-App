@@ -1,8 +1,4 @@
 <?php
-require_once __DIR__ . '/includes/general/access_check.php';
-require_once __DIR__ . "/includes/general/notifications.php";
-require_once __DIR__ . '/includes/general/mailer.php';
-
 include __DIR__ . '/includes/general/signaler.php';
 ?>
 <!DOCTYPE html>
@@ -39,8 +35,7 @@ include __DIR__ . '/includes/general/signaler.php';
             </div>
             <h1 class="display-4 fw-bolder text-uppercase tracking-wider hero-title">Signaler un problème</h1>
             <div class="hero-divider"></div>
-            <p class="lead fs-5 fw-light mt-3 hero-subtitle">Prévenez-nous d'un disfonctionnement du site ou du
-                comportement malsain d'un utilisateur. Maximum 3 signalements par semaine.</p>
+            <p class="lead fs-5 fw-light mt-3 hero-subtitle">Un problème sur le site ? Envoyez-nous un signalement vérifié.</p>
         </div>
     </header>
 
@@ -60,14 +55,32 @@ include __DIR__ . '/includes/general/signaler.php';
                             </div>
                         <?php endif; ?>
 
+                        <?php if ($step === 'verify'): ?>
                         <form method="post" action="signaler.php" novalidate>
-                            <input type="hidden" name="action" value="send_report">
+                            <input type="hidden" name="action" value="verify_code">
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['report_csrf']) ?>">
+                            <div class="mb-4">
+                                <label for="reportCode" class="form-label fw-semibold">Code reçu par email</label>
+                                <input id="reportCode" name="code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" class="form-control form-control-lg text-center letter-spacing-code" autocomplete="one-time-code" required>
+                                <div class="form-text">Le code envoyé à <?= htmlspecialchars((string) ($_SESSION['report_draft']['email'] ?? '')) ?> est valable 15 minutes.</div>
+                            </div>
+                            <button type="submit" class="btn btn-judo-red btn-lg px-4 w-100"><i class="bi bi-shield-check me-2"></i>Confirmer et envoyer</button>
+                        </form>
+                        <?php else: ?>
+                        <form method="post" action="signaler.php" novalidate>
+                            <input type="hidden" name="action" value="request_code">
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['report_csrf']) ?>">
+                            <div class="d-none" aria-hidden="true"><label for="website">Site web</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
 
                             <div class="mb-4">
-                                <label for="reportSubject" class="form-label fw-semibold">Sujet</label>
+                                <label for="reportSubject" class="form-label fw-semibold">Sujet <span class="text-muted">(facultatif)</span></label>
                                 <input id="reportSubject" name="subject" type="text"
                                     class="form-control form-control-lg" placeholder="Sujet du signalement" required
                                     value="<?= htmlspecialchars($subject) ?>">
+                            </div>
+                            <div class="mb-4">
+                                <label for="reportEmail" class="form-label fw-semibold">Votre email</label>
+                                <input id="reportEmail" name="email" type="email" class="form-control form-control-lg" placeholder="vous@exemple.fr" required>
                             </div>
 
                             <div class="mb-4">
@@ -81,14 +94,14 @@ include __DIR__ . '/includes/general/signaler.php';
                             <div
                                 class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">
                                 <div class="text-muted small">
-                                    <p class="mb-1"><strong>Limite :</strong> 3 signalements par semaine.</p>
-                                    <p class="mb-0">Nous répondons rapidement à chaque message reçu.</p>
+                                    <p class="mb-0">Un code vous sera envoyé pour confirmer votre adresse.</p>
                                 </div>
                                 <button type="submit" class="btn btn-judo-red btn-lg px-4 mx-auto">
-                                    <i class="bi bi-envelope-fill me-2"></i>Envoyer
+                                    <i class="bi bi-envelope-fill me-2"></i>Recevoir le code
                                 </button>
                             </div>
                         </form>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>

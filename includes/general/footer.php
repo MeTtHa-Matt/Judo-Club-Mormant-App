@@ -30,4 +30,25 @@
     </div>
 </footer>
 
+<button type="button" class="report-launcher" data-bs-toggle="modal" data-bs-target="#reportHelpModal"
+    aria-label="Signaler un problème" title="Signaler un problème">
+    <i class="bi bi-flag-fill" aria-hidden="true"></i>
+</button>
+
+<div class="modal fade" id="reportHelpModal" tabindex="-1" aria-labelledby="reportHelpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content report-help-modal">
+            <div class="modal-header border-0">
+                <div class="report-help-icon"><i class="bi bi-life-preserver"></i></div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body pt-0">
+                <h2 class="h4 fw-bold" id="reportHelpModalLabel">Vous avez un problème ?</h2>
+                <p class="text-muted mb-4">Signalez-le à l’équipe du Judo Club de Mormant.</p>
+                <a class="btn btn-judo-red w-100" href="signaler.php"><i class="bi bi-flag-fill me-2"></i>Signalez-le</a>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="js/footer.js?v=<?php echo filemtime('js/footer.js'); ?>"></script>
