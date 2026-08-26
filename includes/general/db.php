@@ -20,7 +20,9 @@ try {
     $pdo = new PDO("mysql:host={$dbHost};dbname={$dbName};charset=utf8", $dbUser, $dbPassword);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
-    die('Erreur de connexion à la base de données : ' . $e->getMessage());
+    error_log('Erreur de connexion à la base de données : ' . $e->getMessage());
+    http_response_code(503);
+    die('Service temporairement indisponible.');
 }
 
 function cleanupExpiredUnverifiedAccounts(PDO $pdo): int

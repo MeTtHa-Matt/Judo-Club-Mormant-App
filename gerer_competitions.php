@@ -65,6 +65,7 @@ include __DIR__ . '/includes/competitions/gerer_competitions.php';
                 </div>
                 <div class="bo-card-body">
                     <form method="post" action="gerer_competitions.php" enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(jcm_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
                         <input type="hidden" name="action" value="<?= $editing ? 'update' : 'create' ?>">
                         <?php if ($editing): ?>
                             <input type="hidden" name="id" value="<?= (int) $editData['id'] ?>">
@@ -190,6 +191,7 @@ include __DIR__ . '/includes/competitions/gerer_competitions.php';
                                                     </a>
                                                     <form method="post" action="gerer_competitions.php"
                                                         onsubmit="return confirm('Supprimer cette compétition ?');">
+                                                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(jcm_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
                                                         <input type="hidden" name="action" value="delete">
                                                         <input type="hidden" name="id" value="<?= (int) $c['id'] ?>">
                                                         <button class="bo-btn bo-btn-dark bo-btn-sm" type="submit">

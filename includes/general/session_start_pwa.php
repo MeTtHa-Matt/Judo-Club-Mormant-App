@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/security.php';
 function get_secure_domain() {
     $host = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost';
     
@@ -14,9 +15,8 @@ function get_secure_domain() {
     return $host;
 }
 
-$is_https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') 
-            || $_SERVER['SERVER_PORT'] == 443
-            || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+$is_https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || ($_SERVER['SERVER_PORT'] ?? null) == 443;
 
 function get_persistent_login_cookie_name(): string {
     return 'persistent_login_jcm';
@@ -158,6 +158,15 @@ function restore_session_from_persistent_login(): bool {
 }
 
 if (session_status() === PHP_SESSION_NONE) {
+    ini_set('session.use_strict_mode', '1');
+    ini_set('session.use_only_cookies', '1');
+    ini_set('session.cookie_httponly', '1');
+    header('X-Content-Type-Options: nosniff');
+    header('X-Frame-Options: SAMEORIGIN');
+    header('Referrer-Policy: strict-origin-when-cross-origin');
+    if ($is_https) {
+        header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+    }
     header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
     header('Pragma: no-cache');
     header('Expires: 0');
@@ -166,13 +175,14 @@ if (session_status() === PHP_SESSION_NONE) {
     session_set_cookie_params([
         'lifetime'   => 60 * 60 * 24 * 30, 
         'path'       => '/',
-        'domain'     => get_cookie_domain(),
+        'domain'     => '',
         'secure'     => $is_https,
         'httponly'   => true,
         'samesite'   => 'Lax',
     ]);
 
     session_start();
+    jcm_csrf_token();
     restore_session_from_persistent_login();
 }
 ?>

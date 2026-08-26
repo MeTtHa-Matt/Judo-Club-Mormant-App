@@ -107,9 +107,12 @@
                         </li>
 
                         <li>
-                            <a class="dropdown-item profile-menu-item text-danger" href="includes/account/logout.php">
-                                <i class="bi bi-box-arrow-right"></i><span>Se déconnecter</span>
-                            </a>
+                            <form method="post" action="includes/account/logout.php" class="m-0">
+                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(jcm_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
+                                <button type="submit" class="dropdown-item profile-menu-item text-danger border-0 bg-transparent w-100 text-start">
+                                    <i class="bi bi-box-arrow-right"></i><span>Se déconnecter</span>
+                                </button>
+                            </form>
                         </li>
                     </ul>
                 </div>
@@ -121,6 +124,11 @@
 <?php if (function_exists('jcm_render_notifications')): ?>
     <?php jcm_render_notifications(); ?>
 <?php endif; ?>
+
+<script>
+    window.JCM = window.JCM || {};
+    window.JCM.csrfToken = <?= json_encode(jcm_csrf_token(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+</script>
 
 <?php if (isset($_SESSION['id'])): ?>
     <script>

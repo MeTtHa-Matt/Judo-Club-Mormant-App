@@ -73,6 +73,7 @@ unset($_SESSION['children_flash_success'], $_SESSION['children_flash_error']);
                         <span id="childrenFormTitle">Ajouter un enfant</span>
                     </h2>
                     <form id="childrenForm" action="includes/account/children_process.php" method="post">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(jcm_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
                         <input type="hidden" name="action" id="childrenFormAction" value="add_child">
                         <input type="hidden" name="child_id" id="childrenFormChildId" value="0">
                         <div class="mb-3">
@@ -148,6 +149,7 @@ unset($_SESSION['children_flash_success'], $_SESSION['children_flash_error']);
                                             data-child='<?= json_encode($child, JSON_HEX_APOS | JSON_HEX_QUOT) ?>'>Modifier</button>
                                         <form method="post" action="includes/account/children_process.php"
                                             onsubmit="return confirm('Supprimer ce profil ?');" class="m-0">
+                                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(jcm_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
                                             <input type="hidden" name="action" value="delete_child">
                                             <input type="hidden" name="child_id" value="<?= (int) $child['id'] ?>">
                                             <button type="submit" class="btn btn-outline-danger btn-sm">Supprimer</button>

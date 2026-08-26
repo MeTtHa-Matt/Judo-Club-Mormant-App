@@ -1,10 +1,11 @@
 <?php
 require_once __DIR__ . '/includes/general/access_check.php';
+require_once __DIR__ . '/includes/general/security.php';
 
-if (!isset($_SESSION['id']) || (int) ($_SESSION['admin'] ?? 0) !== 1) {
-    header('Location: index.php');
-    exit;
+if (!isset($pdo)) {
+    require_once __DIR__ . '/includes/general/db.php';
 }
+jcm_require_admin($pdo);
 
 require_once __DIR__ . '/includes/general/reports_admin.php';
 ?>

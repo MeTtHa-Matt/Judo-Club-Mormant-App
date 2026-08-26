@@ -10,6 +10,12 @@ if (!isset($_SESSION['admin']) || (int) $_SESSION['admin'] !== 1) {
     exit;
 }
 
+require_once __DIR__ . '/security.php';
+jcm_require_admin($pdo);
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    jcm_require_csrf();
+}
+
 $flashSuccess = null;
 $flashError = null;
 

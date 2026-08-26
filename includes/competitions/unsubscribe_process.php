@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . '/../general/session_start_pwa.php';
 require_once __DIR__ . '/../general/db.php';
+require_once __DIR__ . '/../general/access_check.php';
+require_once __DIR__ . '/../general/security.php';
+jcm_require_csrf();
 header('Content-Type: application/json; charset=utf-8');
 
 if (!isset($_SESSION['id'])) {

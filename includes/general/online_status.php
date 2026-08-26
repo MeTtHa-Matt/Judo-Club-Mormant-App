@@ -6,18 +6,6 @@ header('Content-Type: application/json; charset=utf-8');
 
 $userId = isset($_SESSION['id']) ? (int) $_SESSION['id'] : null;
 
-// Debug logging to help diagnose session/auth issues (temporary)
-$logLine = sprintf("%s | %s | REMOTE=%s | HTTP_HOST=%s | PHPSESSID=%s | session_id=%s | userId=%s\n",
-    date('c'),
-    $_SERVER['REQUEST_METHOD'] ?? '-',
-    $_SERVER['REMOTE_ADDR'] ?? '-',
-    $_SERVER['HTTP_HOST'] ?? '-',
-    $_COOKIE[session_name()] ?? '-',
-    session_id() ?? '-',
-    $userId === null ? 'NULL' : (string)$userId
-);
-@file_put_contents(sys_get_temp_dir() . '/jcm_online_debug.log', $logLine, FILE_APPEND);
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$userId) {
         echo json_encode(['success' => false, 'error' => 'Not authenticated']);

@@ -1,16 +1,30 @@
 <?php
 include "../general/db.php";
 include "../general/mailer.php";
+require_once __DIR__ . '/../general/session_start_pwa.php';
+require_once __DIR__ . '/../general/security.php';
+
+jcm_require_csrf();
+
+if (!jcm_rate_limit('register-ip:' . ($_SERVER['REMOTE_ADDR'] ?? ''), 5, 3600)) {
+    header('Location: ../../register.php?alert=' . urlencode('Trop de créations de compte. Réessayez plus tard.'));
+    exit;
+}
 
 cleanupExpiredUnverifiedAccounts($pdo);
 
-$firstname = $_POST['firstname'];
-$lastname = $_POST['lastname'];
-$email = $_POST['email'];
-$password = $_POST['password'];
-$accept_email = $_POST['accept_email_toggle'] == 1 ? 1 : 0;
+$firstname = trim((string) ($_POST['firstname'] ?? ''));
+$lastname = trim((string) ($_POST['lastname'] ?? ''));
+$email = trim((string) ($_POST['email'] ?? ''));
+$password = (string) ($_POST['password'] ?? '');
+$accept_email = ($_POST['accept_email_toggle'] ?? '') === '1' ? 1 : 0;
 
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+if (!jcm_valid_person_name($firstname) || !jcm_valid_person_name($lastname)) {
+    header('Location: ../../register.php?alert=' . urlencode('Nom ou prénom invalide.'));
+    exit();
+}
+
+if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 254 || strlen($password) < 8 || strlen($password) > 128) {
     header('Location: ../../register.php?alert=' . urlencode('Adresse email invalide.'));
     exit();
 }
@@ -32,13 +46,20 @@ $stmt = $pdo->prepare("INSERT INTO account (firstname, lastname, email, password
 $stmt->execute([$firstname, $lastname, $email, $password, $token, $expires, $accept_email]);
 
 if (isset($_FILES['pdp']) && $_FILES['pdp']['error'] === UPLOAD_ERR_OK) {
-    $extensionImage = pathinfo($_FILES['pdp']['name'], PATHINFO_EXTENSION);
-    $nouveauNom = uniqid() . "." . $extensionImage;
-    $cheminImage = "../../img/pdps/" . $nouveauNom;
+    $tmpPath = $_FILES['pdp']['tmp_name'];
+    $mime = (new finfo(FILEINFO_MIME_TYPE))->file($tmpPath);
+    $allowedMimes = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
 
-    if (move_uploaded_file($_FILES['pdp']['tmp_name'], $cheminImage)) {
-        $stmt = $pdo->prepare("UPDATE account SET pdp = ? WHERE email = ?");
-        $stmt->execute([$nouveauNom, $email]);
+    $imageInfo = @getimagesize($tmpPath);
+    if ($_FILES['pdp']['size'] <= 3 * 1024 * 1024 && isset($allowedMimes[$mime])
+        && $imageInfo !== false && $imageInfo[0] <= 4000 && $imageInfo[1] <= 4000) {
+        $nouveauNom = 'avatar_' . bin2hex(random_bytes(16)) . '.' . $allowedMimes[$mime];
+        $cheminImage = __DIR__ . '/../../img/pdps/' . $nouveauNom;
+
+        if (move_uploaded_file($tmpPath, $cheminImage)) {
+            $stmt = $pdo->prepare("UPDATE account SET pdp = ? WHERE email = ?");
+            $stmt->execute([$nouveauNom, $email]);
+        }
     }
 }
 

@@ -72,6 +72,7 @@ include __DIR__ . '/includes/general/mailing.php';
                     <?php endif; ?>
 
                     <form id="mailForm" method="post" action="mailing.php">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(jcm_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
                         <input type="hidden" name="action" value="send_mail">
                         <input type="hidden" name="message_html" id="messageHtml">
 

@@ -8,7 +8,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     fetch("includes/general/update_accept_email.php", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-Token": window.JCM?.csrfToken || "",
+      },
       body: JSON.stringify({ accept_email: checked ? 1 : 0 }),
     })
       .then(function (res) {

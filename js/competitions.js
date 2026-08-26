@@ -23,6 +23,16 @@ let currentCompetition = {
 };
 let activeChildCompetitionId = "";
 
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;",
+  })[character]);
+}
+
 function hideModalAndThen(currentModalEl, showModalEl) {
   const currentModal = bootstrap.Modal.getInstance(currentModalEl);
   if (!currentModal) {
@@ -116,7 +126,7 @@ document.addEventListener("click", async function (event) {
     const resp = await fetch("includes/competitions/unsubscribe_process.php", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body,
+      body: body + "&csrf_token=" + encodeURIComponent(window.JCM?.csrfToken || ""),
     });
     const data = await resp.json();
 
@@ -284,7 +294,7 @@ async function fetchChildProfiles(competitionId) {
     const resp = await fetch("includes/account/get_children.php", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body,
+      body: body + "&csrf_token=" + encodeURIComponent(window.JCM?.csrfToken || ""),
     });
     return await resp.json();
   } catch (error) {
@@ -303,8 +313,8 @@ function buildChildProfileRow(child) {
   return `
     <div class="d-flex align-items-center justify-content-between gap-3 py-3 border-bottom">
       <div>
-        <div class="fw-semibold">${child.firstname} ${child.lastname}</div>
-        <div class="small text-muted">Né en ${child.annee_naissance} · ${child.ceinture}${child.Poids ? " · " + child.Poids + " kg" : ""}</div>
+        <div class="fw-semibold">${escapeHtml(child.firstname)} ${escapeHtml(child.lastname)}</div>
+        <div class="small text-muted">Né en ${escapeHtml(child.annee_naissance)} · ${escapeHtml(child.ceinture)}${child.Poids ? " · " + escapeHtml(child.Poids) + " kg" : ""}</div>
       </div>
       <button type="button" class="${buttonClass} child-profile-action-btn" data-child-id="${child.id}" data-registered="${registered ? 1 : 0}">
         ${buttonLabel}
@@ -330,7 +340,7 @@ async function toggleChildRegistration(childId, competitionId, button) {
       {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body,
+        body: body + "&csrf_token=" + encodeURIComponent(window.JCM?.csrfToken || ""),
       },
     );
     const data = await resp.json();
@@ -364,7 +374,7 @@ async function loadChildProfiles(competitionId) {
 
   const data = await fetchChildProfiles(competitionId);
   if (!data.success) {
-    modalChildProfilesContent.innerHTML = `<div class="text-center text-danger">${data.message || "Impossible de récupérer les profils."}</div>`;
+    modalChildProfilesContent.textContent = data.message || "Impossible de récupérer les profils.";
     return;
   }
 

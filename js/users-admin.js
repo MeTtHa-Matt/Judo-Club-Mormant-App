@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function () {
         "Content-Type": "application/x-www-form-urlencoded",
         Accept: "application/json",
       },
-      body: new URLSearchParams({ action, user_id: userId, ajax: "1" }),
+      body: new URLSearchParams({ action, user_id: userId, ajax: "1", csrf_token: window.JCM?.csrfToken || "" }),
     })
       .then((response) => response.json())
       .then((data) => {

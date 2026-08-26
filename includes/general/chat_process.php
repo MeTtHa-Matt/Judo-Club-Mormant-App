@@ -3,6 +3,7 @@
 require_once __DIR__ . '/session_start_pwa.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/access_check.php';
+require_once __DIR__ . '/security.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -11,6 +12,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['success' => false, 'error' => 'Méthode non autorisée.']);
     exit;
 }
+
+jcm_require_csrf();
 
 $input = file_get_contents('php://input');
 $data = json_decode($input, true);

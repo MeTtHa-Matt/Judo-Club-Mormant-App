@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/../general/session_start_pwa.php';
 require_once __DIR__ . '/../general/db.php';
+require_once __DIR__ . '/../general/security.php';
+jcm_require_csrf();
 
 if (!isset($_SESSION['id'])) {
     header('Location: ../../register.php');
@@ -14,6 +16,15 @@ $annee_naissance = $_POST['annee_naissance'] ?? null;
 $id_ceinture = $_POST['id_ceinture'] ?? null;
 $poids = $_POST['Poids'] ?? null;
 $id_competition = (int) ($_POST['id_competition'] ?? 0);
+
+if (!jcm_valid_person_name($nom) || !jcm_valid_person_name($prenom)
+    || !filter_var($annee_naissance, FILTER_VALIDATE_INT)
+    || (int) $annee_naissance < 1900 || (int) $annee_naissance > (int) date('Y')
+    || !filter_var($id_ceinture, FILTER_VALIDATE_INT) || (int) $id_ceinture <= 0
+    || ($poids !== null && $poids !== '' && filter_var($poids, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 300]]) === false)) {
+    header('Location: ../../competitions.php?alert=' . urlencode('Données d inscription invalides.'));
+    exit;
+}
 
 if (empty($nom) || empty($prenom) || empty($annee_naissance) || !$id_competition) {
     header('Location: ../../competitions.php?alert=' . urlencode('Tous les champs sont requis pour l inscription.'));

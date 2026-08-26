@@ -21,12 +21,14 @@ if (!$account) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    require_once __DIR__ . '/security.php';
+    jcm_require_csrf();
 
     if ($_POST['action'] === 'update_info') {
         $firstname = trim($_POST['firstname'] ?? '');
         $lastname = trim($_POST['lastname'] ?? '');
 
-        if ($firstname === '' || $lastname === '') {
+        if (!jcm_valid_person_name($firstname) || !jcm_valid_person_name($lastname)) {
             $flashError = "Tous les champs sont obligatoires.";
         } else {
             $update = $pdo->prepare("UPDATE account SET firstname = ?, lastname = ? WHERE id = ?");
@@ -56,22 +58,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $newHash = password_hash($new, PASSWORD_DEFAULT);
             $update = $pdo->prepare("UPDATE account SET password = ? WHERE id = ?");
             $update->execute([$newHash, $userId]);
+            $pdo->prepare('DELETE FROM persistent_tokens_jcm WHERE account_id = ?')->execute([$userId]);
             $flashSuccess = "Votre mot de passe a été changé.";
         }
     }
 
     if ($_POST['action'] === 'update_avatar' && isset($_FILES['pdp']) && $_FILES['pdp']['error'] === UPLOAD_ERR_OK) {
-        $allowed = ['jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'png' => 'image/png', 'webp' => 'image/webp'];
-        $ext = strtolower(pathinfo($_FILES['pdp']['name'], PATHINFO_EXTENSION));
+        $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
+        $mime = (new finfo(FILEINFO_MIME_TYPE))->file($_FILES['pdp']['tmp_name']);
 
-        if (!array_key_exists($ext, $allowed) || $_FILES['pdp']['size'] > 3 * 1024 * 1024) {
+        $imageInfo = @getimagesize($_FILES['pdp']['tmp_name']);
+        if (!isset($allowed[$mime]) || $_FILES['pdp']['size'] > 3 * 1024 * 1024
+            || $imageInfo === false || $imageInfo[0] > 4000 || $imageInfo[1] > 4000) {
             $flashError = "Image invalide (formats acceptés : jpg, png, webp — 3 Mo maximum).";
         } else {
             $destDir = "img/pdps/";
             if (!is_dir($destDir)) {
                 mkdir($destDir, 0755, true);
             }
-            $filename = "avatar_" . $userId . "_" . time() . "." . $ext;
+            $filename = "avatar_" . $userId . "_" . bin2hex(random_bytes(12)) . "." . $allowed[$mime];
             if (move_uploaded_file($_FILES['pdp']['tmp_name'], $destDir . $filename)) {
                 // tenter de supprimer l'ancienne photo uniquement si elle existe
                 $oldPdp = $account['pdp'] ?? '';

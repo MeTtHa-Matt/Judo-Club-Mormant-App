@@ -27,6 +27,11 @@ $flashError = null;
 
 $isAjaxRequest = isset($_REQUEST['ajax']) && $_REQUEST['ajax'] === '1';
 
+require_once __DIR__ . '/security.php';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    jcm_require_csrf();
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($_POST['action'] === 'toggle_ban') {
         $targetId = (int) ($_POST['user_id'] ?? 0);

@@ -3,6 +3,8 @@ require_once __DIR__ . '/../general/session_start_pwa.php';
 require_once __DIR__ . '/../general/db.php';
 require_once __DIR__ . '/../general/access_check.php';
 require_once __DIR__ . '/../general/mailer.php';
+require_once __DIR__ . '/../general/security.php';
+jcm_require_csrf();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ../../forgot_password.php');
@@ -10,6 +12,12 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $email = trim($_POST['email'] ?? '');
+
+if (!jcm_rate_limit('reset-ip:' . ($_SERVER['REMOTE_ADDR'] ?? ''), 5, 3600)
+    || !jcm_rate_limit('reset-account:' . strtolower($email), 3, 3600)) {
+    header('Location: ../../recup_mdp.php?alert=' . urlencode('Trop de demandes. Réessayez plus tard.'));
+    exit;
+}
 
 if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
     header('Location: ../../forgot_password.php?alert=' . urlencode('Merci de saisir une adresse email valide.'));

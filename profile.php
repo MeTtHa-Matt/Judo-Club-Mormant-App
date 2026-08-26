@@ -73,6 +73,7 @@ include __DIR__ . "/includes/general/profile.php";
                 </p>
             </div>
             <form action="profile.php" method="POST" enctype="multipart/form-data" class="d-none" id="avatarForm">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(jcm_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
                 <input type="hidden" name="action" value="update_avatar">
                 <input type="file" name="pdp" id="avatarInput" accept=".jpg,.jpeg,.png,.webp"
                     onchange="document.getElementById('avatarForm').submit()">
@@ -97,6 +98,7 @@ include __DIR__ . "/includes/general/profile.php";
                     <h3 class="h5 fw-bold mb-4"><i class="bi bi-person-vcard me-2 text-judo-red"></i>Informations
                         personnelles</h3>
                     <form action="profile.php" method="POST">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(jcm_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
                         <input type="hidden" name="action" value="update_info">
                         <div class="mb-3">
                             <label class="form-label small fw-semibold text-uppercase">Prénom</label>
@@ -136,6 +138,7 @@ include __DIR__ . "/includes/general/profile.php";
                 <div class="card border-0 shadow-sm rounded-4 h-100 p-4 profile-card">
                     <h3 class="h5 fw-bold mb-4"><i class="bi bi-shield-lock me-2 text-judo-red"></i>Sécurité</h3>
                     <form action="profile.php" method="POST">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(jcm_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
                         <input type="hidden" name="action" value="update_password">
                         <div class="mb-3">
                             <label class="form-label small fw-semibold text-uppercase">Mot de passe actuel</label>
@@ -230,6 +233,7 @@ include __DIR__ . "/includes/general/profile.php";
                         supprimées et vous serez déconnecté(e) immédiatement.
                     </p>
                     <form action="includes/account/delete_account_process.php" method="POST" id="form-delete-account">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(jcm_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
                         <div class="mb-3">
                             <label for="delete_password" class="form-label small fw-semibold text-uppercase">
                                 Confirmez avec votre mot de passe

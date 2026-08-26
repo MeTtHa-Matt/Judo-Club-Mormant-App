@@ -4,6 +4,12 @@ if (!isset($_SESSION['admin']) || (int) $_SESSION['admin'] !== 1) {
     exit;
 }
 
+require_once __DIR__ . '/../general/security.php';
+jcm_require_admin($pdo);
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    jcm_require_csrf();
+}
+
 $defaultLinks = [
     [
         'key' => 'home_inscription',
@@ -71,6 +77,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 if ($url === '') {
                     $errors[] = 'L\'URL est obligatoire pour ' . $link['description'] . '.';
+                    continue;
+                }
+
+                if (!jcm_valid_https_url($url)) {
+                    $errors[] = 'Seules les URLs HTTPS valides sont autorisées pour ' . $link['description'] . '.';
                     continue;
                 }
 

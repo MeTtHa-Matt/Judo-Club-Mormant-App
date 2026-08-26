@@ -3,6 +3,7 @@ require_once __DIR__ . "/includes/general/session_start_pwa.php";
 require_once __DIR__ . "/includes/general/db.php";
 require_once __DIR__ . "/includes/general/access_check.php";
 require_once __DIR__ . "/includes/general/notifications.php";
+require_once __DIR__ . "/includes/general/security.php";
 
 $token = $_GET['token'] ?? ($_POST['token'] ?? '');
 $tokenValid = false;
@@ -24,6 +25,7 @@ if ($token !== '') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    jcm_require_csrf();
     $password = $_POST['password'] ?? '';
     $passwordConfirm = $_POST['password_confirm'] ?? '';
 
@@ -110,6 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 <?php else: ?>
                     <form action="reset_password.php" method="POST">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(jcm_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
                         <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
 
                         <div class="mb-3">

@@ -75,6 +75,7 @@ include __DIR__ . '/includes/liens/gerer_liens_index.php'
             </div>
             <div class="bo-card-body">
                 <form method="post" action="gerer_index_liens.php">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(jcm_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
                     <input type="hidden" name="action" value="save">
 
                     <?php foreach ($linksToRender as $link): ?>

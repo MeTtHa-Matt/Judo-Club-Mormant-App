@@ -28,6 +28,13 @@ if (isset($_SESSION['id'])) {
 $allowedDuringMaintenance = ['login.php', 'register.php', 'verify.php', 'maintenance.php', 'ban.php', 'reglement_accept.php'];
 $isAdmin = isset($_SESSION['admin']) && (int) $_SESSION['admin'] === 1;
 
+if (isset($_SESSION['id'])) {
+    $adminStmt = $pdo->prepare('SELECT admin FROM account WHERE id = ? LIMIT 1');
+    $adminStmt->execute([(int) $_SESSION['id']]);
+    $isAdmin = (int) $adminStmt->fetchColumn() === 1;
+    $_SESSION['admin'] = $isAdmin ? 1 : 0;
+}
+
 if (
     $maintenanceActive === 1
     && !in_array($currentPage, $allowedDuringMaintenance, true)

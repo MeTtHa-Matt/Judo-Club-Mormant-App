@@ -83,6 +83,7 @@ include __DIR__ . '/includes/general/users.php'
                 </div>
                 <form action="users.php" method="POST"
                     onsubmit="return confirm('<?= $maintenanceOn ? 'Désactiver' : 'Activer' ?> le mode maintenance du site ?');">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(jcm_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
                     <input type="hidden" name="action" value="toggle_maintenance">
                     <button type="submit" class="btn <?= $maintenanceOn ? 'btn-judo-outline' : 'btn-judo-red' ?>">
                         <i

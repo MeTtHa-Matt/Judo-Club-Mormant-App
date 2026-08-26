@@ -1,5 +1,13 @@
 <?php
 require_once __DIR__ . '/../general/session_start_pwa.php';
+require_once __DIR__ . '/../general/security.php';
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: ../../index.php');
+    exit;
+}
+
+jcm_require_csrf();
 require_database_connection();
 
 $token = $_COOKIE[get_persistent_login_cookie_name()] ?? null;

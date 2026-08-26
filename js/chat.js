@@ -24,10 +24,12 @@ document.addEventListener("DOMContentLoaded", function () {
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;")
         .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
         .replace(
           /https?:\/\/[^\s]+/g,
-          (url) => `<a href="${url}" target="_blank">${url}</a>`,
+          (url) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`,
         )
         .replace(/\n/g, "<br>");
     } else {
@@ -82,6 +84,7 @@ document.addEventListener("DOMContentLoaded", function () {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "X-CSRF-Token": window.JCM?.csrfToken || "",
         },
         body: JSON.stringify({ message }),
       });
@@ -120,6 +123,7 @@ document.addEventListener("DOMContentLoaded", function () {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "X-CSRF-Token": window.JCM?.csrfToken || "",
         },
         body: JSON.stringify({ action: "reset" }),
       });

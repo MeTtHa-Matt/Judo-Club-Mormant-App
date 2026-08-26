@@ -5,6 +5,10 @@ if (!isset($_SESSION['admin']) || (int) $_SESSION['admin'] !== 1) {
     exit;
 }
 
+require_once __DIR__ . '/../general/security.php';
+jcm_require_admin($pdo);
+jcm_require_csrf();
+
 try {
     $pdo->exec(
         "CREATE TABLE IF NOT EXISTS competition_cibles ("
@@ -140,6 +144,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $informations = $_POST['informations'] ?? null;
         $date = $_POST['date'] ?? null;
         $registrationDeadline = $_POST['date_limite_inscription'] ?? null;
+        if ($nom === '' || mb_strlen($nom) > 100 || mb_strlen((string) $lieu) > 100 || mb_strlen((string) $informations) > 10000) {
+            exit('Données de compétition invalides.');
+        }
         if (empty($registrationDeadline) && !empty($date)) {
             $registrationDeadline = date('Y-m-d', strtotime($date . ' -7 days'));
         }
@@ -149,18 +156,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $image = null;
         if (isset($_FILES['image_file']) && $_FILES['image_file']['error'] === UPLOAD_ERR_OK) {
             $fileTmp = $_FILES['image_file']['tmp_name'];
-            $fileName = $_FILES['image_file']['name'];
             $fileSize = $_FILES['image_file']['size'];
 
-            $allowedExt = ['jpg', 'jpeg', 'png', 'gif'];
-            $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
-            $check = getimagesize($fileTmp);
-            if ($check !== false && in_array($ext, $allowedExt) && $fileSize <= 5 * 1024 * 1024) {
+            $allowedMimes = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/gif' => 'gif'];
+            $mime = (new finfo(FILEINFO_MIME_TYPE))->file($fileTmp);
+            $check = @getimagesize($fileTmp);
+            if ($check !== false && $check[0] <= 6000 && $check[1] <= 6000 && isset($allowedMimes[$mime]) && $fileSize <= 5 * 1024 * 1024) {
+                $ext = $allowedMimes[$mime];
                 $uploadDir = getCompetitionUploadDir();
                 if (!is_dir($uploadDir)) {
                     mkdir($uploadDir, 0755, true);
                 }
-                $newName = uniqid('comp_', true) . '.' . $ext;
+                $newName = 'comp_' . bin2hex(random_bytes(16)) . '.' . $ext;
                 $dest = $uploadDir . DIRECTORY_SEPARATOR . $newName;
                 if (move_uploaded_file($fileTmp, $dest)) {
                     $image = $newName;
@@ -186,6 +193,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $informations = $_POST['informations'] ?? null;
         $date = $_POST['date'] ?? null;
         $registrationDeadline = $_POST['date_limite_inscription'] ?? null;
+        if ($nom === '' || mb_strlen($nom) > 100 || mb_strlen((string) $lieu) > 100 || mb_strlen((string) $informations) > 10000) {
+            exit('Données de compétition invalides.');
+        }
         if (empty($registrationDeadline) && !empty($date)) {
             $registrationDeadline = date('Y-m-d', strtotime($date . ' -7 days'));
         }
@@ -200,17 +210,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $image = $currentImage;
         if (isset($_FILES['image_file']) && $_FILES['image_file']['error'] === UPLOAD_ERR_OK) {
             $fileTmp = $_FILES['image_file']['tmp_name'];
-            $fileName = $_FILES['image_file']['name'];
             $fileSize = $_FILES['image_file']['size'];
-            $allowedExt = ['jpg', 'jpeg', 'png', 'gif'];
-            $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
-            $check = getimagesize($fileTmp);
-            if ($check !== false && in_array($ext, $allowedExt) && $fileSize <= 5 * 1024 * 1024) {
+            $allowedMimes = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/gif' => 'gif'];
+            $mime = (new finfo(FILEINFO_MIME_TYPE))->file($fileTmp);
+            $check = @getimagesize($fileTmp);
+            if ($check !== false && $check[0] <= 6000 && $check[1] <= 6000 && isset($allowedMimes[$mime]) && $fileSize <= 5 * 1024 * 1024) {
+                $ext = $allowedMimes[$mime];
                 $uploadDir = getCompetitionUploadDir();
                 if (!is_dir($uploadDir)) {
                     mkdir($uploadDir, 0755, true);
                 }
-                $newName = uniqid('comp_', true) . '.' . $ext;
+                $newName = 'comp_' . bin2hex(random_bytes(16)) . '.' . $ext;
                 $dest = $uploadDir . DIRECTORY_SEPARATOR . $newName;
                 if (move_uploaded_file($fileTmp, $dest)) {
                     if ($currentImage) {

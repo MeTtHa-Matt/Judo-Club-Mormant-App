@@ -376,6 +376,7 @@ function userHasCompetitionInscription(int $competitionId, ?int $userId): bool
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
                 </div>
                 <form method="post" action="includes/competitions/inscrire_process.php">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(jcm_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
                     <div class="modal-body">
                         <p>Inscription à : <strong id="modalInscriptionCompetitionName"></strong></p>
                         <input type="hidden" name="id_competition" id="inscription_competition_id" value="">
