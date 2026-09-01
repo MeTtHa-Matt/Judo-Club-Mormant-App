@@ -45,18 +45,36 @@ $initialHighscore = (int) $_SESSION['fn_highscore'];
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background: #0a0a12;
+      background: #05050a;
       font-family: 'Segoe UI', Tahoma, sans-serif;
       touch-action: none;
       overscroll-behavior: none;
     }
 
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     #gameContainer {
       position: relative;
       width: 100%;
+      max-width: 560px;
       height: 100vh;
       height: 100dvh;
+      max-height: 1000px;
       overflow: hidden;
+      margin: 0 auto;
+    }
+
+    /* Sur les écrans larges (tablette/desktop), on borde la zone de jeu
+       pour éviter qu'elle ne s'étire de façon disproportionnée */
+    @media (min-width: 620px) {
+      #gameContainer {
+        border-radius: 18px;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 30px 80px rgba(0, 0, 0, 0.7);
+      }
     }
 
     canvas {
@@ -74,13 +92,13 @@ $initialHighscore = (int) $_SESSION['fn_highscore'];
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      padding: max(14px, env(safe-area-inset-top)) 18px 0 18px;
+      padding: max(14px, env(safe-area-inset-top)) clamp(14px, 4vw, 24px) 0 clamp(14px, 4vw, 24px);
       pointer-events: none;
       z-index: 10;
     }
 
     #score {
-      font-size: 32px;
+      font-size: clamp(24px, 7vw, 36px);
       font-weight: 800;
       color: #fff;
       text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
@@ -89,7 +107,7 @@ $initialHighscore = (int) $_SESSION['fn_highscore'];
     #hiscoreBox {
       text-align: right;
       color: #ffd166;
-      font-size: 14px;
+      font-size: clamp(11px, 3vw, 15px);
       font-weight: 600;
       text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
     }
@@ -97,7 +115,7 @@ $initialHighscore = (int) $_SESSION['fn_highscore'];
     #lives {
       position: absolute;
       top: max(60px, calc(env(safe-area-inset-top) + 50px));
-      left: 18px;
+      left: clamp(14px, 4vw, 24px);
       display: flex;
       gap: 6px;
       z-index: 10;
@@ -105,7 +123,7 @@ $initialHighscore = (int) $_SESSION['fn_highscore'];
     }
 
     .life {
-      font-size: 22px;
+      font-size: clamp(18px, 5vw, 24px);
       filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
     }
 
@@ -119,7 +137,7 @@ $initialHighscore = (int) $_SESSION['fn_highscore'];
       top: 40%;
       left: 50%;
       transform: translate(-50%, -50%) scale(0.5);
-      font-size: 40px;
+      font-size: clamp(26px, 8vw, 44px);
       font-weight: 900;
       color: #ff6b35;
       text-shadow: 0 0 20px rgba(255, 107, 53, 0.8), 0 2px 6px rgba(0, 0, 0, 0.6);
@@ -139,7 +157,7 @@ $initialHighscore = (int) $_SESSION['fn_highscore'];
       background: radial-gradient(circle at 50% 40%, rgba(30, 20, 50, 0.92), rgba(5, 5, 12, 0.97));
       z-index: 30;
       text-align: center;
-      padding: 20px;
+      padding: clamp(16px, 6vw, 32px);
     }
 
     .hidden {
@@ -147,7 +165,7 @@ $initialHighscore = (int) $_SESSION['fn_highscore'];
     }
 
     .title {
-      font-size: 46px;
+      font-size: clamp(32px, 10vw, 50px);
       font-weight: 900;
       background: linear-gradient(135deg, #ff6b35, #ffd166);
       -webkit-background-clip: text;
@@ -159,12 +177,13 @@ $initialHighscore = (int) $_SESSION['fn_highscore'];
 
     .subtitle {
       color: #9aa0b4;
-      font-size: 15px;
+      font-size: clamp(13px, 4vw, 16px);
       margin-bottom: 30px;
+      line-height: 1.4;
     }
 
     .bigEmoji {
-      font-size: 64px;
+      font-size: clamp(46px, 15vw, 68px);
       margin-bottom: 16px;
       filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
     }
@@ -173,8 +192,8 @@ $initialHighscore = (int) $_SESSION['fn_highscore'];
       background: linear-gradient(135deg, #ff6b35, #f7931e);
       color: #fff;
       border: none;
-      padding: 16px 46px;
-      font-size: 19px;
+      padding: clamp(13px, 3.5vw, 16px) clamp(32px, 10vw, 46px);
+      font-size: clamp(16px, 4.5vw, 19px);
       font-weight: 800;
       border-radius: 50px;
       box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
@@ -190,7 +209,7 @@ $initialHighscore = (int) $_SESSION['fn_highscore'];
 
     .statLine {
       color: #e8e8f0;
-      font-size: 17px;
+      font-size: clamp(15px, 4vw, 17px);
       margin: 3px 0;
     }
 
@@ -202,7 +221,7 @@ $initialHighscore = (int) $_SESSION['fn_highscore'];
     .newRecord {
       color: #4ade80;
       font-weight: 800;
-      font-size: 15px;
+      font-size: clamp(13px, 3.5vw, 15px);
       margin-top: 10px;
       text-shadow: 0 0 12px rgba(74, 222, 128, 0.6);
     }
@@ -213,7 +232,7 @@ $initialHighscore = (int) $_SESSION['fn_highscore'];
 
     #startBombWarning {
       color: #ff6b6b;
-      font-size: 13px;
+      font-size: clamp(11px, 3vw, 13px);
       margin-top: 18px;
       opacity: 0.8;
     }
@@ -250,7 +269,7 @@ $initialHighscore = (int) $_SESSION['fn_highscore'];
     <!-- Écran game over -->
     <div id="gameOverScreen" class="overlay hidden">
       <div class="bigEmoji" id="gameOverEmoji">💥</div>
-      <div class="title" style="font-size:34px;">GAME OVER</div>
+      <div class="title" style="font-size:clamp(26px, 8vw, 34px);">GAME OVER</div>
       <div id="finalStats">
         <div class="statLine">Score final : <span class="statValue" id="finalScore">0</span></div>
         <div class="statLine">Meilleur combo : <span class="statValue" id="finalCombo">x0</span></div>
@@ -269,6 +288,12 @@ $initialHighscore = (int) $_SESSION['fn_highscore'];
       const container = document.getElementById('gameContainer');
 
       let W, H, DPR;
+      // Facteur d'échelle pour la taille des fruits/bombes, calculé à partir
+      // de la largeur réelle du conteneur de jeu (référence : 390px, un
+      // iPhone standard). Ainsi les fruits gardent une taille cohérente
+      // qu'on joue sur un petit téléphone, une tablette ou un desktop.
+      let sizeScale = 1;
+
       function resize() {
         DPR = Math.min(window.devicePixelRatio || 1, 2);
         W = container.clientWidth;
@@ -278,8 +303,17 @@ $initialHighscore = (int) $_SESSION['fn_highscore'];
         canvas.style.width = W + 'px';
         canvas.style.height = H + 'px';
         ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+        sizeScale = W / 390;
+        sizeScale = Math.max(0.72, Math.min(sizeScale, 1.35));
       }
       window.addEventListener('resize', resize);
+      // Sur mobile, les dimensions ne sont pas toujours immédiatement
+      // correctes juste après un changement d'orientation.
+      window.addEventListener('orientationchange', function () {
+        setTimeout(resize, 50);
+        setTimeout(resize, 300);
+      });
       resize();
 
       // ---------- État du jeu ----------
@@ -361,7 +395,7 @@ $initialHighscore = (int) $_SESSION['fn_highscore'];
           vx: vx,
           vy: vy,
           gravity: gravity,
-          radius: def.radius,
+          radius: def.radius * sizeScale,
           emoji: def.emoji,
           points: def.points || 0,
           isBomb: isBomb,
@@ -385,7 +419,7 @@ $initialHighscore = (int) $_SESSION['fn_highscore'];
             gravity: obj.gravity,
             life: 1,
             decay: rand(0.015, 0.03),
-            size: rand(3, 7),
+            size: rand(3, 7) * sizeScale,
             color: obj.isBomb ? '#555' : (FRUIT_TYPES.find(f => f.emoji === obj.emoji) || {}).color || '#fff'
           });
         }
@@ -689,6 +723,7 @@ $initialHighscore = (int) $_SESSION['fn_highscore'];
       }
 
       function startGame() {
+        resize();
         resetGameState();
         startScreen.classList.add('hidden');
         gameOverScreen.classList.add('hidden');
