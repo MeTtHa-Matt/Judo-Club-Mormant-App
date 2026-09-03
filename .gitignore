@@ -1,3 +1,5 @@
 .env
 vendor/
 composer.phar
+storage/indexnow-state.json
+storage/indexnow-state.json.lock

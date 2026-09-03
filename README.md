@@ -175,6 +175,16 @@ php -S localhost:8000
 
 > 💡 Pensez à configurer vos identifiants **SMTP** dans le fichier `.env` pour que PHPMailer fonctionne correctement.
 
+### IndexNow automatique
+
+Le script `indexnow_watch.php` détecte les modifications des fichiers PHP, CSS, JavaScript et JSON, puis soumet les pages publiques à IndexNow. Configurez une tâche `cron` exécutée toutes les minutes :
+
+```cron
+* * * * * cd /var/www/html/Judo-Club-Mormant-App && INDEXNOW_SITE_URL=https://www.exemple.fr /usr/bin/php indexnow_watch.php >> /var/log/indexnow.log 2>&1
+```
+
+Pour vérifier la détection sans envoyer de requête, utilisez `INDEXNOW_SITE_URL=https://www.exemple.fr php indexnow_watch.php --dry-run`. L'option `--force` resoumet toutes les pages publiques.
+
 ---
 
 ## 🤝 Contribuer
