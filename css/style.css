@@ -2082,6 +2082,98 @@ section {
 }
 
 /* ======================================
+   WHATSAPP COMMUNITY
+   ====================================== */
+
+.whatsapp-community-section {
+  max-width: 980px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.whatsapp-community-card {
+  display: grid;
+  grid-template-columns: 170px minmax(0, 1fr);
+  gap: 2.5rem;
+  align-items: center;
+  padding: clamp(2rem, 5vw, 4rem);
+  border-top: 5px solid #128c7e;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #ffffff 0%, #f2fbf9 100%);
+  box-shadow: 0 1rem 3rem rgba(21, 74, 68, 0.12);
+}
+
+.whatsapp-community-mark {
+  width: 150px;
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2rem;
+  color: #ffffff;
+  background: linear-gradient(145deg, #25d366 0%, #128c7e 100%);
+  box-shadow: 0 1rem 2rem rgba(18, 140, 126, 0.28);
+  font-size: 5rem;
+}
+
+.whatsapp-community-eyebrow {
+  margin-bottom: 0.5rem;
+  color: #128c7e;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.whatsapp-community-content h2 {
+  margin-bottom: 1rem;
+  color: var(--judo-dark);
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 800;
+}
+
+.whatsapp-community-text {
+  max-width: 650px;
+  margin-bottom: 1.75rem;
+  color: #5d6668;
+  font-size: 1.05rem;
+  line-height: 1.75;
+}
+
+.btn-whatsapp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3.25rem;
+  padding: 0.75rem 1.25rem;
+  border: 0;
+  border-radius: 0.65rem;
+  color: #ffffff;
+  background: #128c7e;
+  font-weight: 700;
+  transition: transform 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+}
+
+.btn-whatsapp:hover,
+.btn-whatsapp:focus-visible {
+  color: #ffffff;
+  background: #0d7166;
+  box-shadow: 0 0.75rem 1.5rem rgba(18, 140, 126, 0.24);
+  transform: translateY(-2px);
+}
+
+.whatsapp-community-note {
+  margin-top: 1rem;
+  color: #6b7778;
+  font-size: 0.85rem;
+}
+
+.whatsapp-community-alert {
+  max-width: 620px;
+  color: #5d6668;
+}
+
+/* ======================================
    RESPONSIVE - REGLEMENT
    ====================================== */
 
@@ -2110,6 +2202,34 @@ section {
 
   .reglement-intro {
     font-size: 0.95rem;
+  }
+
+  .whatsapp-community-card {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+    text-align: center;
+  }
+
+  .whatsapp-community-mark {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto;
+    border-radius: 1.5rem;
+    font-size: 3.25rem;
+  }
+
+  .whatsapp-community-text,
+  .whatsapp-community-alert {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .whatsapp-community-note {
+    text-align: left;
+  }
+
+  .btn-whatsapp {
+    width: 100%;
   }
 }
 

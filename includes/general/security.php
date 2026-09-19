@@ -18,6 +18,10 @@ function jcm_require_csrf(): void
     $token = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
     if (!is_string($token) || !hash_equals(jcm_csrf_token(), $token)) {
         http_response_code(403);
+        if (str_contains(strtolower($_SERVER['HTTP_ACCEPT'] ?? ''), 'application/json')) {
+            header('Content-Type: application/json; charset=utf-8');
+            exit(json_encode(['success' => false, 'message' => 'Session expirée. Rechargez la page puis réessayez.']));
+        }
         exit('Requête invalide.');
     }
 }

@@ -26,6 +26,9 @@
                 <li class="nav-item">
                     <a class="nav-link" href="<?= $appRoot ?>/reglement.php">Règlement intérieur</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= $appRoot ?>/whatsapp.php"><i class="bi bi-whatsapp me-1" aria-hidden="true"></i>Communauté WhatsApp</a>
+                </li>
                 <?php if (isset($_SESSION['admin']) && (int) $_SESSION['admin'] === 1): ?>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Administration</a>

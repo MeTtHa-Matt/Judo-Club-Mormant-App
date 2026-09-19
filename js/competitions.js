@@ -125,7 +125,10 @@ document.addEventListener("click", async function (event) {
 
     const resp = await fetch("includes/competitions/unsubscribe_process.php", {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Accept: "application/json",
+      },
       body: body + "&csrf_token=" + encodeURIComponent(window.JCM?.csrfToken || ""),
     });
     const data = await resp.json();
@@ -339,7 +342,10 @@ async function toggleChildRegistration(childId, competitionId, button) {
       "includes/competitions/toggle_child_inscription.php",
       {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          Accept: "application/json",
+        },
         body: body + "&csrf_token=" + encodeURIComponent(window.JCM?.csrfToken || ""),
       },
     );
