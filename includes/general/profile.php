@@ -101,6 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
 $stmt = $pdo->prepare("
     SELECT c.nom, c.lieu, c.date,
+           i.nom AS inscrit_nom, i.prenom AS inscrit_prenom,
            GROUP_CONCAT(DISTINCT ci.cible ORDER BY ci.cible SEPARATOR ', ') AS cible,
            ceint.ceinture, i.Poids
     FROM inscrits i
@@ -109,7 +110,7 @@ $stmt = $pdo->prepare("
     LEFT JOIN cible ci ON ci.id = cc.cible_id OR ci.id = c.id_cible
     JOIN ceintures ceint ON i.id_ceinture = ceint.id
     WHERE i.id_account = ?
-    GROUP BY c.id, c.nom, c.lieu, c.date, ceint.ceinture, i.Poids
+    GROUP BY c.id, c.nom, c.lieu, c.date, i.nom, i.prenom, ceint.ceinture, i.Poids
     ORDER BY c.date DESC
 ");
 $stmt->execute([$userId]);

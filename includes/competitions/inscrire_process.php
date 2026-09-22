@@ -21,7 +21,7 @@ if (!jcm_valid_person_name($nom) || !jcm_valid_person_name($prenom)
     || !filter_var($annee_naissance, FILTER_VALIDATE_INT)
     || (int) $annee_naissance < 1900 || (int) $annee_naissance > (int) date('Y')
     || !filter_var($id_ceinture, FILTER_VALIDATE_INT) || (int) $id_ceinture <= 0
-    || ($poids !== null && $poids !== '' && filter_var($poids, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 300]]) === false)) {
+    || filter_var($poids, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 300]]) === false) {
     header('Location: ../../competitions.php?alert=' . urlencode('Données d inscription invalides.'));
     exit;
 }
@@ -42,7 +42,10 @@ if (!$competitionDate) {
     exit;
 }
 
-$isAdmin = isset($_SESSION['admin']) && (int) $_SESSION['admin'] === 1;
+$adminCheck = $pdo->prepare('SELECT admin FROM account WHERE id = ? LIMIT 1');
+$adminCheck->execute([$id_account]);
+$isAdmin = (int) $adminCheck->fetchColumn() === 1;
+$_SESSION['admin'] = $isAdmin ? 1 : 0;
 
 if (!$isAdmin) {
     $today = (new DateTimeImmutable('today'))->format('Y-m-d');
@@ -51,6 +54,18 @@ if (!$isAdmin) {
         header('Location: ../../competitions.php?alert=' . urlencode('Les inscriptions sont fermées pour cette compétition.'));
         exit;
     }
+}
+
+$duplicate = $pdo->prepare(
+    "SELECT 1 FROM inscrits
+     WHERE id_account = ? AND id_competition = ? AND nom = ? AND prenom = ?
+       AND annee_naissance = ? AND id_ceinture = ?
+     LIMIT 1"
+);
+$duplicate->execute([$id_account, $id_competition, $nom, $prenom, $annee_naissance, $id_ceinture]);
+if ($duplicate->fetchColumn()) {
+    header('Location: ../../competitions.php?alert=' . urlencode('Cette personne est déjà inscrite à cette compétition.'));
+    exit;
 }
 
 try {

@@ -179,6 +179,7 @@ include __DIR__ . "/includes/general/profile.php";
                             <thead class="table-dark text-uppercase small">
                                 <tr>
                                     <th scope="col" class="ps-4 py-3">Compétition</th>
+                                    <th scope="col" class="py-3">Participant</th>
                                     <th scope="col" class="py-3">Date</th>
                                     <th scope="col" class="py-3">Lieu</th>
                                 </tr>
@@ -187,6 +188,7 @@ include __DIR__ . "/includes/general/profile.php";
                                 <?php foreach ($inscriptions as $i): ?>
                                     <tr>
                                         <td class="ps-4 fw-bold"><?= htmlspecialchars($i['nom']) ?></td>
+                                        <td><?= htmlspecialchars($i['inscrit_prenom'] . ' ' . $i['inscrit_nom']) ?></td>
                                         <td><?= htmlspecialchars((new DateTime($i['date']))->format('d/m/Y')) ?></td>
                                         <td><?= htmlspecialchars($i['lieu'] ?? '—') ?></td>
                                     </tr>

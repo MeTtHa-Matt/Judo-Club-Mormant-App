@@ -14,7 +14,10 @@ if (!isset($_SESSION['id'])) {
 $userId = (int) $_SESSION['id'];
 $inscriptionId = (int) ($_POST['id_inscrit'] ?? 0);
 $competitionId = (int) ($_POST['id_competition'] ?? 0);
-$isAdmin = isset($_SESSION['admin']) && (int) $_SESSION['admin'] === 1;
+$adminCheck = $pdo->prepare('SELECT admin FROM account WHERE id = ? LIMIT 1');
+$adminCheck->execute([$userId]);
+$isAdmin = (int) $adminCheck->fetchColumn() === 1;
+$_SESSION['admin'] = $isAdmin ? 1 : 0;
 
 if ($inscriptionId <= 0 || $competitionId <= 0) {
     echo json_encode(['success' => false, 'message' => 'Paramètres invalides']);
@@ -45,6 +48,11 @@ $stmt->execute([$competitionId]);
 $competitionData = $stmt->fetch(PDO::FETCH_ASSOC);
 $competitionDate = $competitionData['date'] ?? null;
 $registrationDeadline = $competitionData['date_limite_inscription'] ?? null;
+
+if (!$competitionDate) {
+    echo json_encode(['success' => false, 'message' => 'Compétition introuvable']);
+    exit;
+}
 
 if (!$isAdmin) {
     $today = (new DateTimeImmutable('today'))->format('Y-m-d');

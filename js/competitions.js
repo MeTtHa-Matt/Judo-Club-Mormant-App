@@ -388,8 +388,11 @@ async function fetchChildProfiles(competitionId) {
 
 function buildChildProfileRow(child) {
   const registered = child.registered ? true : false;
-  const buttonLabel = registered ? "Désinscrire" : "Inscrire";
-  const buttonClass = registered
+  const missingWeight = !registered && (child.Poids === null || child.Poids === "");
+  const buttonLabel = registered ? "Désinscrire" : missingWeight ? "Poids requis" : "Inscrire";
+  const buttonClass = missingWeight
+    ? "btn btn-secondary btn-sm"
+    : registered
     ? "btn btn-outline-danger btn-sm"
     : "btn btn-judo-red btn-sm";
 
@@ -399,7 +402,7 @@ function buildChildProfileRow(child) {
         <div class="fw-semibold">${escapeHtml(child.firstname)} ${escapeHtml(child.lastname)}</div>
         <div class="small text-muted">Né en ${escapeHtml(child.annee_naissance)} · ${escapeHtml(child.ceinture)}${child.Poids ? " · " + escapeHtml(child.Poids) + " kg" : ""}</div>
       </div>
-      <button type="button" class="${buttonClass} child-profile-action-btn" data-child-id="${child.id}" data-registered="${registered ? 1 : 0}">
+      <button type="button" class="${buttonClass}${missingWeight ? "" : " child-profile-action-btn"}" data-child-id="${child.id}" data-registered="${registered ? 1 : 0}"${missingWeight ? " disabled" : ""}>
         ${buttonLabel}
       </button>
     </div>
@@ -437,6 +440,9 @@ async function toggleChildRegistration(childId, competitionId, button) {
       button.className = registered
         ? "btn btn-outline-danger btn-sm child-profile-action-btn"
         : "btn btn-judo-red btn-sm child-profile-action-btn";
+      document.querySelectorAll(`[data-id="${competitionId}"]`).forEach((trigger) => {
+        trigger.setAttribute("data-has-my-inscription", data.has_inscription ? "1" : "0");
+      });
     } else {
       button.textContent = originalLabel;
       alert(data.message || "Erreur lors de la mise à jour de l'inscription.");
