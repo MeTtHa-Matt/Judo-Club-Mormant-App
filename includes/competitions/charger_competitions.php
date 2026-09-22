@@ -111,7 +111,7 @@ $deleteOldCompetitionsStmt = $pdo->prepare(
 $deleteOldCompetitionsStmt->execute();
 
 $stmtMois = $pdo->prepare(
-    "SELECT c.id, c.nom, c.lieu, c.informations, c.date, c.date_limite_inscription, c.image,
+    "SELECT c.id, c.nom, c.lieu, c.informations, c.date, c.date_limite_inscription, c.image, c.id_cible,
             GROUP_CONCAT(DISTINCT ci.cible ORDER BY ci.cible SEPARATOR ', ') AS cible_nom
         FROM competitions c
         LEFT JOIN (
@@ -126,7 +126,7 @@ $stmtMois = $pdo->prepare(
         ) ci ON ci.competition_id = c.id
         WHERE MONTH(c.date) = :mois AND YEAR(c.date) = :annee
         AND c.date >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH)
-        GROUP BY c.id, c.nom, c.lieu, c.informations, c.date, c.date_limite_inscription, c.image
+        GROUP BY c.id, c.nom, c.lieu, c.informations, c.date, c.date_limite_inscription, c.image, c.id_cible
         ORDER BY c.date ASC"
 );
 $stmtMois->execute(['mois' => $mois, 'annee' => $annee]);
@@ -139,7 +139,7 @@ foreach ($competitionsMois as $comp) {
 }
 
 $stmtAVenir = $pdo->prepare(
-    "SELECT c.id, c.nom, c.lieu, c.informations, c.date, c.date_limite_inscription, c.image,
+    "SELECT c.id, c.nom, c.lieu, c.informations, c.date, c.date_limite_inscription, c.image, c.id_cible,
             GROUP_CONCAT(DISTINCT ci.cible ORDER BY ci.cible SEPARATOR ', ') AS cible_nom
         FROM competitions c
         LEFT JOIN (
@@ -153,7 +153,7 @@ $stmtAVenir = $pdo->prepare(
             WHERE c2.id_cible IS NOT NULL
         ) ci ON ci.competition_id = c.id
         WHERE c.date >= CURDATE()
-        GROUP BY c.id, c.nom, c.lieu, c.informations, c.date, c.date_limite_inscription, c.image
+        GROUP BY c.id, c.nom, c.lieu, c.informations, c.date, c.date_limite_inscription, c.image, c.id_cible
         ORDER BY c.date ASC"
 );
 $stmtAVenir->execute();
@@ -161,3 +161,25 @@ $competitionsAVenir = $stmtAVenir->fetchAll(PDO::FETCH_ASSOC);
 
 $stmtCeintures = $pdo->query("SELECT * FROM ceintures ORDER BY id ASC");
 $ceintures = $stmtCeintures->fetchAll(PDO::FETCH_ASSOC);
+
+$stmtCibles = $pdo->query("SELECT id, cible FROM cible ORDER BY id ASC");
+$cibles = $stmtCibles->fetchAll(PDO::FETCH_ASSOC);
+$competitionCibleIds = [];
+try {
+    $stmtCompetitionCibles = $pdo->query("SELECT competition_id, cible_id FROM competition_cibles ORDER BY cible_id ASC");
+    foreach ($stmtCompetitionCibles->fetchAll(PDO::FETCH_ASSOC) as $link) {
+        $competitionCibleIds[(int) $link['competition_id']][] = (int) $link['cible_id'];
+    }
+} catch (PDOException $e) {
+}
+
+foreach ($competitionsMois as &$competition) {
+    $competitionId = (int) $competition['id'];
+    $competition['cible_ids'] = $competitionCibleIds[$competitionId] ?? (!empty($competition['id_cible']) ? [(int) $competition['id_cible']] : []);
+}
+unset($competition);
+foreach ($competitionsAVenir as &$competition) {
+    $competitionId = (int) $competition['id'];
+    $competition['cible_ids'] = $competitionCibleIds[$competitionId] ?? (!empty($competition['id_cible']) ? [(int) $competition['id_cible']] : []);
+}
+unset($competition);

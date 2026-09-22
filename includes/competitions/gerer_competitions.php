@@ -1,7 +1,11 @@
 <?php
 
+require_once __DIR__ . '/../general/session_start_pwa.php';
+require_once __DIR__ . '/../general/db.php';
+require_once __DIR__ . '/../general/access_check.php';
+
 if (!isset($_SESSION['admin']) || (int) $_SESSION['admin'] !== 1) {
-    header('Location: competitions.php');
+    header('Location: ../../competitions.php');
     exit;
 }
 
@@ -181,7 +185,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($competitionId > 0) {
             syncCompetitionCibleLinks($pdo, $competitionId, $selectedCibleIds);
         }
-        header('Location: gerer_competitions.php?success=created');
+        header('Location: ../../competitions.php?success=created');
         exit;
     }
 
@@ -236,7 +240,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare("UPDATE competitions SET nom = ?, lieu = ?, id_cible = ?, informations = ?, date = ?, date_limite_inscription = ?, image = ? WHERE id = ?");
         $stmt->execute([$nom, $lieu, $selectedCibleIds[0] ?? null, $informations, $date, $registrationDeadline, $image, $id]);
         syncCompetitionCibleLinks($pdo, $id, $selectedCibleIds);
-        header('Location: gerer_competitions.php?success=updated');
+        header('Location: ../../competitions.php?success=updated');
         exit;
     }
 
@@ -254,7 +258,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         $stmt = $pdo->prepare("DELETE FROM competitions WHERE id = ?");
         $stmt->execute([$id]);
-        header('Location: gerer_competitions.php?success=deleted');
+        header('Location: ../../competitions.php?success=deleted');
         exit;
     }
 }

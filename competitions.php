@@ -65,7 +65,10 @@ function userHasCompetitionInscription(int $competitionId, ?int $userId): bool
             <p class="lead fs-5 fw-light mt-3 hero-subtitle">Retrouvez toutes les dates de la saison</p>
             <?php if (isset($_SESSION['admin']) && (int) $_SESSION['admin'] === 1): ?>
                 <div class="mt-3">
-                    <a href="gerer_competitions.php" class="btn btn-judo-red btn-lg">Gérer les compétitions</a>
+                    <button type="button" class="btn btn-judo-red btn-lg" data-bs-toggle="modal"
+                        data-bs-target="#modalCompetitionForm" data-form-action="create">
+                        <i class="bi bi-plus-lg me-2"></i>Ajouter une compétition
+                    </button>
                 </div>
             <?php endif; ?>
         </div>
@@ -118,9 +121,12 @@ function userHasCompetitionInscription(int $competitionId, ?int $userId): bool
                                     . ' data-lieu="' . htmlspecialchars($comp['lieu'] ?? '') . '"'
                                     . ' data-date="' . htmlspecialchars(formatDateFr($comp['date'])) . '"'
                                     . ' data-date-iso="' . htmlspecialchars($comp['date']) . '"'
+                                    . ' data-date-limite="' . htmlspecialchars($comp['date_limite_inscription'] ?? '') . '"'
                                     . ' data-cible="' . htmlspecialchars($comp['cible_nom'] ?? '') . '"'
+                                    . ' data-cible-ids="' . htmlspecialchars(implode(',', $comp['cible_ids'] ?? [])) . '"'
                                     . ' data-informations="' . htmlspecialchars($comp['informations'] ?? '') . '"'
                                     . ' data-image="' . htmlspecialchars(getCompetitionImageUrl($comp['image'])) . '"'
+                                    . ' data-image-name="' . htmlspecialchars($comp['image'] ?? '') . '"'
                                     . ' data-registration-open="' . (isCompetitionRegistrationOpen($comp['date'] ?? null, $comp['date_limite_inscription'] ?? null) ? '1' : '0') . '"'
                                     . ' data-has-my-inscription="' . ((isset($_SESSION['id']) && userHasCompetitionInscription((int) $comp['id'], (int) $_SESSION['id'])) ? '1' : '0') . '"'
                                     . ' data-id="' . (int) $comp['id'] . '" role="button" tabindex="0">'
@@ -155,9 +161,12 @@ function userHasCompetitionInscription(int $competitionId, ?int $userId): bool
                                         data-lieu="<?= htmlspecialchars($comp['lieu'] ?? '') ?>"
                                         data-date="<?= htmlspecialchars(formatDateFr($comp['date'])) ?>"
                                         data-date-iso="<?= htmlspecialchars($comp['date']) ?>"
+                                        data-date-limite="<?= htmlspecialchars($comp['date_limite_inscription'] ?? '') ?>"
                                         data-cible="<?= htmlspecialchars($comp['cible_nom'] ?? '') ?>"
+                                        data-cible-ids="<?= htmlspecialchars(implode(',', $comp['cible_ids'] ?? [])) ?>"
                                         data-informations="<?= htmlspecialchars($comp['informations'] ?? '') ?>"
                                         data-image="<?= htmlspecialchars(getCompetitionImageUrl($comp['image'])) ?>"
+                                        data-image-name="<?= htmlspecialchars($comp['image'] ?? '') ?>"
                                         data-registration-open="<?= isCompetitionRegistrationOpen($comp['date'] ?? null, $comp['date_limite_inscription'] ?? null) ? '1' : '0' ?>"
                                         data-has-my-inscription="<?= isset($_SESSION['id']) && userHasCompetitionInscription((int) $comp['id'], (int) $_SESSION['id']) ? '1' : '0' ?>"
                                         data-id="<?= (int) $comp['id'] ?>">
@@ -195,9 +204,12 @@ function userHasCompetitionInscription(int $competitionId, ?int $userId): bool
                                 data-lieu="<?= htmlspecialchars($comp['lieu'] ?? '') ?>"
                                 data-date="<?= htmlspecialchars(formatDateFr($comp['date'])) ?>"
                                 data-date-iso="<?= htmlspecialchars($comp['date']) ?>"
+                                data-date-limite="<?= htmlspecialchars($comp['date_limite_inscription'] ?? '') ?>"
                                 data-cible="<?= htmlspecialchars($comp['cible_nom'] ?? '') ?>"
+                                data-cible-ids="<?= htmlspecialchars(implode(',', $comp['cible_ids'] ?? [])) ?>"
                                 data-informations="<?= htmlspecialchars($comp['informations'] ?? '') ?>"
                                 data-image="<?= htmlspecialchars(getCompetitionImageUrl($comp['image'])) ?>"
+                                data-image-name="<?= htmlspecialchars($comp['image'] ?? '') ?>"
                                 data-registration-open="<?= isCompetitionRegistrationOpen($comp['date'] ?? null, $comp['date_limite_inscription'] ?? null) ? '1' : '0' ?>"
                                 data-has-my-inscription="<?= isset($_SESSION['id']) && userHasCompetitionInscription((int) $comp['id'], (int) $_SESSION['id']) ? '1' : '0' ?>"
                                 data-id="<?= (int) $comp['id'] ?>" role="button" tabindex="0">
@@ -252,6 +264,15 @@ function userHasCompetitionInscription(int $competitionId, ?int $userId): bool
                 </div>
                 <div class="modal-footer modal-competition-footer">
                     <?php if (isset($_SESSION['admin']) && (int) $_SESSION['admin'] === 1): ?>
+                        <button type="button" id="modalCompetitionEditBtn"
+                            class="btn btn-judo-outline modal-competition-action-btn">Modifier</button>
+                        <form method="post" action="includes/competitions/gerer_competitions.php" class="d-inline"
+                            id="modalCompetitionDeleteForm" onsubmit="return confirm('Supprimer cette compétition ?');">
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(jcm_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="id" id="modalCompetitionDeleteId" value="">
+                            <button type="submit" class="btn btn-outline-danger modal-competition-action-btn">Supprimer</button>
+                        </form>
                         <button type="button" id="modalCompetitionViewInscritsAllBtn"
                             class="btn btn-judo-outline modal-competition-action-btn">Voir les inscrits</button>
                     <?php endif; ?>
@@ -266,6 +287,82 @@ function userHasCompetitionInscription(int $competitionId, ?int $userId): bool
             </div>
         </div>
     </div>
+
+    <?php if (isset($_SESSION['admin']) && (int) $_SESSION['admin'] === 1): ?>
+        <div class="modal fade modal-ceinture bo-modal" id="modalCompetitionForm" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+                <div class="modal-content bo-card">
+                    <div class="modal-header bo-card-head">
+                        <h5 class="modal-title" id="modalCompetitionFormTitle">Ajouter une compétition</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                    </div>
+                    <form method="post" action="includes/competitions/gerer_competitions.php" enctype="multipart/form-data"
+                        id="competitionAdminForm">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(jcm_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
+                        <input type="hidden" name="action" id="competitionFormAction" value="create">
+                        <input type="hidden" name="id" id="competitionFormId" value="">
+                        <div class="modal-body bo-card-body">
+                            <div class="bo-field">
+                                <label for="competitionFormName">Nom</label>
+                                <input id="competitionFormName" class="form-control" name="nom" required maxlength="100">
+                            </div>
+                            <div class="bo-field">
+                                <label for="competitionFormPlace">Lieu</label>
+                                <input id="competitionFormPlace" class="form-control" name="lieu" maxlength="100">
+                            </div>
+                            <div class="bo-field">
+                                <label for="competitionFormTargets">Catégories cibles</label>
+                                <div class="bo-cible-picker" id="competitionFormTargets">
+                                    <div class="bo-cible-picker-head">
+                                        <span class="bo-cible-picker-title">
+                                            <i class="bi bi-people-fill me-2"></i>Choisir une ou plusieurs catégories
+                                        </span>
+                                        <span class="bo-cible-picker-count"><?= count($cibles) ?> catégories</span>
+                                    </div>
+                                    <div class="bo-cible-options">
+                                        <?php foreach ($cibles as $cible): ?>
+                                            <div class="bo-cible-option">
+                                                <input class="form-check-input competition-form-target" type="checkbox" name="id_cibles[]"
+                                                    id="competition-cible-<?= (int) $cible['id'] ?>" value="<?= (int) $cible['id'] ?>">
+                                                <label class="form-check-label" for="competition-cible-<?= (int) $cible['id'] ?>">
+                                                    <?= htmlspecialchars($cible['cible']) ?>
+                                                </label>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bo-field">
+                                <label for="competitionFormDate">Date</label>
+                                    <input id="competitionFormDate" type="date" name="date" class="form-control" required>
+                            </div>
+                            <div class="bo-field">
+                                <label for="competitionFormDeadline">Date limite d'inscription</label>
+                                    <input id="competitionFormDeadline" type="date" name="date_limite_inscription" class="form-control" required>
+                                <p class="bo-help">Par défaut, 7 jours avant la date de la compétition.</p>
+                            </div>
+                            <div class="bo-field">
+                                <label for="competitionFormInfo">Informations</label>
+                                <textarea id="competitionFormInfo" name="informations" class="form-control" rows="3" maxlength="10000"></textarea>
+                            </div>
+                            <div class="bo-field">
+                                <label for="competitionFormImage">Image</label>
+                                <div id="competitionFormCurrentImage" class="bo-help"></div>
+                                <input id="competitionFormImage" type="file" class="form-control" name="image_file" accept="image/jpeg,image/png,image/gif">
+                                <p class="bo-help">Formats autorisés : jpg, png, gif. Max 5 Mo.</p>
+                            </div>
+                        </div>
+                        <div class="modal-footer bo-form-actions">
+                            <button type="submit" class="bo-btn bo-btn-primary" id="competitionFormSubmit">
+                                <i class="bi bi-plus-lg"></i> Ajouter
+                            </button>
+                            <button type="button" class="bo-btn bo-btn-outline" data-bs-dismiss="modal">Annuler</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
 
     <div class="modal fade modal-ceinture" id="modalRegistrationChoice" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">

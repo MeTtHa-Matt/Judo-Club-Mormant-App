@@ -3626,6 +3626,52 @@ section {
   margin-top: 0.35rem;
 }
 
+/* Formulaire de compétition affiché dans la page calendrier */
+.modal-ceinture.bo-modal .modal-content {
+  border: 1px solid var(--bo-line);
+  border-radius: var(--bo-radius);
+  box-shadow: 0 10px 30px -18px rgba(23, 19, 15, 0.35);
+}
+
+.modal-ceinture.bo-modal .modal-header {
+  background: #fff;
+  border-bottom: 1px solid var(--bo-line);
+  color: var(--bo-ink);
+  padding: 1.1rem 1.4rem;
+}
+
+.modal-ceinture.bo-modal .modal-title {
+  color: var(--bo-ink);
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 1.25rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.bo-modal .modal-footer.bo-form-actions {
+  justify-content: flex-start;
+  border-top: 0;
+  padding: 0 1.4rem 1.4rem;
+  margin-top: 0;
+}
+
+.bo-modal .modal-dialog {
+  max-width: 640px;
+}
+
+.modal-ceinture.bo-modal .modal-dialog-scrollable .modal-body {
+  min-height: 0;
+  overflow-y: auto !important;
+  max-height: calc(100vh - 240px);
+}
+
+@media (max-width: 767.98px) {
+  .modal-ceinture.bo-modal .modal-dialog-scrollable .modal-body {
+    max-height: calc(100vh - 190px);
+  }
+}
+
 /* ---------------------------------------------------------------------
    Tableau (desktop) — devient des cartes en mobile
    --------------------------------------------------------------------- */

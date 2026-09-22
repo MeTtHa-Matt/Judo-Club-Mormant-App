@@ -17,9 +17,13 @@ const viewAllBtn = document.getElementById(
 const viewMineBtn = document.getElementById(
   "modalCompetitionViewInscritsMineBtn",
 );
+const modalCompetitionForm = document.getElementById("modalCompetitionForm");
+const competitionAdminForm = document.getElementById("competitionAdminForm");
+const editCompetitionBtn = document.getElementById("modalCompetitionEditBtn");
 let currentCompetition = {
   id: "",
   name: "",
+  trigger: null,
 };
 let activeChildCompetitionId = "";
 
@@ -178,6 +182,7 @@ modalCompetition.addEventListener("show.bs.modal", (event) => {
 
   currentCompetition.id = trigger.getAttribute("data-id") || "";
   currentCompetition.name = nom;
+  currentCompetition.trigger = trigger;
 
   document.getElementById("modalCompetitionNom").textContent = nom;
   document.getElementById("modalCompetitionDate").textContent = date;
@@ -275,7 +280,82 @@ modalCompetition.addEventListener("show.bs.modal", (event) => {
       };
     }
   }
+
+  const deleteIdInput = document.getElementById("modalCompetitionDeleteId");
+  if (deleteIdInput) deleteIdInput.value = currentCompetition.id;
 });
+
+function setCompetitionFormDateDefaults() {
+  const dateInput = document.getElementById("competitionFormDate");
+  const deadlineInput = document.getElementById("competitionFormDeadline");
+  if (!dateInput || !deadlineInput || !dateInput.value || deadlineInput.dataset.userEdited === "1") return;
+
+  const date = new Date(`${dateInput.value}T00:00:00`);
+  date.setDate(date.getDate() - 7);
+  deadlineInput.value = date.toISOString().slice(0, 10);
+}
+
+if (modalCompetitionForm && competitionAdminForm) {
+  modalCompetitionForm.addEventListener("show.bs.modal", (event) => {
+    const trigger = event.relatedTarget;
+    const isEdit = trigger?.getAttribute("data-form-action") === "edit" || modalCompetitionForm.dataset.mode === "edit";
+    modalCompetitionForm.dataset.mode = "create";
+    competitionAdminForm.reset();
+    const formAction = document.getElementById("competitionFormAction");
+    const formTitle = document.getElementById("competitionFormTitle");
+    const formSubmit = document.getElementById("competitionFormSubmit");
+    const formId = document.getElementById("competitionFormId");
+    const currentImage = document.getElementById("competitionFormCurrentImage");
+    if (formAction) formAction.value = isEdit ? "update" : "create";
+    if (formTitle) formTitle.textContent = isEdit ? "Modifier la compétition" : "Ajouter une compétition";
+    if (formSubmit) {
+      formSubmit.innerHTML = isEdit
+        ? '<i class="bi bi-check-lg"></i> Enregistrer'
+        : '<i class="bi bi-plus-lg"></i> Ajouter';
+    }
+    if (formId) formId.value = isEdit ? currentCompetition.id : "";
+    if (currentImage) currentImage.textContent = "";
+
+    if (!isEdit) return;
+
+    const source = currentCompetition.trigger;
+    const formName = document.getElementById("competitionFormName");
+    const formPlace = document.getElementById("competitionFormPlace");
+    const formDate = document.getElementById("competitionFormDate");
+    const formDeadline = document.getElementById("competitionFormDeadline");
+    const formInfo = document.getElementById("competitionFormInfo");
+    if (formName) formName.value = source?.getAttribute("data-nom") || "";
+    if (formPlace) formPlace.value = source?.getAttribute("data-lieu") || "";
+    if (formDate) formDate.value = source?.getAttribute("data-date-iso") || "";
+    if (formDeadline) formDeadline.value = source?.getAttribute("data-date-limite") || "";
+    if (formInfo) formInfo.value = source?.getAttribute("data-informations") || "";
+    if (currentImage) currentImage.textContent = source?.getAttribute("data-image-name")
+      ? `Image actuelle : ${source.getAttribute("data-image-name")}`
+      : "Aucune image actuelle";
+    const selectedIds = (source?.getAttribute("data-cible-ids") || "").split(",").filter(Boolean);
+    document.querySelectorAll(".competition-form-target").forEach((checkbox) => {
+      checkbox.checked = selectedIds.includes(checkbox.value);
+    });
+  });
+
+  editCompetitionBtn?.addEventListener("click", () => {
+    modalCompetitionForm.dataset.mode = "edit";
+    const detailsModal = bootstrap.Modal.getInstance(modalCompetition);
+    detailsModal?.hide();
+    modalCompetition.addEventListener("hidden.bs.modal", function openEditModal() {
+      modalCompetition.removeEventListener("hidden.bs.modal", openEditModal);
+      bootstrap.Modal.getOrCreateInstance(modalCompetitionForm).show();
+    });
+  });
+
+  document.getElementById("competitionFormDate")?.addEventListener("change", () => {
+    const deadlineInput = document.getElementById("competitionFormDeadline");
+    if (deadlineInput && !deadlineInput.value) setCompetitionFormDateDefaults();
+  });
+  document.getElementById("competitionFormDeadline")?.addEventListener("input", (event) => {
+    event.currentTarget.dataset.userEdited = "1";
+  });
+}
 
 if (viewAllBtn) {
   viewAllBtn.addEventListener("click", function (e) {
