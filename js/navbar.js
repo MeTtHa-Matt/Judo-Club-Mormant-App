@@ -12,6 +12,11 @@ document.addEventListener("DOMContentLoaded", function () {
   const profileToggle = document.getElementById("profileDropdownToggle");
   const profileMenu = document.querySelector(".profile-menu-judo");
 
+  if (profileMenu) {
+    profileMenu.classList.add("profile-menu-portal");
+    document.body.appendChild(profileMenu);
+  }
+
   navLinks.forEach((link) => {
     const linkPage = link.getAttribute("href");
 

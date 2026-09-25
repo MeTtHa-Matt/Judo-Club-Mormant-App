@@ -1766,9 +1766,6 @@ section {
 @media (max-width: 991.98px) {
   .custom-navbar {
     padding: max(20px, env(safe-area-inset-top, 0px)) 0 0.35rem;
-    max-height: 100dvh;
-    overflow-y: auto;
-    overscroll-behavior: contain;
     animation: none;
   }
 
@@ -5266,6 +5263,25 @@ table.bo-table td.bo-date {
   flex-shrink: 0;
 }
 
+.remember-me-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 56px;
+  padding: 10px 14px;
+  border: 1px solid rgba(17, 17, 17, 0.1);
+  border-radius: 10px;
+  background: linear-gradient(180deg, #fff 0%, #f7f7f7 100%);
+}
+
+.remember-me-label {
+  color: var(--judo-dark);
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
 .jcm-switch-input {
   position: absolute;
   opacity: 0;
@@ -5312,6 +5328,18 @@ table.bo-table td.bo-date {
 .jcm-switch-input:disabled + .jcm-switch-track {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+@media (max-width: 991.98px) {
+  .profile-menu-judo.profile-menu-portal,
+  .profile-menu-judo.profile-menu-portal.show {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 2147483650;
+  }
 }
 
 @media (max-width: 576px) {

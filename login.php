@@ -75,9 +75,12 @@ require_once __DIR__ . "/includes/general/notifications.php";
                         </div>
 
                         <input type="hidden" name="return_to" value="<?= ($_GET['return_to'] ?? '') === 'fruit_ninja.php' ? 'fruit_ninja.php' : '' ?>">
-                        <div class="form-check mb-3">
-                            <input class="form-check-input" type="checkbox" value="1" id="remember_me" name="remember_me">
-                            <label class="form-check-label small" for="remember_me">Se souvenir de moi pendant 30 jours</label>
+                        <div class="remember-me-row mb-3">
+                            <span class="remember-me-label">Se souvenir de moi pendant 30 jours</span>
+                            <label class="jcm-switch" for="remember_me">
+                                <input class="jcm-switch-input" type="checkbox" value="1" id="remember_me" name="remember_me">
+                                <span class="jcm-switch-track"><span class="jcm-switch-thumb"></span></span>
+                            </label>
                         </div>
 
                         <button type="submit" class="btn btn-judo-red w-100 py-2.5 fw-bold shadow-sm mb-3"
