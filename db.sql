@@ -95,15 +95,40 @@ CREATE TABLE inscrits (
     FOREIGN KEY (id_competition) REFERENCES competitions(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS families (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    created_by INT NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES account(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS family_members (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    family_id INT NOT NULL,
+    account_id INT NOT NULL,
+    role VARCHAR(30) NOT NULL DEFAULT 'parent',
+    added_by_account_id INT NULL DEFAULT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_family_account (family_id, account_id),
+    FOREIGN KEY (family_id) REFERENCES families(id) ON DELETE CASCADE,
+    FOREIGN KEY (account_id) REFERENCES account(id) ON DELETE CASCADE,
+    FOREIGN KEY (added_by_account_id) REFERENCES account(id) ON DELETE SET NULL,
+    INDEX (family_id),
+    INDEX (account_id),
+    INDEX (added_by_account_id)
+);
+
 CREATE TABLE child_profiles (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     account_id INT NOT NULL,
+    family_id INT NULL,
     firstname VARCHAR(100) NOT NULL,
     lastname VARCHAR(100) NOT NULL,
     annee_naissance YEAR NOT NULL,
     id_ceinture INT NOT NULL,
     Poids INT NULL,
     FOREIGN KEY (account_id) REFERENCES account(id) ON DELETE CASCADE,
+    FOREIGN KEY (family_id) REFERENCES families(id) ON DELETE SET NULL,
     FOREIGN KEY (id_ceinture) REFERENCES ceintures(id) ON DELETE CASCADE
 );
 

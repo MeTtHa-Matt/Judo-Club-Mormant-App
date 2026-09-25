@@ -3,6 +3,7 @@ require_once __DIR__ . '/../general/session_start_pwa.php';
 require_once __DIR__ . '/../general/db.php';
 require_once __DIR__ . '/../general/access_check.php';
 require_once __DIR__ . '/../general/security.php';
+require_once __DIR__ . '/../account/family_helpers.php';
 jcm_require_csrf();
 header('Content-Type: application/json; charset=utf-8');
 
@@ -12,6 +13,8 @@ if (!isset($_SESSION['id'])) {
 }
 
 $userId = (int) $_SESSION['id'];
+jcm_ensure_family_schema($pdo);
+$familyId = jcm_get_or_create_family_for_account($pdo, $userId);
 $competitionId = (int) ($_POST['competition_id'] ?? 0);
 $childId = (int) ($_POST['child_id'] ?? 0);
 $adminCheck = $pdo->prepare('SELECT admin FROM account WHERE id = ? LIMIT 1');
@@ -24,8 +27,8 @@ if ($competitionId <= 0 || $childId <= 0) {
     exit;
 }
 
-$stmt = $pdo->prepare("SELECT firstname, lastname, annee_naissance, id_ceinture, Poids FROM child_profiles WHERE id = ? AND account_id = ?");
-$stmt->execute([$childId, $userId]);
+$stmt = $pdo->prepare("SELECT firstname, lastname, annee_naissance, id_ceinture, Poids FROM child_profiles WHERE id = ? AND family_id = ?");
+$stmt->execute([$childId, $familyId]);
 $child = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$child) {

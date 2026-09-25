@@ -3,6 +3,7 @@ include "../general/db.php";
 include "../general/mailer.php";
 require_once __DIR__ . '/../general/session_start_pwa.php';
 require_once __DIR__ . '/../general/security.php';
+require_once __DIR__ . '/family_helpers.php';
 
 jcm_require_csrf();
 
@@ -44,6 +45,10 @@ $expires = date('Y-m-d H:i:s', strtotime('+24 hours'));
 
 $stmt = $pdo->prepare("INSERT INTO account (firstname, lastname, email, password, verification_token, verification_token_expires, accept_email) VALUES (?,?,?,?,?,?,?)");
 $stmt->execute([$firstname, $lastname, $email, $password, $token, $expires, $accept_email]);
+
+$accountId = (int) $pdo->lastInsertId();
+jcm_ensure_family_schema($pdo);
+jcm_get_or_create_family_for_account($pdo, $accountId);
 
 if (isset($_FILES['pdp']) && $_FILES['pdp']['error'] === UPLOAD_ERR_OK) {
     $tmpPath = $_FILES['pdp']['tmp_name'];

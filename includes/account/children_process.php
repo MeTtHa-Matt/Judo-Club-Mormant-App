@@ -3,6 +3,7 @@ require_once __DIR__ . '/../general/session_start_pwa.php';
 require_once __DIR__ . '/../general/db.php';
 require_once __DIR__ . '/../general/session_start_pwa.php';
 require_once __DIR__ . '/../general/security.php';
+require_once __DIR__ . '/family_helpers.php';
 jcm_require_csrf();
 
 if (!isset($_SESSION['id'])) {
@@ -11,6 +12,8 @@ if (!isset($_SESSION['id'])) {
 }
 
 $userId = (int) $_SESSION['id'];
+jcm_ensure_family_schema($pdo);
+$userFamilyId = jcm_get_or_create_family_for_account($pdo, $userId);
 $action = $_POST['action'] ?? '';
 $flashSuccess = null;
 $flashError = null;
@@ -36,8 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 header('Location: ../../mes_enfants.php');
                 exit;
             }
-            $stmt = $pdo->prepare("INSERT INTO child_profiles (account_id, firstname, lastname, annee_naissance, id_ceinture, Poids) VALUES (?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$userId, $firstname, $lastname, $annee_naissance, $id_ceinture, $poidsValue]);
+            $stmt = $pdo->prepare("INSERT INTO child_profiles (account_id, family_id, firstname, lastname, annee_naissance, id_ceinture, Poids) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$userId, $userFamilyId, $firstname, $lastname, $annee_naissance, $id_ceinture, $poidsValue]);
             $_SESSION['children_flash_success'] = 'Profil enfant ajouté avec succès.';
         }
     }
@@ -63,8 +66,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 header('Location: ../../mes_enfants.php');
                 exit;
             }
-            $stmt = $pdo->prepare("UPDATE child_profiles SET firstname = ?, lastname = ?, annee_naissance = ?, id_ceinture = ?, Poids = ? WHERE id = ? AND account_id = ?");
-            $stmt->execute([$firstname, $lastname, $annee_naissance, $id_ceinture, $poidsValue, $childId, $userId]);
+            $stmt = $pdo->prepare("UPDATE child_profiles SET firstname = ?, lastname = ?, annee_naissance = ?, id_ceinture = ?, Poids = ? WHERE id = ? AND family_id = ?");
+            $stmt->execute([$firstname, $lastname, $annee_naissance, $id_ceinture, $poidsValue, $childId, $userFamilyId]);
             $_SESSION['children_flash_success'] = 'Profil enfant mis à jour.';
         }
     }
@@ -74,8 +77,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!$childId) {
             $_SESSION['children_flash_error'] = 'Profil enfant introuvable.';
         } else {
-            $stmt = $pdo->prepare("DELETE FROM child_profiles WHERE id = ? AND account_id = ?");
-            $stmt->execute([$childId, $userId]);
+            $stmt = $pdo->prepare("DELETE FROM child_profiles WHERE id = ? AND family_id = ?");
+            $stmt->execute([$childId, $userFamilyId]);
             $_SESSION['children_flash_success'] = 'Profil enfant supprimé.';
         }
     }

@@ -2,15 +2,20 @@
 require_once __DIR__ . '/includes/general/access_check.php';
 require_once __DIR__ . '/includes/general/db.php';
 require_once __DIR__ . '/includes/general/notifications.php';
+require_once __DIR__ . '/includes/account/family_helpers.php';
 
 $userId = (int) $_SESSION['id'];
+jcm_ensure_family_schema($pdo);
+$userFamilyId = jcm_get_or_create_family_for_account($pdo, $userId);
 
 $stmt = $pdo->query("SELECT id, ceinture FROM ceintures ORDER BY id ASC");
 $ceintures = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$stmt = $pdo->prepare("SELECT cp.*, c.ceinture FROM child_profiles cp JOIN ceintures c ON cp.id_ceinture = c.id WHERE cp.account_id = ? ORDER BY cp.lastname, cp.firstname");
-$stmt->execute([$userId]);
+$stmt = $pdo->prepare("SELECT cp.*, c.ceinture FROM child_profiles cp JOIN ceintures c ON cp.id_ceinture = c.id WHERE cp.family_id = ? ORDER BY cp.lastname, cp.firstname");
+$stmt->execute([$userFamilyId]);
 $children = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$familyMembers = jcm_get_family_members($pdo, $userFamilyId);
 
 $flashSuccess = $_SESSION['children_flash_success'] ?? null;
 $flashError = $_SESSION['children_flash_error'] ?? null;
@@ -67,6 +72,53 @@ unset($_SESSION['children_flash_success'], $_SESSION['children_flash_error']);
         <?php endif; ?>
 
         <div class="row g-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <div>
+                            <h2 class="h4 fw-bold mb-1"><i class="bi bi-people-fill me-2 text-judo-red"></i>Ma famille</h2>
+                            <p class="mb-0 text-muted">Les comptes de votre famille partagent les mêmes enfants.</p>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="small text-uppercase text-muted fw-semibold mb-2">Parents associés</div>
+                        <div class="family-members-list">
+                            <?php foreach ($familyMembers as $member): ?>
+                                <?php
+                                $memberAccountId = (int) $member['member_account_id'];
+                                $canRemoveMember = (int) $memberAccountId !== (int) $userId
+                                    && jcm_can_remove_family_member($pdo, $userId, $userFamilyId, $memberAccountId);
+                                ?>
+                                <div class="family-member-badge">
+                                    <span class="family-member-name"><?= htmlspecialchars($member['firstname'] . ' ' . $member['lastname']) ?></span>
+                                    <?php if ($canRemoveMember): ?>
+                                        <form method="post" action="includes/account/family_process.php" class="family-remove-member-form">
+                                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(jcm_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
+                                            <input type="hidden" name="action" value="remove_family_member">
+                                            <input type="hidden" name="member_id" value="<?= $memberAccountId ?>">
+                                            <button type="submit" class="family-remove-member-btn" title="Retirer ce parent de la famille" aria-label="Retirer ce parent de la famille">×</button>
+                                        </form>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <form method="post" action="includes/account/family_process.php" class="mt-4">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(jcm_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
+                        <input type="hidden" name="action" value="join_family">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-10">
+                                <label class="form-label fw-semibold">Ajouter un parent de la famille</label>
+                                <input type="email" name="family_email" class="form-control" placeholder="Email du parent" required>
+                            </div>
+                            <div class="col-md-2 d-grid">
+                                <button type="submit" class="btn btn-judo-red">Lier</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             <div class="col-lg-6">
                 <div class="card border-0 shadow-sm rounded-4 p-4">
                     <h2 class="h4 fw-bold mb-4"><i class="bi bi-person-plus-fill me-2 text-judo-red"></i>
