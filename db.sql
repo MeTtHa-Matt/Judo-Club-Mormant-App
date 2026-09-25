@@ -34,6 +34,14 @@ CREATE TABLE IF NOT EXISTS persistent_tokens_jcm (
     INDEX (account_id)
 );
 
+CREATE TABLE IF NOT EXISTS fruit_ninja_scores (
+    account_id INT NOT NULL PRIMARY KEY,
+    best_score INT NOT NULL DEFAULT 0,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (account_id) REFERENCES account(id) ON DELETE CASCADE,
+    INDEX (best_score)
+);
+
 CREATE TABLE IF NOT EXISTS signalements_jcm (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     account_id INT NOT NULL,

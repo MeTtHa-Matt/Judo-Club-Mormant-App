@@ -26,7 +26,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $update = $pdo->prepare('UPDATE account SET reglement_accepte = 1 WHERE id = ?');
         $update->execute([$_SESSION['id']]);
         $_SESSION['reglement_accepte'] = 1;
-        header('Location: index.php?success=' . urlencode('Règlement accepté.'));
+        $returnTo = ($_SESSION['post_login_return_to'] ?? '') === 'fruit_ninja.php' ? 'fruit_ninja.php' : 'index.php?success=' . urlencode('Règlement accepté.');
+        unset($_SESSION['post_login_return_to']);
+        header('Location: ' . $returnTo);
         exit;
     }
 }

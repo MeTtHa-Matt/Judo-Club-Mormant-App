@@ -33,9 +33,25 @@ if ($result && password_verify($password, $result['password'])) {
     $_SESSION['admin'] = (int) ($result['admin'] ?? 0);
     $_SESSION['reglement_accepte'] = (int) ($result['reglement_accepte'] ?? 0);
 
-    create_persistent_login_token($pdo, $result['id']);
+    $rememberMe = isset($_POST['remember_me']) && $_POST['remember_me'] === '1';
+    $persistentToken = $_COOKIE[get_persistent_login_cookie_name()] ?? null;
+    if (is_string($persistentToken) && $persistentToken !== '') {
+        clear_persistent_login_token($pdo, $persistentToken);
+    }
+    if ($rememberMe) {
+        create_persistent_login_token($pdo, (int) $result['id']);
+    }
 
-    $redirect = $_SESSION['reglement_accepte'] === 1 ? '../../index.php?success=' . urlencode('Connexion réussie !') : '../../reglement_accept.php';
+    $sessionCookieOptions = session_get_cookie_params();
+    unset($sessionCookieOptions['lifetime']);
+    $sessionCookieOptions['expires'] = $rememberMe ? time() + 60 * 60 * 24 * 30 : 0;
+    setcookie(session_name(), session_id(), $sessionCookieOptions);
+
+    $returnTo = ($_POST['return_to'] ?? '') === 'fruit_ninja.php' ? '../../fruit_ninja.php' : '../../index.php?success=' . urlencode('Connexion réussie !');
+    if ($_SESSION['reglement_accepte'] !== 1 && $returnTo === '../../fruit_ninja.php') {
+        $_SESSION['post_login_return_to'] = 'fruit_ninja.php';
+    }
+    $redirect = $_SESSION['reglement_accepte'] === 1 ? $returnTo : '../../reglement_accept.php';
 
     header('Location: ' . $redirect);
     exit;

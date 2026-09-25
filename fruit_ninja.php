@@ -1,26 +1,86 @@
 <?php
-session_start();
+require_once __DIR__ . '/includes/general/session_start_pwa.php';
+require_once __DIR__ . '/includes/general/security.php';
 
-// Highscore persistant côté serveur (par session)
+function ensureFruitNinjaScoresTable(PDO $pdo): void
+{
+  $pdo->exec(
+    'CREATE TABLE IF NOT EXISTS fruit_ninja_scores (
+      account_id INT NOT NULL PRIMARY KEY,
+      best_score INT NOT NULL DEFAULT 0,
+      updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      FOREIGN KEY (account_id) REFERENCES account(id) ON DELETE CASCADE,
+      INDEX (best_score)
+    )'
+  );
+}
+
 if (!isset($_SESSION['fn_highscore'])) {
   $_SESSION['fn_highscore'] = 0;
 }
 
-// Endpoint AJAX pour sauvegarder le score
-if (isset($_GET['action']) && $_GET['action'] === 'save_score') {
+if (isset($_GET['action']) && in_array($_GET['action'], ['save_score', 'leaderboard'], true)) {
   header('Content-Type: application/json');
-  $score = isset($_POST['score']) ? (int) $_POST['score'] : 0;
-  if ($score > $_SESSION['fn_highscore']) {
-    $_SESSION['fn_highscore'] = $score;
+  require_once __DIR__ . '/includes/general/db.php';
+  ensureFruitNinjaScoresTable($pdo);
+
+  if ($_GET['action'] === 'leaderboard') {
+    $rows = $pdo->query(
+      'SELECT CONCAT(firstname, " ", LEFT(lastname, 1), ".") AS player, s.best_score
+       FROM fruit_ninja_scores AS s
+       JOIN account AS a ON a.id = s.account_id
+       ORDER BY s.best_score DESC, s.updated_at ASC, s.account_id ASC
+       LIMIT 10'
+    )->fetchAll(PDO::FETCH_ASSOC);
+    echo json_encode(['scores' => $rows]);
+    exit;
   }
-  echo json_encode([
-    'highscore' => $_SESSION['fn_highscore'],
-    'is_new_record' => $score >= $_SESSION['fn_highscore'] && $score > 0
-  ]);
+
+  if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['success' => false]);
+    exit;
+  }
+  jcm_require_csrf();
+
+  $score = max(0, min(1000000, (int) ($_POST['score'] ?? 0)));
+  $_SESSION['fn_highscore'] = max((int) $_SESSION['fn_highscore'], $score);
+  $accountId = (int) ($_SESSION['id'] ?? 0);
+  if ($accountId <= 0) {
+    echo json_encode(['requires_login' => true, 'highscore' => $_SESSION['fn_highscore']]);
+    exit;
+  }
+  if ($score === 0) {
+    echo json_encode(['highscore' => (int) $_SESSION['fn_highscore'], 'is_new_record' => false]);
+    exit;
+  }
+
+  $previousStmt = $pdo->prepare('SELECT best_score FROM fruit_ninja_scores WHERE account_id = ?');
+  $previousStmt->execute([$accountId]);
+  $previousScore = $previousStmt->fetchColumn();
+  $isNewRecord = $score > (int) ($previousScore === false ? 0 : $previousScore);
+  $saveStmt = $pdo->prepare(
+    'INSERT INTO fruit_ninja_scores (account_id, best_score) VALUES (?, ?)
+     ON DUPLICATE KEY UPDATE
+       updated_at = IF(VALUES(best_score) > best_score, CURRENT_TIMESTAMP, updated_at),
+       best_score = GREATEST(best_score, VALUES(best_score))'
+  );
+  $saveStmt->execute([$accountId, $score]);
+  $bestScore = max((int) ($previousScore === false ? 0 : $previousScore), $score);
+  echo json_encode(['highscore' => $bestScore, 'is_new_record' => $isNewRecord]);
   exit;
 }
 
 $initialHighscore = (int) $_SESSION['fn_highscore'];
+$isLoggedIn = !empty($_SESSION['id']);
+if ($isLoggedIn) {
+  require_once __DIR__ . '/includes/general/db.php';
+  ensureFruitNinjaScoresTable($pdo);
+  $personalBestStmt = $pdo->prepare('SELECT best_score FROM fruit_ninja_scores WHERE account_id = ?');
+  $personalBestStmt->execute([(int) $_SESSION['id']]);
+  $personalBest = $personalBestStmt->fetchColumn();
+  $initialHighscore = max($initialHighscore, (int) ($personalBest === false ? 0 : $personalBest));
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -92,9 +152,24 @@ $initialHighscore = (int) $_SESSION['fn_highscore'];
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      padding: max(14px, env(safe-area-inset-top)) clamp(14px, 4vw, 24px) 0 clamp(14px, 4vw, 24px);
+      padding: max(32px, calc(env(safe-area-inset-top, 0px) + 14px)) clamp(14px, 4vw, 24px) 0;
       pointer-events: none;
       z-index: 10;
+    }
+
+    #leaderboardToggle {
+      position: absolute;
+      top: max(78px, calc(env(safe-area-inset-top, 0px) + 62px));
+      right: clamp(14px, 4vw, 24px);
+      z-index: 12;
+      width: 44px;
+      height: 44px;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 50%;
+      background: rgba(10, 14, 30, 0.82);
+      color: #ffd166;
+      font-size: 20px;
+      cursor: pointer;
     }
 
     #score {
@@ -157,7 +232,8 @@ $initialHighscore = (int) $_SESSION['fn_highscore'];
       background: radial-gradient(circle at 50% 40%, rgba(30, 20, 50, 0.92), rgba(5, 5, 12, 0.97));
       z-index: 30;
       text-align: center;
-      padding: clamp(16px, 6vw, 32px);
+      padding: max(16px, env(safe-area-inset-top, 0px)) clamp(16px, 6vw, 32px) max(16px, env(safe-area-inset-bottom, 0px));
+      overflow-y: auto;
     }
 
     .hidden {
@@ -236,6 +312,54 @@ $initialHighscore = (int) $_SESSION['fn_highscore'];
       margin-top: 18px;
       opacity: 0.8;
     }
+
+    .leaderboard-panel {
+      width: min(100%, 390px);
+      max-height: 100%;
+      overflow-y: auto;
+      color: #fff;
+    }
+
+    .leaderboard-panel h2 {
+      color: #ffd166;
+      font-size: 26px;
+      margin-bottom: 18px;
+    }
+
+    #leaderboardList {
+      list-style: none;
+      text-align: left;
+      width: 100%;
+      margin-bottom: 18px;
+    }
+
+    #leaderboardList li {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      font-size: 14px;
+    }
+
+    #leaderboardList .leaderboard-empty {
+      justify-content: center;
+      color: #9aa0b4;
+    }
+
+    .secondaryBtn {
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      background: transparent;
+      color: #fff;
+      box-shadow: none;
+    }
+
+    .savePromptText {
+      color: #e8e8f0;
+      max-width: 320px;
+      line-height: 1.5;
+      margin-bottom: 18px;
+    }
   </style>
 </head>
 
@@ -248,6 +372,8 @@ $initialHighscore = (int) $_SESSION['fn_highscore'];
       <div id="score">0</div>
       <div id="hiscoreBox">MEILLEUR SCORE<br><span id="hiscoreValue"><?php echo $initialHighscore; ?></span></div>
     </div>
+
+    <button id="leaderboardToggle" type="button" aria-label="Voir le classement" title="Classement">🏆</button>
 
     <div id="lives">
       <span class="life">❤️</span>
@@ -263,6 +389,7 @@ $initialHighscore = (int) $_SESSION['fn_highscore'];
       <div class="title">FRUIT NINJA</div>
       <div class="subtitle">Glisse ton doigt pour trancher les fruits.<br>Évite les bombes !</div>
       <button class="btn" id="startBtn">JOUER</button>
+      <button class="btn secondaryBtn" id="startLeaderboardBtn" type="button">Classement global</button>
       <div id="startBombWarning">💣 3 fruits ratés ou 1 bombe touchée = perdu</div>
     </div>
 
@@ -277,6 +404,22 @@ $initialHighscore = (int) $_SESSION['fn_highscore'];
       </div>
       <button class="btn" id="restartBtn">REJOUER</button>
     </div>
+
+    <div id="leaderboardScreen" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="leaderboardTitle">
+      <div class="leaderboard-panel">
+        <h2 id="leaderboardTitle">Classement global</h2>
+        <ol id="leaderboardList"><li class="leaderboard-empty">Chargement...</li></ol>
+        <button class="btn secondaryBtn" id="closeLeaderboard" type="button">Fermer</button>
+      </div>
+    </div>
+
+    <div id="savePrompt" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="savePromptTitle">
+      <div class="bigEmoji">🏆</div>
+      <div class="title" id="savePromptTitle" style="font-size:clamp(26px, 8vw, 34px);">Sauvegarder mon score</div>
+      <p class="savePromptText">Connecte-toi pour enregistrer ton score dans le classement global.</p>
+      <a class="btn" id="loginToSave" href="login.php?return_to=fruit_ninja.php">Se connecter</a>
+      <button class="btn secondaryBtn" id="dismissSavePrompt" type="button">Plus tard</button>
+    </div>
   </div>
 
   <script>
@@ -286,6 +429,8 @@ $initialHighscore = (int) $_SESSION['fn_highscore'];
       const canvas = document.getElementById('gameCanvas');
       const ctx = canvas.getContext('2d');
       const container = document.getElementById('gameContainer');
+      const IS_LOGGED_IN = <?php echo json_encode($isLoggedIn); ?>;
+      const CSRF_TOKEN = <?php echo json_encode(jcm_csrf_token(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
 
       let W, H, DPR;
       // Facteur d'échelle pour la taille des fruits/bombes, calculé à partir
@@ -370,24 +515,25 @@ $initialHighscore = (int) $_SESSION['fn_highscore'];
       function spawnOne() {
         if (!running) return;
         const isBomb = Math.random() < 0.12;
-        const startX = rand(W * 0.15, W * 0.85);
-        const targetHeightFactor = rand(0.35, 0.62); // hauteur atteinte relative
-        // Gravité plus douce pour garder les fruits visibles assez longtemps
-        // sans qu’ils quittent l’écran trop rapidement.
-        const gravity = 0.0000009 * H;
-        // vitesse initiale verticale pour atteindre la hauteur voulue au sommet
-        const apexY = H * (1 - targetHeightFactor) - H * 0.05;
-        const startY = H + 60;
-        const dist = startY - apexY;
-        const vy = -Math.sqrt(2 * gravity * dist);
-        const vx = rand(-0.22, 0.22) * (W / 700);
-
         let def;
         if (isBomb) {
           def = BOMB;
         } else {
           def = FRUIT_TYPES[Math.floor(Math.random() * FRUIT_TYPES.length)];
         }
+        const radius = def.radius * sizeScale;
+        const horizontalMargin = Math.min(radius + 8, W / 4);
+        const startX = rand(horizontalMargin, W - horizontalMargin);
+        const targetHeightFactor = rand(0.35, 0.62); // hauteur atteinte relative
+        // Gravité plus douce pour garder les fruits visibles assez longtemps
+        // sans qu’ils quittent l’écran trop rapidement.
+        const gravity = 0.0000009 * H;
+        // Les objets démarrent dans la zone visible, même sur les petits écrans.
+        const startY = Math.max(radius + 8, H - radius - 8);
+        const apexY = H * (1 - targetHeightFactor) - H * 0.05;
+        const dist = Math.max(1, startY - apexY);
+        const vy = -Math.sqrt(2 * gravity * dist);
+        const vx = rand(-0.22, 0.22) * (W / 700);
 
         objects.push({
           x: startX,
@@ -395,7 +541,7 @@ $initialHighscore = (int) $_SESSION['fn_highscore'];
           vx: vx,
           vy: vy,
           gravity: gravity,
-          radius: def.radius * sizeScale,
+          radius: radius,
           emoji: def.emoji,
           points: def.points || 0,
           isBomb: isBomb,
@@ -748,15 +894,60 @@ $initialHighscore = (int) $_SESSION['fn_highscore'];
         }, 350);
       }
 
+      const leaderboardScreen = document.getElementById('leaderboardScreen');
+      const leaderboardList = document.getElementById('leaderboardList');
+      const savePrompt = document.getElementById('savePrompt');
+
+      function loadLeaderboard() {
+        fetch('?action=leaderboard', { cache: 'no-store' })
+          .then(response => response.json())
+          .then(data => {
+            leaderboardList.replaceChildren();
+            if (!data.scores || data.scores.length === 0) {
+              const emptyItem = document.createElement('li');
+              emptyItem.className = 'leaderboard-empty';
+              emptyItem.textContent = 'Aucun score enregistré pour le moment.';
+              leaderboardList.appendChild(emptyItem);
+              return;
+            }
+            data.scores.forEach((entry, index) => {
+              const item = document.createElement('li');
+              const player = document.createElement('span');
+              const score = document.createElement('strong');
+              player.textContent = (index + 1) + '. ' + entry.player;
+              score.textContent = entry.best_score;
+              item.append(player, score);
+              leaderboardList.appendChild(item);
+            });
+          })
+          .catch(() => {
+            leaderboardList.replaceChildren();
+            const errorItem = document.createElement('li');
+            errorItem.className = 'leaderboard-empty';
+            errorItem.textContent = 'Classement momentanément indisponible.';
+            leaderboardList.appendChild(errorItem);
+          });
+      }
+
       function saveScore(finalScore) {
         const body = 'score=' + encodeURIComponent(finalScore);
         fetch('?action=save_score', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-Token': CSRF_TOKEN },
           body: body
         })
           .then(r => r.json())
           .then(data => {
+            if (data.requires_login) {
+              if (finalScore > 0) {
+                try {
+                  sessionStorage.setItem('fn_pending_score', String(finalScore));
+                } catch (error) {
+                }
+                savePrompt.classList.remove('hidden');
+              }
+              return;
+            }
             highscore = data.highscore;
             hiscoreValueEl.textContent = highscore;
             if (data.is_new_record && finalScore > 0) {
@@ -764,6 +955,7 @@ $initialHighscore = (int) $_SESSION['fn_highscore'];
             } else {
               recordMsgEl.classList.add('hidden');
             }
+            loadLeaderboard();
           })
           .catch(() => {
             // Si la requête échoue (offline), on met à jour localement seulement
@@ -775,6 +967,43 @@ $initialHighscore = (int) $_SESSION['fn_highscore'];
               recordMsgEl.classList.add('hidden');
             }
           });
+      }
+
+      document.getElementById('leaderboardToggle').addEventListener('click', () => {
+        leaderboardScreen.classList.remove('hidden');
+        loadLeaderboard();
+      });
+      document.getElementById('startLeaderboardBtn').addEventListener('click', () => {
+        leaderboardScreen.classList.remove('hidden');
+        loadLeaderboard();
+      });
+      document.getElementById('closeLeaderboard').addEventListener('click', () => {
+        leaderboardScreen.classList.add('hidden');
+      });
+      document.getElementById('dismissSavePrompt').addEventListener('click', () => {
+        savePrompt.classList.add('hidden');
+      });
+      document.getElementById('loginToSave').addEventListener('click', () => {
+        try {
+          sessionStorage.setItem('fn_pending_score', String(score));
+        } catch (error) {
+        }
+      });
+
+      loadLeaderboard();
+      window.setInterval(() => {
+        if (!document.hidden) loadLeaderboard();
+      }, 15000);
+
+      if (IS_LOGGED_IN) {
+        try {
+          const pendingScore = Number(sessionStorage.getItem('fn_pending_score') || 0);
+          if (pendingScore > 0) {
+            sessionStorage.removeItem('fn_pending_score');
+            saveScore(pendingScore);
+          }
+        } catch (error) {
+        }
       }
 
       document.getElementById('startBtn').addEventListener('click', startGame);
