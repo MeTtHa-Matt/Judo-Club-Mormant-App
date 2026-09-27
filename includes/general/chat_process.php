@@ -17,6 +17,13 @@ jcm_require_csrf();
 
 $input = file_get_contents('php://input');
 $data = json_decode($input, true);
+$jsonError = json_last_error();
+if (!is_array($data) || $jsonError !== JSON_ERROR_NONE || strlen($input) > 16384) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'error' => 'Requête JSON invalide ou trop volumineuse.']);
+    exit;
+}
+
 $action = trim((string) ($data['action'] ?? ''));
 $message = trim((string) ($data['message'] ?? ''));
 
@@ -41,6 +48,12 @@ if ($message === '') {
     exit;
 }
 
+if (mb_strlen($message) > 4000) {
+    http_response_code(413);
+    echo json_encode(['success' => false, 'error' => 'Message trop volumineux.']);
+    exit;
+}
+
 if (!isset($_SESSION['id'])) {
     http_response_code(401);
     echo json_encode(['success' => false, 'error' => 'Utilisateur non authentifié.']);
@@ -55,6 +68,12 @@ $me = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$me || (int) $me['admin'] !== 1) {
     http_response_code(403);
     echo json_encode(['success' => false, 'error' => 'Accès réservé aux administrateurs.']);
+    exit;
+}
+
+if (!jcm_rate_limit('ia-chat:' . $userId, 20, 300)) {
+    http_response_code(429);
+    echo json_encode(['success' => false, 'error' => 'Trop de requêtes. Réessayez plus tard.']);
     exit;
 }
 
@@ -158,6 +177,9 @@ function callGroqModel(string $apiKey, array $messages): array
         'Authorization: Bearer ' . $apiKey,
     ]);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+    curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
+    curl_setopt($ch, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTPS);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 8);
     curl_setopt($ch, CURLOPT_TIMEOUT, 25);
 
     $response = curl_exec($ch);
@@ -171,6 +193,10 @@ function callGroqModel(string $apiKey, array $messages): array
     $decoded = json_decode($response, true);
     if (!$decoded || json_last_error() !== JSON_ERROR_NONE) {
         return ['error' => 'Réponse API invalide.'];
+    }
+
+    if ($httpStatus < 200 || $httpStatus >= 300) {
+        return ['error' => 'Le service API a refusé la requête.'];
     }
 
     return ['status' => $httpStatus, 'body' => $decoded];

@@ -161,9 +161,11 @@ if (session_status() === PHP_SESSION_NONE) {
     ini_set('session.use_strict_mode', '1');
     ini_set('session.use_only_cookies', '1');
     ini_set('session.cookie_httponly', '1');
+    ini_set('session.cookie_samesite', 'Lax');
     header('X-Content-Type-Options: nosniff');
     header('X-Frame-Options: SAMEORIGIN');
     header('Referrer-Policy: strict-origin-when-cross-origin');
+    header('Permissions-Policy: camera=(), geolocation=(), microphone=()');
     if ($is_https) {
         header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
     }

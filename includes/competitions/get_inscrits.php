@@ -2,7 +2,17 @@
 require_once __DIR__ . '/../general/session_start_pwa.php';
 require_once __DIR__ . '/../general/db.php';
 require_once __DIR__ . '/../general/access_check.php';
+require_once __DIR__ . '/../general/security.php';
 header('Content-Type: application/json; charset=utf-8');
+
+$method = $_SERVER['REQUEST_METHOD'] ?? '';
+if ($method !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['success' => false, 'message' => 'Méthode non autorisée']);
+    exit;
+}
+
+jcm_require_csrf();
 
 $compId = (int) ($_POST['id_competition'] ?? 0);
 if (!$compId) {
@@ -12,7 +22,14 @@ if (!$compId) {
 
 $isAdmin = isset($_SESSION['admin']) && (int) $_SESSION['admin'] === 1;
 $userId = $_SESSION['id'] ?? null;
+$userId = $userId !== null ? (int) $userId : 0;
 $onlyMe = isset($_POST['only_me']) && ($_POST['only_me'] == '1' || $_POST['only_me'] === 'true');
+
+if ($userId <= 0) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Non authentifié']);
+    exit;
+}
 
 if ($onlyMe || !$isAdmin) {
     if (!$userId) {

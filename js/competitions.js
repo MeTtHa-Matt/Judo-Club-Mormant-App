@@ -68,7 +68,8 @@ async function fetchAndShowInscrits(id, onlyMe = false, btn = null) {
     }
 
     const body =
-      "id_competition=" + encodeURIComponent(id) + (onlyMe ? "&only_me=1" : "");
+      "id_competition=" + encodeURIComponent(id) + (onlyMe ? "&only_me=1" : "") +
+      "&csrf_token=" + encodeURIComponent(window.JCM?.csrfToken || "");
     const resp = await fetch("includes/competitions/get_inscrits.php", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },

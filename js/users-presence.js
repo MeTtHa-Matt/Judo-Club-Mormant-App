@@ -3,11 +3,16 @@ document.addEventListener('DOMContentLoaded', function () {
   const APP_ROOT = (window.JCM && typeof window.JCM.appRoot === 'string') ? window.JCM.appRoot : '';
   const STATUS_URL = (APP_ROOT ? APP_ROOT : '') + '/includes/general/online_status.php';
   const POLL_INTERVAL = 5000; // 5 seconds
+  const CSRF_TOKEN = (window.JCM && typeof window.JCM.csrfToken === 'string') ? window.JCM.csrfToken : '';
 
   // Update own presence via POST
   async function sendHeartbeat() {
     try {
-      const res = await fetch(STATUS_URL, { method: 'POST', credentials: 'include' });
+      const res = await fetch(STATUS_URL, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'X-CSRF-Token': CSRF_TOKEN }
+      });
       if (!res.ok) {
         console.debug('Heartbeat POST failed', res.status);
         return false;
@@ -74,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Send a final beacon on unload so the server can mark offline quickly
   window.addEventListener('unload', function () {
     try {
-      navigator.sendBeacon(STATUS_URL, new URLSearchParams([['_unload', '1']]));
+      navigator.sendBeacon(STATUS_URL, new URLSearchParams([['_unload', '1'], ['csrf_token', CSRF_TOKEN]]));
     } catch (e) {
       // ignore
     }
