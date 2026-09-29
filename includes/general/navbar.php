@@ -1,4 +1,10 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<div class="page-loader" id="pageLoader" aria-hidden="true">
+    <div class="page-loader-content" role="status" aria-label="Chargement de la page">
+        <img src="img/jcm.png" alt="Judo Club de Mormant" class="page-loader-logo" width="75" height="75">
+        <span class="page-loader-spinner" aria-hidden="true"></span>
+    </div>
+</div>
 <?php $appRoot = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\'); ?>
 <nav class="navbar navbar-expand-lg fixed-top custom-navbar">
     <div class="container-fluid px-4 custom-navbar-container">
@@ -188,3 +194,4 @@
 <?php endif; ?>
 
 <script src="js/navbar.js"></script>
+<script src="js/page-transition.js?v=<?php echo filemtime(__DIR__ . '/../../js/page-transition.js'); ?>"></script>

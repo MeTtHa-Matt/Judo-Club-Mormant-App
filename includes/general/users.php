@@ -203,7 +203,7 @@ function renderUserResults(array $users, string $search, int $userId): string
                                             <?php $value = $u['pdp']; ?>
                                             <div class="user-avatar-wrapper" style="position:relative; display:inline-block">
                                                 <img src="<?= htmlspecialchars(!empty($u['pdp']) ? "img/pdps/$value" : 'img/pdps/pdp_base.png') ?>"
-                                                    alt="" class="table-user-avatar">
+                                                    alt="" class="table-user-avatar" loading="lazy">
                                                 <span class="user-status-dot" data-user-id="<?= (int) $u['id'] ?>" aria-hidden="true"></span>
                                             </div>
                                             <div>

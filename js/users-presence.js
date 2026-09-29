@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Build endpoint URL using app root if provided by server (set in navbar)
   const APP_ROOT = (window.JCM && typeof window.JCM.appRoot === 'string') ? window.JCM.appRoot : '';
   const STATUS_URL = (APP_ROOT ? APP_ROOT : '') + '/includes/general/online_status.php';
-  const POLL_INTERVAL = 5000; // 5 seconds
+  const POLL_INTERVAL = 30000; // 30 seconds
   const CSRF_TOKEN = (window.JCM && typeof window.JCM.csrfToken === 'string') ? window.JCM.csrfToken : '';
 
   // Update own presence via POST

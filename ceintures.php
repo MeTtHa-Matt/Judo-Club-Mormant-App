@@ -88,7 +88,7 @@ include __DIR__ . '/includes/ceintures/tableaux_ceintures.php';
                     <div class="modal-header">
                         <div class="d-flex align-items-center gap-3">
                             <span class="modal-ceinture-thumb">
-                                <img src="img/ceintures/<?= $belt['image'] ?>" alt="Ceinture <?= $belt['nom'] ?>">
+                                <img src="img/ceintures/<?= $belt['image'] ?>" alt="Ceinture <?= $belt['nom'] ?>" loading="lazy">
                             </span>
                             <h2 class="modal-title h4 mb-0" id="modal-<?= $belt['id'] ?>-label">Ceinture
                                 <?= $belt['nom'] ?>

@@ -68,7 +68,7 @@ function jcm_render_tutorial(string $platform): string
         $output .= '  <div class="install-step-number">' . ($index + 1) . '</div>';
         $output .= '  <div class="install-step-card">';
         $output .= '    <div class="install-step-image-wrap">';
-        $output .= '      <img src="' . htmlspecialchars($step['image'], ENT_QUOTES, 'UTF-8') . '" alt="' . htmlspecialchars($step['title'] . ' - ' . $platform, ENT_QUOTES, 'UTF-8') . '" class="install-step-image">';
+        $output .= '      <img src="' . htmlspecialchars($step['image'], ENT_QUOTES, 'UTF-8') . '" alt="' . htmlspecialchars($step['title'] . ' - ' . $platform, ENT_QUOTES, 'UTF-8') . '" class="install-step-image" loading="lazy">';
         $output .= '    </div>';
         $output .= '    <div class="install-step-body">';
         $output .= '      <h3 class="install-step-title">' . htmlspecialchars($step['title'], ENT_QUOTES, 'UTF-8') . '</h3>';
