@@ -60,6 +60,7 @@ Le projet centralise les éléments numériques du club :
 
 - intégration d’IndexNow pour le soumission des pages publiques,
 - script de chat IA via variable d’environnement `IA_API_KEY`,
+- mesure d’audience activée uniquement après consentement explicite; le choix est modifiable depuis le pied de page,
 - mini-jeu `fruit_ninja.php` avec score enregistré pour les comptes,
 - support de notifications et d’outils d’administration JS.
 

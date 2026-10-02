@@ -150,3 +150,21 @@ CREATE TABLE IF NOT EXISTS index_links_jcm (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS judo_analytics_events (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    session_hash CHAR(64) NOT NULL,
+    event_type VARCHAR(20) NOT NULL,
+    page_path VARCHAR(128) NOT NULL,
+    platform VARCHAR(24) NOT NULL,
+    operating_system VARCHAR(32) NOT NULL,
+    browser_category VARCHAR(32) NOT NULL,
+    viewport_category VARCHAR(10) NOT NULL,
+    referrer_host VARCHAR(190) DEFAULT NULL,
+    search_engine VARCHAR(40) DEFAULT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_judo_analytics_created_type (created_at, event_type),
+    INDEX idx_judo_analytics_session (session_hash, created_at),
+    INDEX idx_judo_analytics_page (page_path, created_at),
+    INDEX idx_judo_analytics_source (search_engine, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

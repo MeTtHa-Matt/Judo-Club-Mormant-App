@@ -26,6 +26,7 @@
         <div class="footer-bottom text-center mt-4 pt-4 border-top">
             <p class="mb-0 ">Site réalisé par <a href="fruit_ninja.php" style="text-decoration:none; color:white;">Matthew</a></p>
             <p class="mb-0 mt-2">© <?= date('Y') ?> Judo Club de Mormant. Tous droits réservés.</p>
+            <button type="button" class="jcm-audience-preferences" id="jcm-audience-preferences">Préférences de mesure d’audience</button>
         </div>
     </div>
 </footer>
@@ -51,4 +52,18 @@
     </div>
 </div>
 
+<aside class="jcm-consent-banner" id="jcm-consent-banner" aria-labelledby="jcm-consent-title" aria-describedby="jcm-consent-description" hidden>
+    <div class="jcm-consent-copy">
+        <p class="jcm-consent-kicker">VOTRE CHOIX</p>
+        <h2 id="jcm-consent-title" tabindex="-1">Autorisez-vous les statistiques du site ?</h2>
+        <p id="jcm-consent-description">Avec votre accord, nous mesurerons les pages consultées, le type d’appareil, le système, le navigateur et le domaine d’origine pour améliorer le site. Une session pseudonyme est utilisée; aucune adresse IP ni recherche saisie n’est enregistrée. Votre choix peut être modifié depuis le pied de page.</p>
+    </div>
+    <div class="jcm-consent-actions">
+        <button type="button" class="jcm-consent-button jcm-consent-decline" id="jcm-consent-decline">Refuser</button>
+        <button type="button" class="jcm-consent-button jcm-consent-accept" id="jcm-consent-accept">Autoriser les statistiques</button>
+    </div>
+</aside>
+
 <script src="js/footer.js?v=<?php echo filemtime('js/footer.js'); ?>"></script>
+<script src="js/analytics-consent.js?v=1" defer></script>
+<script src="js/judo-analytics.js?v=3" data-endpoint="https://dashboard.judo-club-mormant.fr/track.php" defer></script>
