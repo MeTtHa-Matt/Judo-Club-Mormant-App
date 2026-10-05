@@ -1,5 +1,23 @@
 <?php
 require_once __DIR__ . '/includes/general/session_start_pwa.php';
+require_once __DIR__ . '/includes/general/db.php';
+
+$maintenanceActive = (int) $pdo->query('SELECT maintenance FROM account LIMIT 1')->fetchColumn() === 1;
+
+if (isset($_GET['check_maintenance'])) {
+    header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-store, no-cache, must-revalidate');
+    echo json_encode(['active' => $maintenanceActive]);
+    exit;
+}
+
+if (!$maintenanceActive) {
+    $appBasePath = rtrim(dirname($_SERVER['SCRIPT_NAME'] ?? '/'), '/\\');
+    $appBasePath = $appBasePath === '/' ? '' : $appBasePath;
+    header('Location: ' . $appBasePath . '/index.php');
+    exit;
+}
+
 require_once __DIR__ . "/includes/general/notifications.php";
 ?>
 <!DOCTYPE html>
@@ -35,6 +53,24 @@ require_once __DIR__ . "/includes/general/notifications.php";
 
     <?php include __DIR__ . '/includes/general/footer.php'; ?>
 
+    <script>
+        const checkMaintenanceStatus = async () => {
+            try {
+                const response = await fetch('maintenance.php?check_maintenance=1', { cache: 'no-store' });
+                if (!response.ok) return;
+
+                const status = await response.json();
+                if (status.active === false) {
+                    window.location.replace('index.php');
+                }
+            } catch {}
+        };
+
+        window.setInterval(checkMaintenanceStatus, 10000);
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) checkMaintenanceStatus();
+        });
+    </script>
 </body>
 
 </html>

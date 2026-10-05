@@ -7,6 +7,9 @@ CREATE TABLE account (
     pdp VARCHAR(255) NOT NULL DEFAULT "pdp_base.png",
     admin TINYINT(1) NOT NULL DEFAULT 0,
     last_activity DATETIME DEFAULT NULL,
+    last_login_at DATETIME DEFAULT NULL,
+    last_page_path VARCHAR(128) DEFAULT NULL,
+    last_page_at DATETIME DEFAULT NULL,
     ban TINYINT(1) NOT NULL DEFAULT 0,
     maintenance TINYINT(1) NOT NULL DEFAULT 0,
     accept_email TINYINT(1) NOT NULL DEFAULT 1,
@@ -15,7 +18,8 @@ CREATE TABLE account (
     verification_token VARCHAR(255) DEFAULT NULL,
     verification_token_expires DATETIME DEFAULT NULL,
     reset_token VARCHAR(64) NULL,
-    reset_token_expires DATETIME NULL
+    reset_token_expires DATETIME NULL,
+    INDEX idx_account_last_login (last_login_at)
 );
 
 INSERT INTO account (firstname, lastname, email, `password`, admin, email_verified) VALUES ("admin", "admin", "admin@admin.fr", "$2y$10$jgqlubHdvwg7cTs1V6C/a.RX92qQhmYV7wLzDMEA7K00g9zluuJmq", 1, 1), ("Damien", "admin", "damien@admin.fr", "$2y$10$399GY/UYPWBCfMcIJj0Z8OZpF3fDq10AMKp09pkilJEE9.SUMeV2O", 1, 1), ("Freddy", "admin", "freddy@admin.fr", "$2y$10$/.L1SUmYg6oFBUsKRLuT0O03lk2O/COAsMykbLfM2eFWbszQCXR/6", 1, 1);
@@ -155,6 +159,7 @@ CREATE TABLE IF NOT EXISTS judo_analytics_events (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     session_hash CHAR(64) NOT NULL,
     event_type VARCHAR(20) NOT NULL,
+    is_authenticated TINYINT(1) DEFAULT NULL,
     page_path VARCHAR(128) NOT NULL,
     platform VARCHAR(24) NOT NULL,
     operating_system VARCHAR(32) NOT NULL,

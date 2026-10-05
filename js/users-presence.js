@@ -4,6 +4,23 @@ document.addEventListener('DOMContentLoaded', function () {
   const STATUS_URL = (APP_ROOT ? APP_ROOT : '') + '/includes/general/online_status.php';
   const POLL_INTERVAL = 30000; // 30 seconds
   const CSRF_TOKEN = (window.JCM && typeof window.JCM.csrfToken === 'string') ? window.JCM.csrfToken : '';
+  const PRIVATE_PAGES = new Set([
+    'ban.php', 'chat.php', 'gerer_index_liens.php', 'login.php', 'mailing.php', 'maintenance.php',
+    'mes_enfants.php', 'profile.php', 'recup_mdp.php', 'register.php', 'reports.php', 'reset_password.php',
+    'signaler.php', 'users.php', 'verify.php', 'reglement_accept.php'
+  ]);
+
+  function consentedPublicPage() {
+    if (navigator.doNotTrack === '1' || navigator.globalPrivacyControl === true) return '';
+    try {
+      if (localStorage.getItem('jcm_audience_consent') !== 'accepted') return '';
+    } catch {
+      return '';
+    }
+    const path = window.location.pathname;
+    const page = path.toLowerCase().split('/').pop() || 'index.php';
+    return PRIVATE_PAGES.has(page) ? '' : path;
+  }
 
   // Update own presence via POST
   async function sendHeartbeat() {
@@ -11,7 +28,8 @@ document.addEventListener('DOMContentLoaded', function () {
       const res = await fetch(STATUS_URL, {
         method: 'POST',
         credentials: 'include',
-        headers: { 'X-CSRF-Token': CSRF_TOKEN }
+        headers: { 'X-CSRF-Token': CSRF_TOKEN },
+        body: new URLSearchParams({ page: consentedPublicPage() })
       });
       if (!res.ok) {
         console.debug('Heartbeat POST failed', res.status);

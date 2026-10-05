@@ -33,6 +33,12 @@ if ($result && password_verify($password, $result['password'])) {
     $_SESSION['admin'] = (int) ($result['admin'] ?? 0);
     $_SESSION['reglement_accepte'] = (int) ($result['reglement_accepte'] ?? 0);
 
+    try {
+        $pdo->prepare('UPDATE account SET last_login_at = NOW() WHERE id = ?')->execute([(int) $result['id']]);
+    } catch (PDOException $exception) {
+        error_log('[jcm-login-activity] ' . $exception->getMessage());
+    }
+
     $rememberMe = isset($_POST['remember_me']) && $_POST['remember_me'] === '1';
     $persistentToken = $_COOKIE[get_persistent_login_cookie_name()] ?? null;
     if (is_string($persistentToken) && $persistentToken !== '') {

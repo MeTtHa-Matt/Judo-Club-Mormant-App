@@ -16,9 +16,24 @@ if (!$userId) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     jcm_require_csrf();
 
-    // Update last_activity on account row
-    $stmt = $pdo->prepare("UPDATE account SET last_activity = NOW() WHERE id = ?");
-    $stmt->execute([$userId]);
+    $requestedPath = (string) ($_POST['page'] ?? '');
+    $pagePath = parse_url($requestedPath, PHP_URL_PATH);
+    $page = basename(is_string($pagePath) ? rtrim($pagePath, '/') : '');
+    if ($requestedPath !== '' && $page === '') {
+        $page = 'index.php';
+    }
+    if ($page !== '' && preg_match('/^[A-Za-z0-9._-]{1,120}$/', $page)) {
+        try {
+            $stmt = $pdo->prepare('UPDATE account SET last_activity = NOW(), last_page_path = ?, last_page_at = NOW() WHERE id = ?');
+            $stmt->execute(['/' . $page, $userId]);
+        } catch (PDOException $exception) {
+            $stmt = $pdo->prepare('UPDATE account SET last_activity = NOW() WHERE id = ?');
+            $stmt->execute([$userId]);
+        }
+    } else {
+        $stmt = $pdo->prepare('UPDATE account SET last_activity = NOW() WHERE id = ?');
+        $stmt->execute([$userId]);
+    }
     echo json_encode(['success' => true]);
     exit;
 }

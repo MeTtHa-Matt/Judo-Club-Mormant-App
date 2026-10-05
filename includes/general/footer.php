@@ -56,7 +56,7 @@
     <div class="jcm-consent-copy">
         <p class="jcm-consent-kicker">VOTRE CHOIX</p>
         <h2 id="jcm-consent-title" tabindex="-1">Autorisez-vous les statistiques du site ?</h2>
-        <p id="jcm-consent-description">Avec votre accord, nous mesurerons les pages consultées, le type d’appareil, le système, le navigateur et le domaine d’origine pour améliorer le site. Une session pseudonyme est utilisée; aucune adresse IP ni recherche saisie n’est enregistrée. Votre choix peut être modifié depuis le pied de page.</p>
+        <p id="jcm-consent-description">Avec votre accord, nous mesurerons les pages publiques consultées, le type d’appareil, le système, le navigateur, le domaine d’origine et si vous êtes connecté, afin d’améliorer le site et distinguer les visites membres des visiteurs. Une session pseudonyme est utilisée; aucune adresse IP ni recherche saisie n’est enregistrée. Votre choix peut être modifié depuis le pied de page.</p>
     </div>
     <div class="jcm-consent-actions">
         <button type="button" class="jcm-consent-button jcm-consent-decline" id="jcm-consent-decline">Refuser</button>
@@ -66,4 +66,4 @@
 
 <script src="js/footer.js?v=<?php echo filemtime('js/footer.js'); ?>"></script>
 <script src="js/analytics-consent.js?v=1" defer></script>
-<script src="js/judo-analytics.js?v=3" data-endpoint="https://dashboard.judo-club-mormant.fr/track.php" defer></script>
+<script src="js/judo-analytics.js?v=4" data-endpoint="https://dashboard.judo-club-mormant.fr/track.php" data-authenticated="<?= !empty($_SESSION['id']) ? '1' : '0' ?>" defer></script>

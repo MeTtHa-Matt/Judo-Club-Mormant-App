@@ -154,6 +154,12 @@ function restore_session_from_persistent_login(): bool {
     $stmt->execute([$newExpiresAt, $token]);
     set_persistent_login_cookie($token);
 
+    try {
+        $GLOBALS['pdo']->prepare('UPDATE account SET last_login_at = NOW() WHERE id = ?')->execute([(int) $row['account_id']]);
+    } catch (PDOException $exception) {
+        error_log('[jcm-persistent-login-activity] ' . $exception->getMessage());
+    }
+
     return true;
 }
 

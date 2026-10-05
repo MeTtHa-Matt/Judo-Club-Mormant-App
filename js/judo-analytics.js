@@ -5,6 +5,7 @@
 
     const script = document.currentScript;
     const endpointValue = script?.dataset.endpoint || '';
+    const isAuthenticated = script?.dataset.authenticated === '1';
     if (!endpointValue) return;
 
     const privatePages = new Set([
@@ -79,6 +80,7 @@
         if (!trackingActive || !hasConsent() || !sessionToken) return;
         const body = JSON.stringify({
             type,
+            is_authenticated: isAuthenticated,
             path: window.location.pathname,
             platform: platformType(),
             viewport: viewportType(),
