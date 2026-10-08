@@ -2255,6 +2255,33 @@ section {
   color: #5d6668;
 }
 
+.home-whatsapp-section {
+  max-width: 1060px;
+}
+
+.home-whatsapp-card {
+  grid-template-columns: 100px minmax(0, 1fr);
+  gap: 1.75rem;
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+}
+
+.home-whatsapp-mark {
+  width: 92px;
+  height: 92px;
+  border-radius: 1.5rem;
+  font-size: 3rem;
+}
+
+.home-whatsapp-card .whatsapp-community-content h2 {
+  margin-bottom: 0.6rem;
+  font-size: clamp(1.4rem, 2.4vw, 2rem);
+}
+
+.home-whatsapp-card .whatsapp-community-text {
+  margin-bottom: 1.1rem;
+  font-size: 0.98rem;
+}
+
 /* ======================================
    RESPONSIVE - REGLEMENT
    ====================================== */
@@ -2290,6 +2317,11 @@ section {
     grid-template-columns: 1fr;
     gap: 1.75rem;
     text-align: center;
+  }
+
+  .home-whatsapp-card {
+    gap: 1rem;
+    padding: 1.5rem;
   }
 
   .whatsapp-community-mark {

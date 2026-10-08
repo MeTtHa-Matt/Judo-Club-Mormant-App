@@ -61,6 +61,25 @@ include __DIR__ . '/includes/liens/liens_index_default.php';
     <main class="pt-4">
 
         <div class="container my-5">
+            <section class="whatsapp-community-section home-whatsapp-section mb-5" aria-labelledby="home-whatsapp-title">
+                <div class="whatsapp-community-card home-whatsapp-card">
+                    <div class="whatsapp-community-mark home-whatsapp-mark" aria-hidden="true">
+                        <i class="bi bi-whatsapp"></i>
+                    </div>
+                    <div class="whatsapp-community-content">
+                        <p class="whatsapp-community-eyebrow">La vie du club, en direct</p>
+                        <h2 id="home-whatsapp-title">Rejoignez-nous sur WhatsApp</h2>
+                        <p class="whatsapp-community-text">
+                            Retrouvez les actualités du club et échangez avec la communauté du Judo Club de Mormant.
+                        </p>
+                        <a class="btn btn-whatsapp" href="whatsapp.php">
+                            <i class="bi bi-whatsapp me-2" aria-hidden="true"></i>Découvrir la communauté
+                            <i class="bi bi-arrow-right ms-2" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
             <section id="horaires" class="mb-5 scroll-margin">
                 <div class="text-center mb-4">
                     <h2 class="h1 fw-bold text-uppercase position-relative d-inline-block section-title">
