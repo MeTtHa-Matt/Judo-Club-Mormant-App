@@ -36,10 +36,11 @@ require_once __DIR__ . "/includes/general/notifications.php";
         <?php include __DIR__ . "/includes/general/navbar.php" ?>
     </header>
 
-    <body>
-        <div class="container min-vh-100 d-flex justify-content-center align-items-center">
+    <main>
+        <div class="container d-flex justify-content-center align-items-start"
+            style="padding-top: 8.5rem; padding-bottom: 2rem; min-height: 100vh;">
             <div class="card border-0 shadow-lg overflow-hidden judo-card"
-                style="max-width: 550px; width: 100%; border-radius: 16px;">
+                style="max-width: 550px; width: 100%; border-radius: 16px; margin-top: 0;">
 
                 <div class="card-header card-header-judo text-white text-center py-4 border-0">
                     <i class="bi bi-person-plus-fill fs-1"></i>
@@ -103,14 +104,14 @@ require_once __DIR__ . "/includes/general/notifications.php";
                 </div>
             </div>
         </div>
+    </main>
 
-        <?php include __DIR__ . '/includes/general/footer.php'; ?>
+    <?php include __DIR__ . '/includes/general/footer.php'; ?>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-            crossorigin="anonymous"></script>
-        <script src="js/password-toggle.js"></script>
-    </body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+    <script src="js/password-toggle.js"></script>
+</body>
 
 </html>
-
