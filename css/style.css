@@ -287,6 +287,32 @@ button:focus-visible,
   width: 40px;
 }
 
+@media (min-width: 1400px) {
+  .custom-navbar-container {
+    position: relative;
+  }
+
+  .custom-navbar .navbar-collapse.navbar-guest {
+    position: static;
+    flex-grow: 1;
+  }
+
+  .custom-navbar .navbar-collapse.navbar-guest .navbar-nav {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+    transform: translate(-50%, -50%);
+  }
+
+  .custom-navbar .navbar-collapse.navbar-guest .navbar-buttons-custom {
+    position: static;
+    margin-left: auto !important;
+    margin-top: 0 !important;
+  }
+}
+
 @media (max-width: 991.98px) {
   .navbar-collapse {
     background: linear-gradient(
@@ -4610,7 +4636,7 @@ table.bo-table td.bo-date {
   .users-table-card .table-responsive::after {
     display: none;
   }
-}
+
   /* Center navbar links and buttons on small screens */
   .custom-navbar .navbar-collapse {
     text-align: center;

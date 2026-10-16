@@ -18,7 +18,7 @@
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div class="collapse navbar-collapse" id="navbarNav">
+        <div class="collapse navbar-collapse<?= !isset($_SESSION['firstname']) ? ' navbar-guest' : '' ?>" id="navbarNav">
             <ul class="navbar-nav mx-auto text-center my-2 my-lg-0">
                 <li class="nav-item">
                     <a class="nav-link active-judo" aria-current="page" href="<?= $appRoot ?>/index.php">Accueil</a>
