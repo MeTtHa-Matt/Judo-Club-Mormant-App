@@ -59,8 +59,28 @@ if (!$isAdmin && ($today >= $effectiveDeadline || $today >= $competition['date']
     exit;
 }
 
-$checkQuery = "SELECT id FROM inscrits WHERE id_account = ? AND id_competition = ? AND nom = ? AND prenom = ? AND annee_naissance = ? AND id_ceinture = ?";
-$params = [$userId, $competitionId, $child['firstname'], $child['lastname'], $child['annee_naissance'], $child['id_ceinture']];
+$checkQuery = "SELECT i.id
+    FROM inscrits i
+    JOIN family_members fm ON fm.account_id = i.id_account
+    WHERE fm.family_id = ?
+      AND i.id_competition = ?
+      AND (
+          (i.nom = ? AND i.prenom = ?)
+          OR (i.nom = ? AND i.prenom = ?)
+      )
+      AND i.annee_naissance = ?
+      AND i.id_ceinture = ?
+    LIMIT 1";
+$params = [
+    $familyId,
+    $competitionId,
+    $child['lastname'],
+    $child['firstname'],
+    $child['firstname'],
+    $child['lastname'],
+    $child['annee_naissance'],
+    $child['id_ceinture'],
+];
 
 $stmt = $pdo->prepare($checkQuery);
 $stmt->execute($params);
@@ -69,8 +89,14 @@ $existing = $stmt->fetchColumn();
 if ($existing) {
     $delete = $pdo->prepare("DELETE FROM inscrits WHERE id = ?");
     $delete->execute([$existing]);
-    $remaining = $pdo->prepare("SELECT 1 FROM inscrits WHERE id_account = ? AND id_competition = ? LIMIT 1");
-    $remaining->execute([$userId, $competitionId]);
+    $remaining = $pdo->prepare(
+        'SELECT 1
+         FROM inscrits i
+         JOIN family_members fm ON fm.account_id = i.id_account
+         WHERE fm.family_id = ? AND i.id_competition = ?
+         LIMIT 1'
+    );
+    $remaining->execute([$familyId, $competitionId]);
     echo json_encode([
         'success' => true,
         'registered' => false,
@@ -87,8 +113,8 @@ if ($child['Poids'] === null || $child['Poids'] === '') {
 try {
     $insert = $pdo->prepare("INSERT INTO inscrits (nom, prenom, annee_naissance, id_ceinture, Poids, id_account, id_competition) VALUES (?, ?, ?, ?, ?, ?, ?)");
     $insert->execute([
-        $child['firstname'],
         $child['lastname'],
+        $child['firstname'],
         $child['annee_naissance'],
         $child['id_ceinture'],
         $child['Poids'],
@@ -100,8 +126,14 @@ try {
     exit;
 }
 
-$hasInscription = $pdo->prepare("SELECT 1 FROM inscrits WHERE id_account = ? AND id_competition = ? LIMIT 1");
-$hasInscription->execute([$userId, $competitionId]);
+$hasInscription = $pdo->prepare(
+    'SELECT 1
+     FROM inscrits i
+     JOIN family_members fm ON fm.account_id = i.id_account
+     WHERE fm.family_id = ? AND i.id_competition = ?
+     LIMIT 1'
+);
+$hasInscription->execute([$familyId, $competitionId]);
 
 echo json_encode([
     'success' => true,

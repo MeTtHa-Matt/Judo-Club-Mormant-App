@@ -15,8 +15,24 @@ function userHasCompetitionInscription(int $competitionId, ?int $userId): bool
 
     global $pdo;
 
-    $stmt = $pdo->prepare("SELECT 1 FROM inscrits WHERE id_account = ? AND id_competition = ? LIMIT 1");
-    $stmt->execute([$userId, $competitionId]);
+    $stmt = $pdo->prepare(
+        'SELECT 1
+         FROM inscrits i
+         WHERE i.id_competition = ?
+           AND (
+               i.id_account = ?
+               OR EXISTS (
+                   SELECT 1
+                   FROM family_members current_member
+                   JOIN family_members registered_member
+                       ON registered_member.family_id = current_member.family_id
+                   WHERE current_member.account_id = ?
+                     AND registered_member.account_id = i.id_account
+               )
+           )
+         LIMIT 1'
+    );
+    $stmt->execute([$competitionId, $userId, $userId]);
 
     return (bool) $stmt->fetchColumn();
 }
@@ -278,7 +294,7 @@ function userHasCompetitionInscription(int $competitionId, ?int $userId): bool
                     <?php endif; ?>
                     <?php if (isset($_SESSION['id'])): ?>
                         <button type="button" id="modalCompetitionViewInscritsMineBtn"
-                            class="btn btn-judo-outline modal-competition-action-btn">Voir mes inscriptions</button>
+                            class="btn btn-judo-outline modal-competition-action-btn"><?= isset($_SESSION['admin']) && (int) $_SESSION['admin'] === 1 ? 'Voir mes inscriptions' : 'Voir les inscriptions de ma famille' ?></button>
                     <?php endif; ?>
                     <button type="button"
                         class="btn btn-judo-outline modal-competition-action-btn modal-competition-close-btn"

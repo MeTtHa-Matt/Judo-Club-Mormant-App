@@ -368,7 +368,11 @@ if (viewAllBtn) {
 if (viewMineBtn) {
   viewMineBtn.addEventListener("click", function (e) {
     e.preventDefault();
-    fetchAndShowInscrits(currentCompetition.id, true, viewMineBtn);
+    fetchAndShowInscrits(
+      currentCompetition.id,
+      document.body.dataset.isAdmin === "1",
+      viewMineBtn,
+    );
   });
 }
 

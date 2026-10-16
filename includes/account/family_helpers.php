@@ -125,8 +125,8 @@ function jcm_can_remove_family_member(PDO $pdo, int $actorAccountId, int $family
 {
     $stmt = $pdo->prepare(
         'SELECT CASE
-            WHEN fm.added_by_account_id = :actor THEN 1
-            WHEN f.created_by = :actor THEN 1
+            WHEN fm.added_by_account_id = :addedByActor THEN 1
+            WHEN f.created_by = :familyCreatorActor THEN 1
             ELSE 0
          END AS can_remove
          FROM family_members fm
@@ -134,12 +134,27 @@ function jcm_can_remove_family_member(PDO $pdo, int $actorAccountId, int $family
          WHERE fm.family_id = :familyId AND fm.account_id = :memberAccountId
          LIMIT 1'
     );
-    $stmt->bindValue(':actor', $actorAccountId, PDO::PARAM_INT);
+    $stmt->bindValue(':addedByActor', $actorAccountId, PDO::PARAM_INT);
+    $stmt->bindValue(':familyCreatorActor', $actorAccountId, PDO::PARAM_INT);
     $stmt->bindValue(':familyId', $familyId, PDO::PARAM_INT);
     $stmt->bindValue(':memberAccountId', $memberAccountId, PDO::PARAM_INT);
     $stmt->execute();
 
     return (int) ($stmt->fetchColumn() ?? 0) === 1;
+}
+
+function jcm_accounts_share_family(PDO $pdo, int $firstAccountId, int $secondAccountId): bool
+{
+    $stmt = $pdo->prepare(
+        'SELECT 1
+         FROM family_members first_member
+         JOIN family_members second_member ON second_member.family_id = first_member.family_id
+         WHERE first_member.account_id = ? AND second_member.account_id = ?
+         LIMIT 1'
+    );
+    $stmt->execute([$firstAccountId, $secondAccountId]);
+
+    return (bool) $stmt->fetchColumn();
 }
 
 function jcm_remove_family_member(PDO $pdo, int $actorAccountId, int $familyId, int $memberAccountId): bool

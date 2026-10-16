@@ -24,10 +24,13 @@ $stmt = $pdo->prepare(
     "SELECT cp.id, cp.firstname, cp.lastname, cp.annee_naissance, cp.Poids, c.ceinture,
         EXISTS(
             SELECT 1 FROM inscrits i
-            WHERE i.id_account = ?
+            JOIN family_members registered_member ON registered_member.account_id = i.id_account
+            WHERE registered_member.family_id = cp.family_id
               AND i.id_competition = ?
-              AND i.nom = cp.firstname
-              AND i.prenom = cp.lastname
+              AND (
+                  (i.nom = cp.lastname AND i.prenom = cp.firstname)
+                  OR (i.nom = cp.firstname AND i.prenom = cp.lastname)
+              )
               AND i.annee_naissance = cp.annee_naissance
               AND i.id_ceinture = cp.id_ceinture
         ) AS registered
@@ -36,7 +39,7 @@ $stmt = $pdo->prepare(
      WHERE cp.family_id = ?
      ORDER BY cp.lastname, cp.firstname"
 );
-$stmt->execute([$userId, $competitionId, $familyId]);
+$stmt->execute([$competitionId, $familyId]);
 $children = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 echo json_encode(['success' => true, 'children' => $children]);

@@ -3,6 +3,7 @@ require_once __DIR__ . '/../general/session_start_pwa.php';
 require_once __DIR__ . '/../general/db.php';
 require_once __DIR__ . '/../general/access_check.php';
 require_once __DIR__ . '/../general/security.php';
+require_once __DIR__ . '/../account/family_helpers.php';
 header('Content-Type: application/json; charset=utf-8');
 
 $method = $_SERVER['REQUEST_METHOD'] ?? '';
@@ -31,16 +32,44 @@ if ($userId <= 0) {
     exit;
 }
 
-if ($onlyMe || !$isAdmin) {
-    if (!$userId) {
-        echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-        exit;
-    }
-    $stmt = $pdo->prepare("SELECT i.*, c.ceinture AS ceinture_nom FROM inscrits i LEFT JOIN ceintures c ON i.id_ceinture = c.id WHERE i.id_competition = ? AND i.id_account = ? ORDER BY i.id ASC");
+if ($onlyMe) {
+    $stmt = $pdo->prepare(
+        'SELECT i.*, c.ceinture AS ceinture_nom, a.firstname, a.lastname
+         FROM inscrits i
+         LEFT JOIN ceintures c ON i.id_ceinture = c.id
+         LEFT JOIN account a ON a.id = i.id_account
+         WHERE i.id_competition = ? AND i.id_account = ?
+         ORDER BY i.id ASC'
+    );
     $stmt->execute([$compId, $userId]);
-} else {
+} elseif ($isAdmin) {
     $stmt = $pdo->prepare("SELECT i.*, c.ceinture AS ceinture_nom, a.firstname, a.lastname FROM inscrits i LEFT JOIN ceintures c ON i.id_ceinture = c.id LEFT JOIN account a ON i.id_account = a.id WHERE i.id_competition = ? ORDER BY i.id ASC");
     $stmt->execute([$compId]);
+} else {
+    jcm_ensure_family_schema($pdo);
+    $familyId = jcm_get_account_family_id($pdo, $userId);
+    if ($familyId === null) {
+        $stmt = $pdo->prepare(
+            'SELECT i.*, c.ceinture AS ceinture_nom, a.firstname, a.lastname
+             FROM inscrits i
+             LEFT JOIN ceintures c ON i.id_ceinture = c.id
+             LEFT JOIN account a ON a.id = i.id_account
+             WHERE i.id_competition = ? AND i.id_account = ?
+             ORDER BY i.id ASC'
+        );
+        $stmt->execute([$compId, $userId]);
+    } else {
+        $stmt = $pdo->prepare(
+            'SELECT i.*, c.ceinture AS ceinture_nom, a.firstname, a.lastname
+             FROM inscrits i
+             JOIN family_members fm ON fm.account_id = i.id_account
+             LEFT JOIN ceintures c ON i.id_ceinture = c.id
+             LEFT JOIN account a ON a.id = i.id_account
+             WHERE i.id_competition = ? AND fm.family_id = ?
+             ORDER BY i.id ASC'
+        );
+        $stmt->execute([$compId, $familyId]);
+    }
 }
 $list = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -55,7 +84,7 @@ ob_start();
     <?php else: ?>
         <div class="inscrits-list">
             <?php foreach ($list as $row): ?>
-                <?php $canUnsubscribe = $isAdmin || ((string) ($row['id_account'] ?? '') === (string) $userId); ?>
+                <?php $canUnsubscribe = $isAdmin || ((int) ($row['id_account'] ?? 0) === $userId) || (!$onlyMe && !$isAdmin); ?>
                 <article class="inscrit-card">
                     <div class="inscrit-card-header">
                         <div>
@@ -77,7 +106,7 @@ ob_start();
                             <i class="bi bi-weight text-judo-red"></i>
                             <span><?= htmlspecialchars($row['Poids'] ?? '') ?> kg</span>
                         </div>
-                        <?php if ($isAdmin && !$onlyMe): ?>
+                        <?php if (!$onlyMe): ?>
                             <div class="inscrit-detail-item">
                                 <i class="bi bi-person-circle text-judo-red"></i>
                                 <span><?= htmlspecialchars(trim(($row['firstname'] ?? '') . ' ' . ($row['lastname'] ?? ''))) ?></span>

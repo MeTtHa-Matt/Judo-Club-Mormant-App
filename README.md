@@ -41,6 +41,7 @@ Le projet centralise les éléments numériques du club :
 
 - profil utilisateur, photo et mot de passe,
 - gestion des enfants et profils familiaux,
+- consultation des inscriptions de tous les membres du foyer et désinscription familiale,
 - gestion des ceintures et des informations sportives,
 - liste des inscriptions aux compétitions,
 - choix d’acceptation des emails du club,
@@ -49,6 +50,7 @@ Le projet centralise les éléments numériques du club :
 ### Administration
 
 - gestion des comptes et droits admin,
+- consultation et gestion des familles et de leurs membres,
 - gestion des compétitions et des catégories ciblées,
 - envoi d’emails à l’ensemble des abonnés,
 - gestion des signalements,

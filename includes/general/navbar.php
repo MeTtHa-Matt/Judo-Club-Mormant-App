@@ -38,7 +38,7 @@
                         <ul class="dropdown-menu" aria-labelledby="adminDropdown">
                             <li><a class="dropdown-item" href="<?= $appRoot ?>/users.php">Utilisateurs</a></li>
                             <li><a class="dropdown-item" href="<?= $appRoot ?>/mailing.php">Envoyer un mail</a></li>
-                            <li><a class="dropdown-item" href="<?= $appRoot ?>/gerer_competitions.php">Compétitions</a></li>
+                            <li><a class="dropdown-item" href="<?= $appRoot ?>/families.php">Familles</a></li>
                             <li><a class="dropdown-item" href="<?= $appRoot ?>/gerer_index_liens.php">Liens d'accueil</a></li>
                             <li><a class="dropdown-item" href="<?= $appRoot ?>/reports.php">Signalements</a></li>
                             <li><a class="dropdown-item" href="<?= $appRoot ?>/chat.php">Assistant IA</a></li>

@@ -4,6 +4,11 @@ require_once __DIR__ . '/includes/general/db.php';
 require_once __DIR__ . '/includes/general/notifications.php';
 require_once __DIR__ . '/includes/account/family_helpers.php';
 
+if (!isset($_SESSION['id'])) {
+    header('Location: login.php');
+    exit;
+}
+
 $userId = (int) $_SESSION['id'];
 jcm_ensure_family_schema($pdo);
 $userFamilyId = jcm_get_or_create_family_for_account($pdo, $userId);
@@ -277,4 +282,3 @@ unset($_SESSION['children_flash_success'], $_SESSION['children_flash_error']);
 </body>
 
 </html>
-

@@ -3,6 +3,7 @@ require_once __DIR__ . '/../general/session_start_pwa.php';
 require_once __DIR__ . '/../general/db.php';
 require_once __DIR__ . '/../general/access_check.php';
 require_once __DIR__ . '/../general/security.php';
+require_once __DIR__ . '/../account/family_helpers.php';
 jcm_require_csrf();
 header('Content-Type: application/json; charset=utf-8');
 
@@ -33,7 +34,9 @@ if (!$inscription) {
     exit;
 }
 
-if (!$isAdmin && (int) $inscription['id_account'] !== $userId) {
+if (!$isAdmin
+    && (int) $inscription['id_account'] !== $userId
+    && !jcm_accounts_share_family($pdo, $userId, (int) $inscription['id_account'])) {
     echo json_encode(['success' => false, 'message' => 'Non autorisé']);
     exit;
 }
