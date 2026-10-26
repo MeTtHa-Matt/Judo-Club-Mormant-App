@@ -215,7 +215,7 @@ button:focus-visible,
   border-bottom: 4px solid var(--judo-dark);
   position: fixed;
   width: 100%;
-  z-index: 2147483648;
+  z-index: 1030;
   overflow: visible;
   animation: slideDown 0.6s ease-out;
   transition: background 300ms cubic-bezier(0.22,1,0.36,1),
@@ -473,12 +473,12 @@ button:focus-visible,
   /* Ensure toggler stays above the collapsed menu on small screens */
   .custom-navbar .navbar-toggler {
     position: relative;
-    z-index: 2147483649;
+    z-index: 2;
   }
 
   .custom-navbar .navbar-collapse {
     position: relative;
-    z-index: 2147483648;
+    z-index: 1;
   }
 }
 
@@ -932,10 +932,494 @@ button:focus-visible,
 
 .letter-spacing-code { letter-spacing: .55rem; font-weight: 700; }
 
-.report-thread { border-left: 4px solid var(--judo-red, #b3000e) !important; }
+.report-thread {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #e8ebef !important;
+  border-left: 4px solid var(--judo-red, #b3000e) !important;
+  background: linear-gradient(115deg, #fff 0%, #fff 72%, #f8fafc 100%);
+}
+
+.report-admin-inbox {
+  width: min(100%, 860px);
+  margin-inline: auto;
+}
+
+.report-admin-inbox .report-thread {
+  min-height: 7rem;
+  margin-bottom: 0.9rem !important;
+  border-radius: 1rem;
+  box-shadow: 0 4px 16px rgba(18, 28, 38, 0.055) !important;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.report-admin-inbox .report-thread:hover,
+.report-admin-inbox .report-thread:focus-visible {
+  transform: translateY(-3px);
+  border-color: #d9dfe6 !important;
+  box-shadow: 0 12px 28px rgba(18, 28, 38, 0.12) !important;
+}
+
+.report-admin-inbox .report-thread .card-body,
+.report-admin-inbox .report-thread-content {
+  min-width: 0;
+}
+
+.report-admin-inbox .report-thread .card-body {
+  padding: 1.15rem 1.25rem;
+}
+
+.report-thread-icon {
+  display: inline-grid;
+  flex: 0 0 2.35rem;
+  width: 2.35rem;
+  height: 2.35rem;
+  place-items: center;
+  border-radius: 0.75rem;
+  color: #b3000e;
+  background: #fff0f1;
+  font-size: 1.05rem;
+}
+
+.report-thread-subject {
+  color: #202a35;
+  font-size: 1rem;
+  font-weight: 750;
+  overflow-wrap: anywhere;
+}
+
+.report-thread-id {
+  padding: 0.2rem 0.5rem;
+  border: 1px solid #e7eaee;
+  border-radius: 999px;
+  color: #687482;
+  background: #f7f8fa;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.035em;
+}
+
+.report-thread-meta {
+  margin: 0 0 0.4rem 2.85rem;
+  color: #77818d;
+  font-size: 0.76rem;
+  overflow-wrap: anywhere;
+}
+
+.report-thread-preview {
+  margin-left: 2.85rem;
+  color: #46515d;
+  font-size: 0.875rem;
+}
+
+.report-thread-trailing {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.report-thread-arrow {
+  display: inline-grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border: 1px solid #e5e9ed;
+  border-radius: 50%;
+  color: #536170;
+  background: #fff;
+  transition: color 180ms ease, background 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+
+.report-thread:hover .report-thread-arrow,
+.report-thread:focus-visible .report-thread-arrow {
+  transform: translateX(2px);
+  border-color: var(--judo-red, #b3000e);
+  color: #fff;
+  background: var(--judo-red, #b3000e);
+}
+
+.report-conversation-open .report-launcher {
+  display: none;
+}
+
+.admin-report-nav-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.report-notification-badge,
+.report-launcher-notification {
+  display: inline-grid;
+  flex: 0 0 auto;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  place-items: center;
+  padding: 0 0.25rem;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  color: #fff;
+  background: #d71920;
+  font-size: 0.65rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.report-unread-dot {
+  display: inline-block;
+  flex: 0 0 0.7rem;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  background: #d71920;
+  box-shadow: 0 0 0 2px #fff;
+}
+
+.report-launcher { position: fixed; }
+
+.report-launcher-notification {
+  position: absolute;
+  top: -0.2rem;
+  right: -0.2rem;
+  min-width: 1.2rem;
+  height: 1.2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.report-launcher-admin-notification {
+  top: auto;
+  right: -0.35rem;
+  bottom: -0.3rem;
+  display: inline-flex;
+  min-width: 1.55rem;
+  height: 1.55rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  padding-inline: 0.35rem;
+  border-color: #fff;
+  background: #198754;
+  font-size: 0.68rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.report-launcher-admin-notification i {
+  font-size: 0.7rem;
+}
+
 .report-message { padding: 1.15rem 0; border-top: 1px solid #edf0f2; }
 .report-message:first-child { border-top: 0; }
 .report-message-content { white-space: normal; color: #40464d; line-height: 1.65; }
+
+.report-chat {
+  margin-top: 1.5rem;
+  overflow: hidden;
+  border-radius: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.report-chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: #075e54;
+  flex-shrink: 0;
+}
+
+.report-chat-header-actions,
+.report-chat-header-actions form {
+  display: flex;
+  align-items: center;
+}
+
+.report-chat-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 0.75rem;
+  color: #fff;
+  background: rgba(138, 23, 30, 0.82);
+}
+
+.report-chat-delete:hover {
+  background: #a51d27;
+}
+
+.report-chat-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  max-height: min(58vh, 620px);
+  min-height: 260px;
+  overflow-y: auto;
+  padding: 1.25rem;
+  background-color: #efeae2;
+  background-image: radial-gradient(rgba(0, 0, 0, 0.035) 0.7px, transparent 0.7px);
+  background-size: 8px 8px;
+  flex: 1 1 auto;
+}
+
+.report-chat-message {
+  align-self: flex-start;
+  max-width: min(85%, 680px);
+  padding: 0.6rem 0.8rem 0.4rem;
+  border-radius: 0.85rem 0.85rem 0.85rem 0.2rem;
+  background: #fff;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+  overflow-wrap: anywhere;
+}
+
+.report-chat-message-own {
+  align-self: flex-end;
+  border-radius: 0.85rem 0.85rem 0.2rem 0.85rem;
+  background: #d9fdd3;
+}
+
+.report-chat-sender {
+  margin-bottom: 0.2rem;
+  color: #075e54;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.report-chat-text {
+  color: #222;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+.report-chat-attachment {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 0.45rem;
+}
+
+.report-chat-attachment img {
+  display: block;
+  width: auto;
+  max-width: min(100%, 360px);
+  max-height: 360px;
+  border-radius: 0.55rem;
+  object-fit: contain;
+}
+
+.report-chat-message time {
+  display: block;
+  margin-top: 0.25rem;
+  color: #718078;
+  font-size: 0.67rem;
+  text-align: right;
+}
+
+.report-chat-form {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.8rem;
+  background: #f7f7f7;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.report-chat-compose { flex: 1 1 0; min-width: 0; }
+
+.report-chat-form textarea {
+  display: block;
+  width: 100%;
+  resize: vertical;
+  min-height: 2.8rem;
+  max-height: 9rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid #d9dce0;
+  border-radius: 1.5rem;
+  outline-color: var(--judo-red, #b3000e);
+}
+
+.report-chat-attach {
+  display: inline-grid;
+  flex: 0 0 2.8rem;
+  width: 2.8rem;
+  height: 2.8rem;
+  place-items: center;
+  border-radius: 50%;
+  color: #075e54;
+  background: #e6eeeb;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.report-chat-selected-files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  padding: 0.2rem 0.6rem;
+}
+
+.report-chat-selected-files:empty { display: none; }
+
+.report-chat-selected-files span {
+  max-width: 100%;
+  overflow: hidden;
+  color: #52615c;
+  font-size: 0.72rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.report-chat-form button {
+  flex: 0 0 2.8rem;
+  width: 2.8rem;
+  height: 2.8rem;
+  border: 0;
+  border-radius: 50%;
+  color: #fff;
+  background: #075e54;
+}
+
+.report-chat-form button:disabled {
+  opacity: 0.6;
+}
+
+.report-chat-error {
+  flex-basis: 100%;
+}
+
+.report-conversation-open {
+  overflow: hidden;
+}
+
+.report-conversation-open > .hero-judo,
+.report-conversation-open > footer {
+  display: none;
+}
+
+.report-conversation-open > .custom-navbar {
+  display: none;
+}
+
+.report-user-conversation-open > main {
+  display: none;
+}
+
+.report-conversation-open .report-admin-main {
+  width: 100%;
+  max-width: none;
+  margin: 0 !important;
+  padding: 0;
+}
+
+.report-conversation-open .report-admin-inbox {
+  display: none;
+}
+
+.report-conversation-open .report-chat {
+  position: fixed;
+  z-index: 2000;
+  inset: 0 !important;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100vh;
+  max-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  animation: reportChatSlideIn 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.report-conversation-open .report-chat-header {
+  padding-top: calc(0.75rem + env(safe-area-inset-top));
+}
+
+.report-conversation-open .report-chat-messages {
+  min-height: 0;
+  max-height: none;
+}
+
+.report-conversation-open .report-chat-form {
+  padding-bottom: calc(0.8rem + env(safe-area-inset-bottom));
+}
+
+@keyframes reportChatSlideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .report-conversation-open .report-chat { animation: none; }
+}
+
+.login-main-content {
+  min-height: 100vh;
+  padding-top: 9.5rem;
+  padding-bottom: 2rem;
+}
+
+@media (max-width: 575.98px) {
+  .report-admin-main {
+    padding-inline: 0.75rem;
+  }
+
+  .report-admin-inbox .report-thread .card-body {
+    align-items: center !important;
+    gap: 0.55rem !important;
+    padding: 0.9rem 0.75rem;
+  }
+
+  .report-thread-icon {
+    flex-basis: 2rem;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.65rem;
+  }
+
+  .report-thread-subject {
+    font-size: 0.92rem;
+  }
+
+  .report-thread-meta,
+  .report-thread-preview {
+    margin-left: 0;
+  }
+
+  .report-thread-meta {
+    font-size: 0.7rem;
+  }
+
+  .report-thread-arrow {
+    width: 2.15rem;
+    height: 2.15rem;
+  }
+
+  .report-chat-messages { padding: 1rem 0.75rem; }
+  .report-chat-message { max-width: 92%; }
+  .login-main-content { padding-top: 9rem; }
+  .report-chat-header { padding: 0.75rem; }
+  .report-chat-form { gap: 0.4rem; padding: 0.6rem; }
+  .report-chat-attach,
+  .report-chat-form button { flex-basis: 2.55rem; width: 2.55rem; height: 2.55rem; }
+}
+
+@media (min-width: 768px) {
+  .report-conversation-open .report-chat {
+    inset: 0;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    border-radius: 0;
+  }
+}
 
 @media (max-width: 575.98px) {
   .report-launcher { right: 1.25rem; bottom: calc(1.5rem + env(safe-area-inset-bottom)); width: 3.25rem; height: 3.25rem; }

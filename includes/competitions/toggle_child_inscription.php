@@ -122,6 +122,7 @@ try {
         $competitionId,
     ]);
 } catch (Throwable $e) {
+    error_log('Family competition registration error: ' . $e->getMessage());
     echo json_encode(['success' => false, 'message' => 'Impossible de modifier cette inscription pour le moment.']);
     exit;
 }

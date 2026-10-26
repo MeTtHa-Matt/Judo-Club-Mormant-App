@@ -1,23 +1,38 @@
 <?php
-$reportsFile = __DIR__ . '/../../storage/reports/reports.json';
-$reports = [];
+require_once __DIR__ . '/report_storage.php';
 
-if (is_file($reportsFile)) {
-    $decodedReports = json_decode((string) file_get_contents($reportsFile), true);
-    if (is_array($decodedReports)) {
-        $reports = $decodedReports;
+try {
+    $reports = jcm_list_reports(true);
+} catch (Throwable $exception) {
+    error_log('Admin report list error: ' . $exception->getMessage());
+    $reports = [];
+    $reportLoadError = true;
+}
+
+$reportConversation = null;
+$requestedReportId = strtolower(trim((string) ($_GET['report'] ?? '')));
+if ($requestedReportId !== '') {
+    try {
+        $reportConversation = jcm_load_report($requestedReportId);
+        if ($reportConversation !== null) {
+            $reportConversation = jcm_update_report($requestedReportId, static function (array $report): array {
+                $report['admin_read_at'] = jcm_report_timestamp();
+                return $report;
+            });
+            foreach ($reports as &$report) {
+                if (($report['id'] ?? '') === $requestedReportId && $reportConversation !== null) {
+                    $report = $reportConversation;
+                    break;
+                }
+            }
+            unset($report);
+        }
+    } catch (Throwable $exception) {
+        error_log('Admin report conversation error: ' . $exception->getMessage());
+        $reportLoadError = true;
     }
 }
 
-usort($reports, static fn(array $left, array $right): int => strcmp((string) ($right['created_at'] ?? ''), (string) ($left['created_at'] ?? '')));
-$reportThreads = [];
-foreach ($reports as $report) {
-    $email = strtolower(trim((string) ($report['email'] ?? '')));
-    if ($email === '') {
-        continue;
-    }
-    $reportThreads[$email][] = $report;
-}
-uksort($reportThreads, static function (string $left, string $right) use ($reportThreads): int {
-    return strcmp((string) ($reportThreads[$right][0]['created_at'] ?? ''), (string) ($reportThreads[$left][0]['created_at'] ?? ''));
-});
+$reportUnreadCount = jcm_count_unread_reports($reports, 'admin');
+$reportIsAdmin = true;
+$reportBackUrl = 'reports.php';

@@ -250,7 +250,7 @@ modalCompetition.addEventListener("show.bs.modal", (event) => {
   }
 
   if (viewMineBtn) {
-    viewMineBtn.classList.toggle("d-none", !hasMyInscription);
+    viewMineBtn.classList.toggle("d-none", bodyIsAdmin && !hasMyInscription);
   }
 
   if (registerBtn) {

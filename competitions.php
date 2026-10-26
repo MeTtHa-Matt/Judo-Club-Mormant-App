@@ -4,6 +4,11 @@ require_once __DIR__ . '/includes/general/session_start_pwa.php';
 require_once __DIR__ . '/includes/general/db.php';
 require_once __DIR__ . '/includes/general/access_check.php';
 require_once __DIR__ . "/includes/general/notifications.php";
+require_once __DIR__ . '/includes/account/family_helpers.php';
+
+if (isset($_SESSION['id'])) {
+    jcm_ensure_family_schema($pdo);
+}
 
 include __DIR__ . '/includes/competitions/charger_competitions.php';
 
@@ -15,24 +20,29 @@ function userHasCompetitionInscription(int $competitionId, ?int $userId): bool
 
     global $pdo;
 
-    $stmt = $pdo->prepare(
-        'SELECT 1
-         FROM inscrits i
-         WHERE i.id_competition = ?
-           AND (
-               i.id_account = ?
-               OR EXISTS (
-                   SELECT 1
-                   FROM family_members current_member
-                   JOIN family_members registered_member
-                       ON registered_member.family_id = current_member.family_id
-                   WHERE current_member.account_id = ?
-                     AND registered_member.account_id = i.id_account
+    if (isset($_SESSION['admin']) && (int) $_SESSION['admin'] === 1) {
+        $stmt = $pdo->prepare('SELECT 1 FROM inscrits WHERE id_competition = ? AND id_account = ? LIMIT 1');
+        $stmt->execute([$competitionId, $userId]);
+    } else {
+        $stmt = $pdo->prepare(
+            'SELECT 1
+             FROM inscrits i
+             WHERE i.id_competition = ?
+               AND (
+                   i.id_account = ?
+                   OR EXISTS (
+                       SELECT 1
+                       FROM family_members current_member
+                       JOIN family_members registered_member
+                           ON registered_member.family_id = current_member.family_id
+                       WHERE current_member.account_id = ?
+                         AND registered_member.account_id = i.id_account
+                   )
                )
-           )
-         LIMIT 1'
-    );
-    $stmt->execute([$competitionId, $userId, $userId]);
+             LIMIT 1'
+        );
+        $stmt->execute([$competitionId, $userId, $userId]);
+    }
 
     return (bool) $stmt->fetchColumn();
 }

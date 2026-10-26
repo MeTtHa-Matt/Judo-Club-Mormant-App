@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../general/session_start_pwa.php';
 require_once __DIR__ . '/../general/db.php';
 require_once __DIR__ . '/../general/security.php';
+require_once __DIR__ . '/../account/family_helpers.php';
 jcm_require_csrf();
 
 if (!isset($_SESSION['id'])) {
@@ -10,6 +11,8 @@ if (!isset($_SESSION['id'])) {
 }
 
 $id_account = (int) $_SESSION['id'];
+jcm_ensure_family_schema($pdo);
+$familyId = jcm_get_or_create_family_for_account($pdo, $id_account);
 $nom = trim($_POST['nom'] ?? '');
 $prenom = trim($_POST['prenom'] ?? '');
 $annee_naissance = $_POST['annee_naissance'] ?? null;
@@ -57,12 +60,16 @@ if (!$isAdmin) {
 }
 
 $duplicate = $pdo->prepare(
-    "SELECT 1 FROM inscrits
-     WHERE id_account = ? AND id_competition = ? AND nom = ? AND prenom = ?
-       AND annee_naissance = ? AND id_ceinture = ?
+    "SELECT 1 FROM inscrits i
+     WHERE (i.id_account = ? OR EXISTS (
+         SELECT 1 FROM family_members fm
+         WHERE fm.family_id = ? AND fm.account_id = i.id_account
+     ))
+       AND i.id_competition = ? AND i.nom = ? AND i.prenom = ?
+       AND i.annee_naissance = ? AND i.id_ceinture = ?
      LIMIT 1"
 );
-$duplicate->execute([$id_account, $id_competition, $nom, $prenom, $annee_naissance, $id_ceinture]);
+$duplicate->execute([$id_account, $familyId, $id_competition, $nom, $prenom, $annee_naissance, $id_ceinture]);
 if ($duplicate->fetchColumn()) {
     header('Location: ../../competitions.php?alert=' . urlencode('Cette personne est déjà inscrite à cette compétition.'));
     exit;

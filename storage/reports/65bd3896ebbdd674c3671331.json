@@ -1,0 +1,15 @@
+{
+    "id": "65bd3896ebbdd674c3671331",
+    "email": "24mgimenez@gmail.com",
+    "subject": "je sais pas trop",
+    "created_at": "2026-08-26T15:42:32+00:00",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Linux; Android 8.0.0; SM-G955U Build/R16NW) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Mobile Safari/537.36",
+    "messages": [
+        {
+            "sender": "user",
+            "message": "j'ai un gros probleme que j'arrive pas a régler",
+            "created_at": "2026-08-26T15:42:32+00:00"
+        }
+    ]
+}

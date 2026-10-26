@@ -37,8 +37,7 @@ require_once __DIR__ . "/includes/general/notifications.php";
     </header>
 
     <main>
-        <div class="container d-flex justify-content-center align-items-start"
-            style="padding-top: 8.5rem; padding-bottom: 2rem; min-height: 100vh;">
+        <div class="container d-flex justify-content-center align-items-start login-main-content">
             <div class="card border-0 shadow-lg overflow-hidden judo-card"
                 style="max-width: 550px; width: 100%; border-radius: 16px; margin-top: 0;">
 

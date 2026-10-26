@@ -6,6 +6,17 @@
     </div>
 </div>
 <?php $appRoot = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\'); ?>
+<?php
+$reportUnreadCount = 0;
+if (isset($_SESSION['admin']) && (int) $_SESSION['admin'] === 1) {
+    require_once __DIR__ . '/report_storage.php';
+    try {
+        $reportUnreadCount = jcm_count_unread_reports(jcm_list_reports(), 'admin');
+    } catch (Throwable $exception) {
+        error_log('Admin report notification error: ' . $exception->getMessage());
+    }
+}
+?>
 <nav class="navbar navbar-expand-lg fixed-top custom-navbar">
     <div class="container-fluid px-4 custom-navbar-container">
 
@@ -40,7 +51,14 @@
                             <li><a class="dropdown-item" href="<?= $appRoot ?>/mailing.php">Envoyer un mail</a></li>
                             <li><a class="dropdown-item" href="<?= $appRoot ?>/families.php">Familles</a></li>
                             <li><a class="dropdown-item" href="<?= $appRoot ?>/gerer_index_liens.php">Liens d'accueil</a></li>
-                            <li><a class="dropdown-item" href="<?= $appRoot ?>/reports.php">Signalements</a></li>
+                            <li>
+                                <a class="dropdown-item admin-report-nav-link" href="<?= $appRoot ?>/reports.php">
+                                    <span>Signalements</span>
+                                    <?php if ($reportUnreadCount > 0): ?>
+                                        <span class="report-notification-badge" aria-label="<?= $reportUnreadCount ?> signalement<?= $reportUnreadCount > 1 ? 's' : '' ?> non lu<?= $reportUnreadCount > 1 ? 's' : '' ?>"><?= $reportUnreadCount > 99 ? '99+' : $reportUnreadCount ?></span>
+                                    <?php endif; ?>
+                                </a>
+                            </li>
                             <li><a class="dropdown-item" href="<?= $appRoot ?>/chat.php">Assistant IA</a></li>
                         </ul>
                     </li>

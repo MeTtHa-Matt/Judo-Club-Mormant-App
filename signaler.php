@@ -24,7 +24,7 @@ include __DIR__ . '/includes/general/signaler.php';
     <link rel="shortcut icon" href="img/jcm.png">
 </head>
 
-<body>
+<body class="<?= !empty($activeReport) ? 'report-conversation-open report-user-conversation-open' : '' ?>">
     <?php include __DIR__ . '/includes/general/navbar.php'; ?>
 
     <header class="hero-judo hero-judo-compact text-center d-flex align-items-center justify-content-center">
@@ -62,9 +62,9 @@ include __DIR__ . '/includes/general/signaler.php';
                             <div class="mb-4">
                                 <label for="reportCode" class="form-label fw-semibold">Code reçu par email</label>
                                 <input id="reportCode" name="code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" class="form-control form-control-lg text-center letter-spacing-code" autocomplete="one-time-code" required>
-                                <div class="form-text">Le code envoyé à <?= htmlspecialchars((string) ($_SESSION['report_draft']['email'] ?? '')) ?> est valable 15 minutes.</div>
+                                <div class="form-text">Le code envoyé à <?= htmlspecialchars((string) ($_SESSION['report_verification']['email'] ?? '')) ?> est valable 15 minutes.</div>
                             </div>
-                            <button type="submit" class="btn btn-judo-red btn-lg px-4 w-100"><i class="bi bi-shield-check me-2"></i>Confirmer et envoyer</button>
+                            <button type="submit" class="btn btn-judo-red btn-lg px-4 w-100"><i class="bi bi-shield-check me-2"></i><?= ($_SESSION['report_verification']['purpose'] ?? '') === 'access' ? 'Vérifier mon adresse email' : 'Confirmer et envoyer' ?></button>
                         </form>
                         <?php else: ?>
                         <form method="post" action="signaler.php" novalidate>
@@ -75,13 +75,17 @@ include __DIR__ . '/includes/general/signaler.php';
                             <div class="mb-4">
                                 <label for="reportSubject" class="form-label fw-semibold">Sujet <span class="text-muted">(facultatif)</span></label>
                                 <input id="reportSubject" name="subject" type="text"
-                                    class="form-control form-control-lg" placeholder="Sujet du signalement" required
+                                    class="form-control form-control-lg" placeholder="Sujet du signalement"
                                     value="<?= htmlspecialchars($subject) ?>">
                             </div>
-                            <div class="mb-4">
-                                <label for="reportEmail" class="form-label fw-semibold">Votre email</label>
-                                <input id="reportEmail" name="email" type="email" class="form-control form-control-lg" placeholder="vous@exemple.fr" required>
-                            </div>
+                            <?php if ($isReportUserAuthenticated): ?>
+                                <p class="small text-muted mb-4"><i class="bi bi-person-check-fill me-1"></i>Signalement envoyé avec l’adresse de votre compte : <strong><?= htmlspecialchars((string) ($reportAccountEmail ?? 'email indisponible')) ?></strong></p>
+                            <?php else: ?>
+                                <div class="mb-4">
+                                    <label for="reportEmail" class="form-label fw-semibold">Votre email</label>
+                                    <input id="reportEmail" name="email" type="email" class="form-control form-control-lg" placeholder="vous@exemple.fr" required>
+                                </div>
+                            <?php endif; ?>
 
                             <div class="mb-4">
                                 <label for="reportMessage" class="form-label fw-semibold">Message</label>
@@ -94,19 +98,84 @@ include __DIR__ . '/includes/general/signaler.php';
                             <div
                                 class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">
                                 <div class="text-muted small">
-                                    <p class="mb-0">Un code vous sera envoyé pour confirmer votre adresse.</p>
+                                    <p class="mb-0"><?= $isReportUserAuthenticated ? 'Votre signalement sera envoyé directement.' : 'Un code vous sera envoyé pour confirmer votre adresse.' ?></p>
                                 </div>
                                 <button type="submit" class="btn btn-judo-red btn-lg px-4 mx-auto">
-                                    <i class="bi bi-envelope-fill me-2"></i>Recevoir le code
+                                    <i class="bi <?= $isReportUserAuthenticated ? 'bi-send-fill' : 'bi-envelope-fill' ?> me-2"></i><?= $isReportUserAuthenticated ? 'Envoyer le signalement' : 'Recevoir le code' ?>
                                 </button>
                             </div>
                         </form>
                         <?php endif; ?>
+
+                        <?php if ($step === 'report' && $reportVerifiedEmail === ''): ?>
+                            <hr class="my-4">
+                            <div class="text-center">
+                                <h2 class="h5 fw-bold">Consulter un signalement existant</h2>
+                                <p class="text-muted small">Vérifiez votre adresse email pour retrouver vos signalements et échanger avec le club.</p>
+                            </div>
+                            <form method="post" action="signaler.php">
+                                <input type="hidden" name="action" value="request_access_code">
+                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['report_csrf']) ?>">
+                                <label for="reportAccessEmail" class="form-label fw-semibold">Votre email</label>
+                                <div class="input-group">
+                                    <input id="reportAccessEmail" name="email" type="email" class="form-control" placeholder="vous@exemple.fr" required>
+                                    <button type="submit" class="btn btn-judo-outline"><i class="bi bi-envelope me-1"></i>Recevoir un code</button>
+                                </div>
+                            </form>
+                        <?php endif; ?>
                     </div>
                 </div>
+
+                <?php if ($step === 'report' && $reportVerifiedEmail !== ''): ?>
+                    <section class="card border-0 shadow-sm rounded-4 mt-4 p-4">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                            <div>
+                                <h2 class="h4 fw-bold mb-1">Mes signalements</h2>
+                                <p class="small text-muted mb-0">Adresse vérifiée : <?= htmlspecialchars($reportVerifiedEmail) ?></p>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge text-bg-light border"><?= count($userReports) ?></span>
+                                <form method="post" action="signaler.php">
+                                    <input type="hidden" name="action" value="change_verified_email">
+                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['report_csrf']) ?>">
+                                    <button type="submit" class="btn btn-sm btn-judo-outline">Changer d’adresse</button>
+                                </form>
+                            </div>
+                        </div>
+                        <?php if (!$userReports): ?>
+                            <p class="text-muted mb-0">Aucun signalement associé à cette adresse email.</p>
+                        <?php else: ?>
+                            <div class="list-group list-group-flush">
+                                <?php foreach ($userReports as $report): ?>
+                                    <?php $hasUnread = jcm_report_has_unread_messages($report, 'user'); ?>
+                                    <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-3 px-0"
+                                        href="signaler.php?report=<?= rawurlencode($report['id']) ?>#conversation">
+                                        <span>
+                                            <strong>Signalement #<?= htmlspecialchars(strtoupper(substr($report['id'], 0, 8))) ?></strong>
+                                            <span class="d-block small text-muted"><?= htmlspecialchars((string) ($report['subject'] ?? 'Signalement')) ?></span>
+                                        </span>
+                                        <span class="d-flex align-items-center gap-2 small text-muted text-nowrap">
+                                            <?php if ($hasUnread): ?><span class="report-unread-dot" aria-label="Nouvelle réponse non lue"></span><?php endif; ?>
+                                            <?= count($report['messages']) ?> message<?= count($report['messages']) === 1 ? '' : 's' ?><i class="bi bi-chevron-right"></i>
+                                        </span>
+                                    </a>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
+                    </section>
+                <?php endif; ?>
             </div>
         </div>
     </main>
+
+    <?php if ($activeReport): ?>
+        <?php
+        $reportConversation = $activeReport;
+        $reportIsAdmin = false;
+        $reportBackUrl = 'signaler.php';
+        include __DIR__ . '/includes/general/report_chat_view.php';
+        ?>
+    <?php endif; ?>
 
     <footer>
         <?php include __DIR__ . '/includes/general/footer.php' ?>
@@ -114,7 +183,7 @@ include __DIR__ . '/includes/general/signaler.php';
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         crossorigin="anonymous"></script>
+    <script src="js/report-chat.js?v=<?= filemtime(__DIR__ . '/js/report-chat.js') ?>"></script>
 </body>
 
 </html>
-

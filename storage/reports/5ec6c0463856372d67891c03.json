@@ -1,0 +1,16 @@
+{
+    "id": "5ec6c0463856372d67891c03",
+    "email": "24mgimenez@gmail.com",
+    "subject": "hello",
+    "created_at": "2026-10-26T15:48:50.681742+00:00",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (X11; Linux x86_64; rv:157.0) Gecko/20100101 Firefox/157.0",
+    "messages": [
+        {
+            "sender": "user",
+            "message": "jsp pk mais ca marche pas pour l'instant\r\nca me clc",
+            "created_at": "2026-10-26T15:48:50.681754+00:00"
+        }
+    ],
+    "user_read_at": "2026-10-26T15:51:28.501874+00:00"
+}

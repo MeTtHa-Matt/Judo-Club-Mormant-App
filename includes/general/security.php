@@ -28,7 +28,13 @@ function jcm_require_csrf(): void
 
 function jcm_valid_person_name(string $value, int $maxLength = 100): bool
 {
-    return $value !== '' && mb_strlen($value) <= $maxLength && preg_match("/^[\\p{L} '-]+$/u", $value) === 1;
+    $trimmed = trim($value);
+
+    if ($trimmed === '' || mb_strlen($trimmed) > $maxLength) {
+        return false;
+    }
+
+    return preg_match('/^(?=.*\p{L})[\p{L}]+(?:[\'\- ][\p{L}]+)*$/u', $trimmed) === 1;
 }
 
 function jcm_valid_https_url(string $url): bool

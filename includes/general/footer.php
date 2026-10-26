@@ -31,9 +31,37 @@
     </div>
 </footer>
 
-<button type="button" class="report-launcher" data-bs-toggle="modal" data-bs-target="#reportHelpModal"
+<?php
+$reportLauncherUserUnreadCount = 0;
+$reportLauncherAdminUnreadCount = 0;
+$isReportAdmin = isset($_SESSION['admin']) && (int) $_SESSION['admin'] === 1;
+$verifiedReportEmail = strtolower(trim((string) ($_SESSION['report_verified_email'] ?? '')));
+if ($isReportAdmin || $verifiedReportEmail !== '') {
+    require_once __DIR__ . '/report_storage.php';
+    try {
+        $launcherReports = jcm_list_reports();
+        if ($verifiedReportEmail !== '') {
+            $reportLauncherUserUnreadCount = jcm_count_user_unread_reports($launcherReports, $verifiedReportEmail);
+        }
+        if ($isReportAdmin) {
+            $reportLauncherAdminUnreadCount = jcm_count_unread_reports($launcherReports, 'admin');
+        }
+    } catch (Throwable $exception) {
+        error_log('Report launcher notification error: ' . $exception->getMessage());
+    }
+}
+?>
+<button type="button" class="report-launcher<?= $reportLauncherUserUnreadCount > 0 || $reportLauncherAdminUnreadCount > 0 ? ' has-report-notification' : '' ?>" data-bs-toggle="modal" data-bs-target="#reportHelpModal"
     aria-label="Signaler un problème" title="Signaler un problème">
     <i class="bi bi-flag-fill" aria-hidden="true"></i>
+    <?php if ($reportLauncherUserUnreadCount > 0): ?>
+        <span class="report-launcher-notification report-launcher-user-notification" aria-label="<?= $reportLauncherUserUnreadCount ?> réponse<?= $reportLauncherUserUnreadCount > 1 ? 's' : '' ?> non lue<?= $reportLauncherUserUnreadCount > 1 ? 's' : '' ?> dans vos signalements"><?= $reportLauncherUserUnreadCount > 99 ? '99+' : $reportLauncherUserUnreadCount ?></span>
+    <?php endif; ?>
+    <?php if ($reportLauncherAdminUnreadCount > 0): ?>
+        <span class="report-launcher-notification report-launcher-admin-notification" aria-label="<?= $reportLauncherAdminUnreadCount ?> signalement<?= $reportLauncherAdminUnreadCount > 1 ? 's' : '' ?> non lu<?= $reportLauncherAdminUnreadCount > 1 ? 's' : '' ?> côté administration">
+            <i class="bi bi-inbox-fill" aria-hidden="true"></i><?= $reportLauncherAdminUnreadCount > 99 ? '99+' : $reportLauncherAdminUnreadCount ?>
+        </span>
+    <?php endif; ?>
 </button>
 
 <div class="modal fade" id="reportHelpModal" tabindex="-1" aria-labelledby="reportHelpModalLabel" aria-hidden="true">
