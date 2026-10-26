@@ -329,6 +329,18 @@ button:focus-visible,
     border: 1px solid rgba(230, 0, 18, 0.2);
   }
 
+  .custom-navbar .navbar-nav .dropdown-menu {
+    position: static;
+    width: min(100%, 22rem);
+    margin: 0.35rem auto 0.5rem;
+    transform: none;
+    text-align: center;
+  }
+
+  .custom-navbar .navbar-nav .dropdown-menu .dropdown-item {
+    text-align: center;
+  }
+
   /* Mobile performance: reduce expensive effects and smooth collapse */
   /* New animation: slide down with a gentle overshoot and staggered items */
   @keyframes navDropIn {
@@ -1048,6 +1060,42 @@ button:focus-visible,
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
+}
+
+.admin-menu-folder > summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  cursor: pointer;
+  font-weight: 700;
+  list-style: none;
+}
+
+.admin-menu-folder > summary::-webkit-details-marker {
+  display: none;
+}
+
+.admin-menu-folder > summary::after {
+  content: "";
+  width: 0.45rem;
+  height: 0.45rem;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg) translateY(-0.12rem);
+  transition: transform 160ms ease;
+}
+
+.admin-menu-folder[open] > summary::after {
+  transform: rotate(225deg) translate(-0.08rem, -0.08rem);
+}
+
+.admin-menu-folder-link {
+  padding-left: 2rem;
+}
+
+.admin-menu-folder-link.admin-report-nav-link {
+  position: relative;
 }
 
 .report-notification-badge,
@@ -2325,14 +2373,50 @@ section {
   }
 
   .navbar-nav {
+    width: 100%;
+    align-items: center;
     gap: 0.35rem;
+  }
+
+  .custom-navbar .navbar-nav .nav-item {
+    width: 100%;
   }
 
   .navbar-nav .nav-link {
     display: block;
+    width: 100%;
     padding: 0.9rem 1rem !important;
-    text-align: left;
+    text-align: center;
     border-radius: 12px;
+  }
+
+  .custom-navbar .navbar-nav .dropdown-menu {
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .custom-navbar .navbar-nav .dropdown-item {
+    text-align: center;
+  }
+
+  .custom-navbar .admin-report-nav-link {
+    position: relative;
+    justify-content: center;
+    padding-inline: 2.75rem !important;
+  }
+
+  .custom-navbar .admin-menu-folder > summary {
+    width: min(100%, 22rem);
+    margin-inline: auto;
+  }
+
+  .custom-navbar .admin-menu-folder-link {
+    padding-inline: 2.75rem !important;
+  }
+
+  .custom-navbar .admin-report-nav-link .report-notification-badge {
+    position: absolute;
+    right: 0.75rem;
   }
 
   .navbar-buttons-custom {
@@ -4498,90 +4582,6 @@ table.bo-table td.bo-date {
   outline-offset: 2px;
 }
 
-/* ==========================================================================
-   PROFILE PAGE — additional rules
-   Append this block to the end of css/style.css
-   Reuses existing tokens/classes from the site (btn-judo-red, text-judo-red,
-   hero-judo, section-title, custom-judo-table, ...) — nothing below
-   redefines them, it only adds what index.php didn't already need.
-   ========================================================================== */
-
-.ia-chat-panel {
-  display: grid;
-  gap: 1.5rem;
-}
-
-.ia-chat-shell {
-  display: grid;
-  gap: 1.25rem;
-}
-
-.ia-chat-messages {
-  max-height: 56rem;
-  min-height: 28rem;
-  overflow-y: auto;
-  padding: 1rem;
-  background: #f8f4e8;
-  border: 1px solid var(--bo-line);
-  border-radius: 18px;
-  display: grid;
-  gap: 0.75rem;
-}
-
-.ia-chat-message {
-  padding: 1rem 1.3rem;
-  border-radius: 18px;
-  box-shadow: 0 10px 25px -20px rgba(0, 0, 0, 0.35);
-  line-height: 1.7;
-  max-width: 88%;
-}
-
-.ia-chat-message-user {
-  background: #ffffff;
-  border: 1px solid rgba(34, 34, 34, 0.08);
-  justify-self: end;
-  align-self: flex-end;
-}
-
-.ia-chat-message-assistant {
-  background: #e9f2ff;
-  border: 1px solid rgba(42, 123, 255, 0.18);
-  color: #17233d;
-  justify-self: start;
-}
-
-.ia-chat-message-system {
-  background: #fff8e3;
-  border: 1px solid rgba(214, 176, 76, 0.25);
-  color: #5f4a24;
-  justify-self: center;
-  max-width: 100%;
-}
-
-.ia-chat-message-error {
-  background: #ffe7e6;
-  border: 1px solid rgba(220, 38, 38, 0.2);
-  color: #8c1d18;
-  justify-self: center;
-}
-
-.ia-chat-input {
-  min-height: 120px;
-}
-
-.ia-chat-status {
-  color: #5a5348;
-  font-size: 0.95rem;
-}
-
-.ia-chat-form .bo-btn {
-  min-width: 180px;
-}
-
-.ia-chat-form .bo-btn-outline {
-  background: transparent;
-}
-
 /* Slightly shorter hero on the profile page since it doesn't need the
    full-height treatment of the homepage hero */
 .profile-hero {
@@ -6102,138 +6102,6 @@ table.bo-table td.bo-date {
   opacity: 0.08;
   border-radius: 1rem;
   pointer-events: none;
-}
-
-/* ======================================
-   IA CHAT STYLES
-   ====================================== */
-
-.ia-chat-message {
-  animation: slideIn 0.3s ease-out;
-  display: flex;
-  margin-bottom: 0.5rem;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.ia-chat-message-user {
-  justify-content: flex-end;
-}
-
-.ia-chat-message-user .ia-chat-bubble {
-  background-color: #4a90e2;
-  color: white;
-  border-radius: 1rem 1rem 0.25rem 1rem;
-  padding: 0.75rem 1rem;
-  max-width: 80%;
-  word-wrap: break-word;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  line-height: 1.5;
-}
-
-.ia-chat-message-assistant {
-  justify-content: flex-start;
-}
-
-.ia-chat-message-assistant .ia-chat-bubble {
-  background-color: #f0f0f0;
-  color: #333;
-  border-radius: 1rem 1rem 1rem 0.25rem;
-  padding: 0.75rem 1rem;
-  max-width: 80%;
-  word-wrap: break-word;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  line-height: 1.5;
-}
-
-.ia-chat-message-error .ia-chat-bubble {
-  background-color: #fee;
-  color: #c33;
-  border-left: 4px solid #c33;
-  border-radius: 0.25rem;
-  padding: 0.75rem 1rem;
-}
-
-.ia-chat-message-system {
-  justify-content: center;
-}
-
-.ia-chat-message-system .ia-chat-bubble {
-  background-color: transparent;
-  color: #666;
-  font-size: 0.9rem;
-  font-style: italic;
-  padding: 0.5rem 0;
-  max-width: 90%;
-}
-
-.ia-chat-bubble {
-  display: inline-block;
-}
-
-/* Scrollbar styling */
-#iaChatMessages::-webkit-scrollbar {
-  width: 8px;
-}
-
-#iaChatMessages::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 10px;
-}
-
-#iaChatMessages::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 10px;
-}
-
-#iaChatMessages::-webkit-scrollbar-thumb:hover {
-  background: #999;
-}
-
-/* Loading indicator */
-.ia-chat-loading {
-  display: flex;
-  gap: 4px;
-  padding: 0.75rem 1rem;
-  background-color: #f0f0f0;
-  border-radius: 1rem 1rem 1rem 0.25rem;
-  width: fit-content;
-}
-
-.ia-chat-loading-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: #999;
-  animation: bounce 1.4s infinite;
-}
-
-.ia-chat-loading-dot:nth-child(1) {
-  animation-delay: -0.32s;
-}
-
-.ia-chat-loading-dot:nth-child(2) {
-  animation-delay: -0.16s;
-}
-
-@keyframes bounce {
-  0%, 80%, 100% {
-    transform: scale(0);
-    opacity: 0.5;
-  }
-  40% {
-    transform: scale(1);
-    opacity: 1;
-  }
 }
 
 /* ---------------------------------------------------------------

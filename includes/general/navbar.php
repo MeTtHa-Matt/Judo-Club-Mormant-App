@@ -45,21 +45,28 @@ if (isset($_SESSION['admin']) && (int) $_SESSION['admin'] === 1) {
                 </li>
                 <?php if (isset($_SESSION['admin']) && (int) $_SESSION['admin'] === 1): ?>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Administration</a>
+                        <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">Administration</a>
                         <ul class="dropdown-menu" aria-labelledby="adminDropdown">
-                            <li><a class="dropdown-item" href="<?= $appRoot ?>/users.php">Utilisateurs</a></li>
-                            <li><a class="dropdown-item" href="<?= $appRoot ?>/mailing.php">Envoyer un mail</a></li>
-                            <li><a class="dropdown-item" href="<?= $appRoot ?>/families.php">Familles</a></li>
-                            <li><a class="dropdown-item" href="<?= $appRoot ?>/gerer_index_liens.php">Liens d'accueil</a></li>
                             <li>
-                                <a class="dropdown-item admin-report-nav-link" href="<?= $appRoot ?>/reports.php">
-                                    <span>Signalements</span>
-                                    <?php if ($reportUnreadCount > 0): ?>
-                                        <span class="report-notification-badge" aria-label="<?= $reportUnreadCount ?> signalement<?= $reportUnreadCount > 1 ? 's' : '' ?> non lu<?= $reportUnreadCount > 1 ? 's' : '' ?>"><?= $reportUnreadCount > 99 ? '99+' : $reportUnreadCount ?></span>
-                                    <?php endif; ?>
-                                </a>
+                                <details class="admin-menu-folder">
+                                    <summary class="dropdown-item">Utilisateurs</summary>
+                                    <a class="dropdown-item admin-menu-folder-link" href="<?= $appRoot ?>/users.php">Utilisateurs</a>
+                                    <a class="dropdown-item admin-menu-folder-link" href="<?= $appRoot ?>/families.php">Famille</a>
+                                    <a class="dropdown-item admin-menu-folder-link" href="<?= $appRoot ?>/mailing.php">Envoyer un mail</a>
+                                    <a class="dropdown-item admin-menu-folder-link admin-report-nav-link" href="<?= $appRoot ?>/reports.php">
+                                        <span>Signalements</span>
+                                        <?php if ($reportUnreadCount > 0): ?>
+                                            <span class="report-notification-badge" aria-label="<?= $reportUnreadCount ?> signalement<?= $reportUnreadCount > 1 ? 's' : '' ?> non lu<?= $reportUnreadCount > 1 ? 's' : '' ?>"><?= $reportUnreadCount > 99 ? '99+' : $reportUnreadCount ?></span>
+                                        <?php endif; ?>
+                                    </a>
+                                </details>
                             </li>
-                            <li><a class="dropdown-item" href="<?= $appRoot ?>/chat.php">Assistant IA</a></li>
+                            <li>
+                                <details class="admin-menu-folder">
+                                    <summary class="dropdown-item">Paramètres</summary>
+                                    <a class="dropdown-item admin-menu-folder-link" href="<?= $appRoot ?>/gerer_index_liens.php">Liens d'accueil</a>
+                                </details>
+                            </li>
                         </ul>
                     </li>
                 <?php endif; ?>
