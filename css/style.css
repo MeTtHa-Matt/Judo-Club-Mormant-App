@@ -1632,38 +1632,98 @@ main .btn:focus {
   width: 100%;
 }
 
+.competition-modal .modal-footer .btn,
+.competition-modal .modal-competition-main-actions .btn {
+  min-height: 2.75rem;
+  padding: 0.55rem 0.85rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.25;
+  text-align: center;
+  text-transform: none;
+  white-space: normal;
+}
+
+.competition-modal .modal-footer .btn-judo-red,
+.competition-modal .modal-competition-main-actions .btn-judo-red {
+  color: #fff !important;
+  background: linear-gradient(135deg, var(--judo-red) 0%, #b3000e 100%);
+  border: 2px solid var(--judo-red);
+  box-shadow: 0 4px 12px rgba(230, 0, 18, 0.2);
+}
+
+.competition-modal .modal-footer .btn-judo-red:hover,
+.competition-modal .modal-footer .btn-judo-red:focus-visible,
+.competition-modal .modal-competition-main-actions .btn-judo-red:hover,
+.competition-modal .modal-competition-main-actions .btn-judo-red:focus-visible {
+  color: #fff !important;
+  background: #b3000e;
+  border-color: #b3000e;
+}
+
+.competition-modal .modal-footer .btn-outline-danger {
+  color: #b3000e;
+  background: #fff;
+  border: 1px solid #dc3545;
+}
+
+.competition-modal .modal-footer .btn-outline-danger:hover,
+.competition-modal .modal-footer .btn-outline-danger:focus-visible {
+  color: #fff;
+  background: #b3000e;
+  border-color: #b3000e;
+}
+
+.competition-modal .modal-footer .btn::before,
+.competition-modal .modal-competition-main-actions .btn::before {
+  display: none;
+}
+
+.competition-modal .btn-judo-outline {
+  color: #252a30;
+  background: #fff;
+  border: 1px solid #aeb5bd;
+}
+
+.competition-modal .btn-judo-outline:hover,
+.competition-modal .btn-judo-outline:focus-visible {
+  color: #111;
+  background: #f1f3f5;
+  border-color: #68717b;
+}
+
 .modal-competition-footer {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.5rem;
   width: 100%;
-  align-items: stretch;
+  align-items: center;
+}
+
+.modal-competition-footer > .modal-competition-action-btn,
+.modal-competition-footer > form {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+}
+
+.modal-competition-footer > :last-child:nth-child(odd) {
+  grid-column: 1 / -1;
 }
 
 .modal-competition-footer .modal-competition-action-btn {
-  margin: 0;
-  flex: 1 1 calc(50% - 0.25rem);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
   min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: clamp(0.7rem, 1.6vw + 0.4rem, 0.875rem);
-  padding: 0.4rem 0.5rem;
-  text-align: center;
 }
 
 .modal-competition-actions {
   flex: 1 1 auto;
   align-items: center;
-}
-
-.modal-competition-action-btn {
-  white-space: nowrap;
-}
-
-.modal-competition-close-btn {
-  margin-left: auto;
-  align-self: center;
 }
 
 .modal-inscrits .modal-dialog {
@@ -1696,6 +1756,56 @@ main .btn:focus {
   border-radius: 1rem;
   padding: 0.95rem;
   box-shadow: 0 6px 18px rgba(17, 17, 17, 0.04);
+}
+
+.inscrit-card-admin {
+  padding: 0;
+  overflow: hidden;
+}
+
+.inscrit-card-admin-summary {
+  display: flex;
+  min-height: 3.25rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem 1rem;
+  color: var(--judo-dark);
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+
+.inscrit-card-admin-summary::-webkit-details-marker {
+  display: none;
+}
+
+.inscrit-card-admin-summary::marker {
+  content: "";
+}
+
+.inscrit-card-admin-summary:focus-visible {
+  outline: 3px solid rgba(230, 0, 18, 0.28);
+  outline-offset: -3px;
+}
+
+.inscrit-card-admin-summary i {
+  color: var(--judo-red);
+  transition: transform 160ms ease;
+}
+
+.inscrit-card-admin[open] .inscrit-card-admin-summary i {
+  transform: rotate(180deg);
+}
+
+.inscrit-card-admin-details {
+  padding: 0 1rem 1rem;
+  border-top: 1px solid rgba(230, 0, 18, 0.1);
+}
+
+.inscrit-card-admin-details .inscrit-card-header {
+  align-items: center;
+  margin: 0.75rem 0;
 }
 
 .inscrit-card-header {
@@ -1764,18 +1874,34 @@ main .btn:focus {
 }
 
 @media (max-width: 576px) {
-  .modal-competition-footer {
-    align-items: stretch;
-  }
-
   .modal-competition-actions {
     justify-content: center;
   }
 
-  .modal-competition-action-btn {
-    font-size: 0.72rem;
-    padding: 0.45rem 0.75rem;
-    line-height: 1.2;
+  .competition-modal .modal-body {
+    padding: 1rem !important;
+  }
+
+  #modalCompetition .modal-competition-footer {
+    gap: 0.4rem;
+    padding: 0.75rem;
+  }
+
+  #modalCompetition .modal-competition-footer .btn {
+    min-height: 2.65rem;
+    padding: 0.45rem 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .competition-modal .modal-footer {
+    gap: 0.5rem;
+    padding: 0.75rem;
+  }
+
+  .competition-modal .modal-footer .btn {
+    min-height: 2.65rem;
+    padding: 0.45rem 0.7rem;
+    font-size: 0.82rem;
   }
 }
 

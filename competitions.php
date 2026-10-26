@@ -253,7 +253,7 @@ function userHasCompetitionInscription(int $competitionId, ?int $userId): bool
 
     </main>
 
-    <div class="modal fade modal-ceinture" id="modalCompetition" tabindex="-1" aria-hidden="true">
+    <div class="modal fade modal-ceinture competition-modal" id="modalCompetition" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -280,7 +280,7 @@ function userHasCompetitionInscription(int $competitionId, ?int $userId): bool
                     <div class="modal-competition-main-actions mt-4">
                         <?php if (!isset($_SESSION['id'])): ?>
                             <a id="modalCompetitionRegisterLink" href="register.php"
-                                class="btn btn-judo-outline-white modal-competition-action-btn w-100">S'inscrire</a>
+                                class="btn btn-judo-red modal-competition-action-btn w-100">S'inscrire</a>
                         <?php else: ?>
                             <button type="button" id="modalCompetitionRegisterBtn"
                                 class="btn btn-judo-red modal-competition-action-btn w-100">S'inscrire</button>
@@ -306,9 +306,6 @@ function userHasCompetitionInscription(int $competitionId, ?int $userId): bool
                         <button type="button" id="modalCompetitionViewInscritsMineBtn"
                             class="btn btn-judo-outline modal-competition-action-btn"><?= isset($_SESSION['admin']) && (int) $_SESSION['admin'] === 1 ? 'Voir mes inscriptions' : 'Voir les inscriptions de ma famille' ?></button>
                     <?php endif; ?>
-                    <button type="button"
-                        class="btn btn-judo-outline modal-competition-action-btn modal-competition-close-btn"
-                        data-bs-dismiss="modal">Fermer</button>
                 </div>
             </div>
         </div>
@@ -382,7 +379,6 @@ function userHasCompetitionInscription(int $competitionId, ?int $userId): bool
                             <button type="submit" class="bo-btn bo-btn-primary" id="competitionFormSubmit">
                                 <i class="bi bi-plus-lg"></i> Ajouter
                             </button>
-                            <button type="button" class="bo-btn bo-btn-outline" data-bs-dismiss="modal">Annuler</button>
                         </div>
                     </form>
                 </div>
@@ -390,7 +386,7 @@ function userHasCompetitionInscription(int $competitionId, ?int $userId): bool
         </div>
     <?php endif; ?>
 
-    <div class="modal fade modal-ceinture" id="modalRegistrationChoice" tabindex="-1" aria-hidden="true">
+    <div class="modal fade modal-ceinture competition-modal" id="modalRegistrationChoice" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -401,22 +397,17 @@ function userHasCompetitionInscription(int $competitionId, ?int $userId): bool
                 <div class="modal-body p-4">
                     <p class="mb-3">Choisissez votre mode d'inscription pour <strong
                             id="modalRegistrationChoiceCompetitionName"></strong>.</p>
-                    <div class="d-grid gap-3">
-                        <button type="button" id="choiceManualInscriptionBtn" class="btn btn-judo-red">Inscrire
-                            manuellement</button>
-                        <button type="button" id="choiceChildInscriptionBtn" class="btn btn-judo-outline-dark">Inscrire
-                            mes enfants</button>
+                    <div class="d-grid gap-2">
+                        <button type="button" id="choiceManualInscriptionBtn" class="btn btn-judo-red">Inscrire manuellement</button>
+                        <button type="button" id="choiceChildInscriptionBtn" class="btn btn-judo-outline">Inscrire mes enfants</button>
                     </div>
                     <input type="hidden" id="registrationChoiceCompetitionId" value="">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-judo-outline" data-bs-dismiss="modal">Annuler</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="modal fade modal-ceinture" id="modalChildProfiles" tabindex="-1" aria-hidden="true">
+    <div class="modal fade modal-ceinture competition-modal" id="modalChildProfiles" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -434,14 +425,11 @@ function userHasCompetitionInscription(int $competitionId, ?int $userId): bool
                     </div>
                     <div id="modalChildProfilesContent" class="child-profiles-list"></div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-judo-outline" data-bs-dismiss="modal">Fermer</button>
-                </div>
             </div>
         </div>
     </div>
 
-    <div class="modal fade modal-ceinture" id="modalJourCompetitions" tabindex="-1" aria-hidden="true">
+    <div class="modal fade modal-ceinture competition-modal" id="modalJourCompetitions" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -450,14 +438,11 @@ function userHasCompetitionInscription(int $competitionId, ?int $userId): bool
                         aria-label="Fermer"></button>
                 </div>
                 <div class="modal-body p-0" id="modalJourCompetitionsBody"></div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-judo-outline" data-bs-dismiss="modal">Fermer</button>
-                </div>
             </div>
         </div>
     </div>
 
-    <div class="modal fade modal-inscrits" id="modalInscrits" tabindex="-1" aria-hidden="true">
+    <div class="modal fade modal-inscrits competition-modal" id="modalInscrits" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
@@ -466,14 +451,11 @@ function userHasCompetitionInscription(int $competitionId, ?int $userId): bool
                 </div>
                 <div class="modal-body p-3">
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-judo-outline" data-bs-dismiss="modal">Fermer</button>
-                </div>
             </div>
         </div>
     </div>
 
-    <div class="modal fade" id="modalUnsubscribeDeadlinePassed" tabindex="-1" aria-hidden="true">
+    <div class="modal fade competition-modal" id="modalUnsubscribeDeadlinePassed" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -491,7 +473,7 @@ function userHasCompetitionInscription(int $competitionId, ?int $userId): bool
         </div>
     </div>
 
-    <div class="modal fade" id="modalInscription" tabindex="-1" aria-hidden="true">
+    <div class="modal fade competition-modal" id="modalInscription" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -534,7 +516,6 @@ function userHasCompetitionInscription(int $competitionId, ?int $userId): bool
                     </div>
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-judo-red">Envoyer</button>
-                        <button type="button" class="btn btn-judo-outline" data-bs-dismiss="modal">Annuler</button>
                     </div>
                 </form>
             </div>

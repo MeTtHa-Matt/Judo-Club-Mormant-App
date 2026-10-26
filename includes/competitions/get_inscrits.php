@@ -85,44 +85,70 @@ ob_start();
         <div class="inscrits-list">
             <?php foreach ($list as $row): ?>
                 <?php $canUnsubscribe = $isAdmin || ((int) ($row['id_account'] ?? 0) === $userId) || (!$onlyMe && !$isAdmin); ?>
-                <article class="inscrit-card">
-                    <div class="inscrit-card-header">
-                        <div>
-                            <h6 class="inscrit-card-name">
-                                <?= htmlspecialchars($row['prenom'] . ' ' . $row['nom']) ?>
-                            </h6>
-                            <p class="inscrit-card-meta">
-                                Né en <?= htmlspecialchars($row['annee_naissance']) ?>
-                            </p>
+                <?php if ($isAdmin && !$onlyMe): ?>
+                    <details class="inscrit-card inscrit-card-admin">
+                        <summary class="inscrit-card-admin-summary">
+                            <span><?= htmlspecialchars(trim((string) ($row['prenom'] ?? '') . ' ' . (string) ($row['nom'] ?? ''))) ?></span>
+                            <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                        </summary>
+                        <div class="inscrit-card-admin-details">
+                            <div class="inscrit-card-header">
+                                <p class="inscrit-card-meta mb-0">Né en <?= htmlspecialchars((string) ($row['annee_naissance'] ?? '')) ?></p>
+                                <?php if (!empty($row['ceinture_nom'])): ?>
+                                    <span class="inscrit-badge"><?= htmlspecialchars($row['ceinture_nom']) ?></span>
+                                <?php endif; ?>
+                            </div>
+                            <div class="inscrit-card-details">
+                                <div class="inscrit-detail-item">
+                                    <i class="bi bi-weight text-judo-red"></i>
+                                    <span><?= htmlspecialchars((string) ($row['Poids'] ?? '')) ?> kg</span>
+                                </div>
+                                <div class="inscrit-detail-item">
+                                    <i class="bi bi-person-circle text-judo-red"></i>
+                                    <span><?= htmlspecialchars(trim((string) ($row['firstname'] ?? '') . ' ' . (string) ($row['lastname'] ?? ''))) ?></span>
+                                </div>
+                            </div>
+                            <?php if ($canUnsubscribe): ?>
+                                <div class="mt-3">
+                                    <button type="button" class="btn btn-judo-red btn-sm unsubscribe-inscription-btn"
+                                        data-inscription-id="<?= (int) $row['id'] ?>" data-competition-id="<?= (int) $compId ?>"
+                                        data-only-me="0">Désinscrire</button>
+                                </div>
+                            <?php endif; ?>
                         </div>
-                        <?php if (!empty($row['ceinture_nom'])): ?>
-                            <span class="inscrit-badge">
-                                <?= htmlspecialchars($row['ceinture_nom']) ?>
-                            </span>
-                        <?php endif; ?>
-                    </div>
-                    <div class="inscrit-card-details">
-                        <div class="inscrit-detail-item">
-                            <i class="bi bi-weight text-judo-red"></i>
-                            <span><?= htmlspecialchars($row['Poids'] ?? '') ?> kg</span>
+                    </details>
+                <?php else: ?>
+                    <article class="inscrit-card">
+                        <div class="inscrit-card-header">
+                            <div>
+                                <h6 class="inscrit-card-name"><?= htmlspecialchars(trim((string) ($row['prenom'] ?? '') . ' ' . (string) ($row['nom'] ?? ''))) ?></h6>
+                                <p class="inscrit-card-meta">Né en <?= htmlspecialchars((string) ($row['annee_naissance'] ?? '')) ?></p>
+                            </div>
+                            <?php if (!empty($row['ceinture_nom'])): ?>
+                                <span class="inscrit-badge"><?= htmlspecialchars($row['ceinture_nom']) ?></span>
+                            <?php endif; ?>
                         </div>
-                        <?php if (!$onlyMe): ?>
+                        <div class="inscrit-card-details">
                             <div class="inscrit-detail-item">
-                                <i class="bi bi-person-circle text-judo-red"></i>
-                                <span><?= htmlspecialchars(trim(($row['firstname'] ?? '') . ' ' . ($row['lastname'] ?? ''))) ?></span>
+                                <i class="bi bi-weight text-judo-red"></i>
+                                <span><?= htmlspecialchars((string) ($row['Poids'] ?? '')) ?> kg</span>
+                            </div>
+                            <?php if (!$onlyMe): ?>
+                                <div class="inscrit-detail-item">
+                                    <i class="bi bi-person-circle text-judo-red"></i>
+                                    <span><?= htmlspecialchars(trim((string) ($row['firstname'] ?? '') . ' ' . (string) ($row['lastname'] ?? ''))) ?></span>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                        <?php if ($canUnsubscribe): ?>
+                            <div class="mt-3">
+                                <button type="button" class="btn btn-judo-red btn-sm unsubscribe-inscription-btn"
+                                    data-inscription-id="<?= (int) $row['id'] ?>" data-competition-id="<?= (int) $compId ?>"
+                                    data-only-me="<?= $onlyMe ? '1' : '0' ?>">Désinscrire</button>
                             </div>
                         <?php endif; ?>
-                    </div>
-                    <?php if ($canUnsubscribe): ?>
-                        <div class="mt-3">
-                            <button type="button" class="btn btn-judo-red btn-sm unsubscribe-inscription-btn"
-                                data-inscription-id="<?= (int) $row['id'] ?>" data-competition-id="<?= (int) $compId ?>"
-                                data-only-me="<?= $onlyMe ? '1' : '0' ?>">
-                                Désinscrire
-                            </button>
-                        </div>
-                    <?php endif; ?>
-                </article>
+                    </article>
+                <?php endif; ?>
             <?php endforeach; ?>
         </div>
     <?php endif; ?>
