@@ -101,18 +101,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
     }
 
-    if ($_POST['action'] === 'toggle_maintenance') {
-        $stmt = $pdo->prepare("SELECT maintenance FROM account WHERE id = ?");
-        $stmt->execute([$userId]);
-        $current = (int) $stmt->fetchColumn();
-        $newMaintenance = $current ? 0 : 1;
-
-        $pdo->prepare("UPDATE account SET maintenance = ?")->execute([$newMaintenance]);
-        $flashSuccess = $newMaintenance
-            ? "Le mode maintenance est activé. Le site est désormais inaccessible aux membres non-admin."
-            : "Le mode maintenance est désactivé. Le site est de nouveau accessible à tous.";
-    }
-
     if ($_POST['action'] === 'delete_account') {
         $targetId = (int) ($_POST['user_id'] ?? 0);
 
@@ -133,8 +121,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
     }
 }
-
-$maintenanceOn = (bool) $pdo->query("SELECT maintenance FROM account LIMIT 1")->fetchColumn();
 
 $search = trim($_GET['q'] ?? $_POST['q'] ?? '');
 

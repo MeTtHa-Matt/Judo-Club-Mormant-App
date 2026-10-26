@@ -8,7 +8,12 @@ if (!isset($pdo)) {
 cleanupExpiredUnverifiedAccounts($pdo);
 
 $currentPage = basename($_SERVER['PHP_SELF']);
-$appBasePath = rtrim(dirname($_SERVER['SCRIPT_NAME'] ?? '/'), '/\\');
+$scriptPath = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/'));
+$includesPosition = strpos($scriptPath, '/includes/');
+$appBasePath = $includesPosition === false
+    ? dirname($scriptPath)
+    : substr($scriptPath, 0, $includesPosition);
+$appBasePath = rtrim($appBasePath, '/\\');
 $appBasePath = $appBasePath === '/' ? '' : $appBasePath;
 $redirectBase = $appBasePath . '/';
 

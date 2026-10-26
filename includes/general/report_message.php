@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/session_start_pwa.php';
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/access_check.php';
 require_once __DIR__ . '/security.php';
 require_once __DIR__ . '/report_storage.php';
 

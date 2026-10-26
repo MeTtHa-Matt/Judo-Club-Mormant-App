@@ -5,6 +5,7 @@ Disallow: /vendor/
 Disallow: /storage/
 Disallow: /img/pdps/
 Disallow: /admin/
+Disallow: /admin_maintenance.php
 Disallow: /ban.php
 Disallow: /gerer_competitions.php
 Disallow: /gerer_index_liens.php

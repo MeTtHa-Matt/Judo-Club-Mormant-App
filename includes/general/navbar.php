@@ -65,6 +65,7 @@ if (isset($_SESSION['admin']) && (int) $_SESSION['admin'] === 1) {
                                 <details class="admin-menu-folder">
                                     <summary class="dropdown-item">Paramètres</summary>
                                     <a class="dropdown-item admin-menu-folder-link" href="<?= $appRoot ?>/gerer_index_liens.php">Liens d'accueil</a>
+                                    <a class="dropdown-item admin-menu-folder-link" href="<?= $appRoot ?>/admin_maintenance.php">Maintenance</a>
                                 </details>
                             </li>
                         </ul>

@@ -64,35 +64,6 @@ include __DIR__ . '/includes/general/users.php'
             </div>
         <?php endif; ?>
 
-        
-
-        <section
-            class="maintenance-card card border-0 shadow-sm rounded-4 p-4 mb-5 <?= $maintenanceOn ? 'maintenance-active' : '' ?>">
-            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="maintenance-icon">
-                        <i class="bi bi-cone-striped"></i>
-                    </div>
-                    <div>
-                        <h3 class="h5 fw-bold mb-1">Mode maintenance</h3>
-                        <p class="text-muted small mb-0">
-                            <span class="status-dot <?= $maintenanceOn ? 'status-dot-on' : 'status-dot-off' ?>"></span>
-                            <?= $maintenanceOn ? "Le site est actuellement en maintenance" : "Le site est actuellement en ligne" ?>
-                        </p>
-                    </div>
-                </div>
-                <form action="users.php" method="POST"
-                    onsubmit="return confirm('<?= $maintenanceOn ? 'Désactiver' : 'Activer' ?> le mode maintenance du site ?');">
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(jcm_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
-                    <input type="hidden" name="action" value="toggle_maintenance">
-                    <button type="submit" class="btn <?= $maintenanceOn ? 'btn-judo-outline' : 'btn-judo-red' ?>">
-                        <i
-                            class="bi bi-power me-2"></i><?= $maintenanceOn ? "Désactiver la maintenance" : "Activer la maintenance" ?>
-                    </button>
-                </form>
-            </div>
-        </section>
-
         <section>
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
                 <h2 class="h2 fw-bold text-uppercase section-title mb-0">Liste des <span

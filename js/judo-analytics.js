@@ -9,7 +9,7 @@
     if (!endpointValue) return;
 
     const privatePages = new Set([
-        'ban.php', 'gerer_index_liens.php', 'login.php', 'mailing.php', 'maintenance.php',
+        'admin_maintenance.php', 'ban.php', 'gerer_index_liens.php', 'login.php', 'mailing.php', 'maintenance.php',
         'mes_enfants.php', 'profile.php', 'recup_mdp.php', 'register.php', 'reports.php', 'reset_password.php',
         'signaler.php', 'users.php', 'verify.php', 'reglement_accept.php',
     ]);

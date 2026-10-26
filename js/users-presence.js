@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const POLL_INTERVAL = 30000; // 30 seconds
   const CSRF_TOKEN = (window.JCM && typeof window.JCM.csrfToken === 'string') ? window.JCM.csrfToken : '';
   const PRIVATE_PAGES = new Set([
-    'ban.php', 'gerer_index_liens.php', 'login.php', 'mailing.php', 'maintenance.php',
+    'admin_maintenance.php', 'ban.php', 'gerer_index_liens.php', 'login.php', 'mailing.php', 'maintenance.php',
     'mes_enfants.php', 'profile.php', 'recup_mdp.php', 'register.php', 'reports.php', 'reset_password.php',
     'signaler.php', 'users.php', 'verify.php', 'reglement_accept.php'
   ]);

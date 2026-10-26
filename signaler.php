@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/general/access_check.php';
 include __DIR__ . '/includes/general/signaler.php';
 ?>
 <!DOCTYPE html>

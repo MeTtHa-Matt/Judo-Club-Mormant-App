@@ -54,7 +54,7 @@ Le projet centralise les éléments numériques du club :
 - gestion des compétitions et des catégories ciblées,
 - envoi d’emails à l’ensemble des abonnés,
 - gestion des signalements,
-- activation du mode maintenance,
+- gestion du mode maintenance depuis les paramètres d’administration,
 - gestion des liens d’accueil,
 - contrôle des accès et sécurité des sessions.
 

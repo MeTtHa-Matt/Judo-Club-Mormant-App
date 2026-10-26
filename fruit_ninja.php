@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/includes/general/session_start_pwa.php';
+require_once __DIR__ . '/includes/general/access_check.php';
 require_once __DIR__ . '/includes/general/security.php';
 
 function ensureFruitNinjaScoresTable(PDO $pdo): void
