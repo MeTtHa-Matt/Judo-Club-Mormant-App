@@ -46,12 +46,24 @@ document.querySelectorAll(".report-chat-form").forEach((form) => {
   const chat = form.closest(".report-chat");
   const messages = chat.querySelector(".report-chat-messages");
   const isAdmin = chat.dataset.isAdmin === "1";
+  const visualViewport = window.visualViewport;
   let displayedCount = messages.querySelectorAll(".report-chat-message").length;
   let refreshInProgress = null;
   let sendingMessage = false;
   messages.scrollTop = messages.scrollHeight;
   const imageInput = form.querySelector(".report-chat-file-input");
   const selectedFiles = form.querySelector(".report-chat-selected-files");
+
+  if (visualViewport && document.body.classList.contains("report-conversation-open")) {
+    const fitVisibleViewport = () => {
+      chat.style.setProperty("top", `${visualViewport.offsetTop}px`, "important");
+      chat.style.setProperty("bottom", "auto", "important");
+      chat.style.setProperty("height", `${visualViewport.height}px`, "important");
+    };
+    fitVisibleViewport();
+    visualViewport.addEventListener("resize", fitVisibleViewport);
+    visualViewport.addEventListener("scroll", fitVisibleViewport);
+  }
 
   imageInput?.addEventListener("change", () => {
     selectedFiles.replaceChildren();

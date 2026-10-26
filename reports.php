@@ -77,10 +77,10 @@ require_once __DIR__ . '/includes/general/reports_admin.php';
         </div>
     <?php endif; ?>
     </div>
-    <?php if ($reportConversation): ?>
-        <?php include __DIR__ . '/includes/general/report_chat_view.php'; ?>
-    <?php endif; ?>
 </main>
+<?php if ($reportConversation): ?>
+    <?php include __DIR__ . '/includes/general/report_chat_view.php'; ?>
+<?php endif; ?>
 <?php include __DIR__ . '/includes/general/footer.php'; ?>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 <script src="js/report-chat.js?v=<?= filemtime(__DIR__ . '/js/report-chat.js') ?>"></script>
