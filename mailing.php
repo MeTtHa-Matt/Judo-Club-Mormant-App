@@ -41,84 +41,138 @@ include __DIR__ . '/includes/general/mailing.php';
             </div>
             <h1 class="display-4 fw-bolder text-uppercase tracking-wider hero-title">Envoyer un mail</h1>
             <div class="hero-divider"></div>
-            <p class="lead fs-5 fw-light mt-3 hero-subtitle">Rédigez un message avec mise en forme, images et envoi
-                groupé à tous les membres.</p>
+            <p class="lead fs-5 fw-light mt-3 hero-subtitle">Préparez vos destinataires, rédigez et retrouvez vos envois.</p>
         </div>
     </header>
 
     <main class="container">
         <div class="mailing-shell mx-auto">
-            <div class="card mailing-card">
-                <div class="card-body p-4 p-md-5">
-                    <div
-                        class="mailing-header d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-4">
-                        <div>
-                            <span class="badge rounded-pill bg-danger-subtle text-danger fw-semibold mb-2">
-                                <i class="bi bi-person-lines-fill me-2"></i>Envoi groupé
-                            </span>
-                            <h2 class="h3 fw-bold mb-1">Envoyer un mail à tous les membres</h2>
-                            <p class="mailing-meta mb-0">Rédigez votre contenu, ajoutez des images et envoyez le message
-                                à l’ensemble des comptes enregistrés.</p>
+            <section class="mailing-compose-card">
+                <?php if ($flashSuccess): ?>
+                    <div class="alert alert-success"><i class="bi bi-check-circle-fill me-2"></i><?= htmlspecialchars($flashSuccess, ENT_QUOTES, 'UTF-8') ?></div>
+                <?php endif; ?>
+                <?php if ($flashError): ?>
+                    <div class="alert alert-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i><?= htmlspecialchars($flashError, ENT_QUOTES, 'UTF-8') ?></div>
+                <?php endif; ?>
+
+                <form id="mailForm" method="post" action="mailing.php" novalidate>
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(jcm_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
+                    <input type="hidden" name="action" value="send_mail">
+                    <input type="hidden" name="message_html" id="messageHtml">
+
+                    <div class="mailing-recipients">
+                        <div class="mailing-recipient-row">
+                            <label for="toInput">À</label>
+                            <div class="mailing-token-field" data-recipient-field="to">
+                                <div class="mailing-chips" aria-live="polite"></div>
+                                <input id="toInput" type="text" autocomplete="off" placeholder="E-mail, all, admin ou nadmin">
+                            </div>
                         </div>
+                        <div class="mailing-suggestions" id="mailingSuggestions" role="listbox" hidden></div>
                     </div>
 
-                    <?php if ($flashSuccess): ?>
-                        <div class="alert alert-success"><i
-                                class="bi bi-check-circle-fill me-2"></i><?= htmlspecialchars($flashSuccess) ?></div>
-                    <?php endif; ?>
-                    <?php if ($flashError): ?>
-                        <div class="alert alert-danger"><i
-                                class="bi bi-exclamation-triangle-fill me-2"></i><?= htmlspecialchars($flashError) ?></div>
-                    <?php endif; ?>
+                    <div class="mailing-subject-wrap">
+                        <label for="mailSubject" class="form-label">Objet</label>
+                        <input id="mailSubject" name="subject" class="form-control"
+                            placeholder="Donnez un objet à votre message" maxlength="255" required>
+                    </div>
 
-                    <form id="mailForm" method="post" action="mailing.php">
-                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(jcm_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
-                        <input type="hidden" name="action" value="send_mail">
-                        <input type="hidden" name="message_html" id="messageHtml">
-
-                        <div class="mb-3">
-                            <label for="mailSubject" class="form-label fw-semibold">Sujet</label>
-                            <input id="mailSubject" name="subject" class="form-control form-control-lg"
-                                placeholder="Sujet du mail" required>
+                    <div class="mailing-content-wrap">
+                        <div class="mailing-message-heading">
+                            <label class="form-label mb-0">Message</label>
+                            <span>Rédigez votre annonce</span>
                         </div>
-
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Contenu</label>
+                        <div class="mailing-message-box">
                             <div id="toolbar" class="mailing-toolbar">
                                 <div class="ql-formats">
-                                    <button type="button" class="ql-bold"></button>
-                                    <button type="button" class="ql-italic"></button>
-                                    <button type="button" class="ql-underline"></button>
+                                    <button type="button" class="ql-bold" aria-label="Gras" title="Gras"></button>
+                                    <button type="button" class="ql-italic" aria-label="Italique" title="Italique"></button>
+                                    <button type="button" class="ql-underline" aria-label="Souligné" title="Souligné"></button>
                                 </div>
-                                <div class="ql-formats">
-                                    <select class="ql-size">
+                                <span class="mailing-toolbar-separator" aria-hidden="true"></span>
+                                <div class="ql-formats mailing-format-group">
+                                    <select class="ql-size" aria-label="Taille du texte">
                                         <option value="small">Petit</option>
                                         <option selected>Moyen</option>
                                         <option value="large">Grand</option>
                                         <option value="huge">Très grand</option>
                                     </select>
+                                    <select class="ql-color" aria-label="Couleur"></select>
                                 </div>
+                                <span class="mailing-toolbar-separator" aria-hidden="true"></span>
                                 <div class="ql-formats">
-                                    <select class="ql-color"></select>
-                                    <button type="button" class="ql-image"></button>
+                                    <button type="button" class="ql-image" aria-label="Insérer une image" title="Insérer une image"></button>
                                 </div>
                             </div>
                             <div id="editor" class="ql-container ql-snow mailing-editor"
                                 aria-label="Éditeur de texte enrichi"></div>
-                            <input type="file" id="imageInput" accept="image/*" hidden>
                         </div>
+                        <input type="file" id="imageInput" accept="image/*" hidden>
+                    </div>
 
-                        <div
-                            class="mail-actions d-flex flex-wrap justify-content-between align-items-center gap-3 mt-4">
-                            <p class="mailing-meta mb-0">Les emails seront envoyés à tous les comptes avec une adresse
-                                email renseignée.</p>
-                            <button type="submit" class="mail-submit-btn btn btn-danger btn-lg">
-                                <i class="bi bi-send-fill me-2"></i> Envoyer le mail
-                            </button>
-                        </div>
-                    </form>
+                    <div class="mailing-compose-footer">
+                        <button type="submit" class="mail-submit-btn btn btn-danger">
+                            <i class="bi bi-send-fill me-2"></i>Envoyer le message
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="mailing-history-card" aria-labelledby="mailHistoryTitle">
+                <div class="mailing-history-heading">
+                    <div>
+                        <span class="mailing-eyebrow"><i class="bi bi-clock-history me-2"></i>Suivi</span>
+                        <h2 id="mailHistoryTitle">Historique des envois</h2>
+                    </div>
+                    <span class="mailing-history-count"><?= count($mailingHistory) ?> récent<?= count($mailingHistory) > 1 ? 's' : '' ?></span>
                 </div>
-            </div>
+                <?php if (empty($mailingHistory)): ?>
+                    <div class="mailing-history-empty">
+                        <i class="bi bi-envelope-open"></i>
+                        <p>Aucun mail envoyé pour le moment.</p>
+                    </div>
+                <?php else: ?>
+                    <div class="mailing-history-list">
+                        <?php foreach ($mailingHistory as $history): ?>
+                            <?php
+                            $preview = trim(html_entity_decode(strip_tags((string) $history['message_html']), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+                            $hasImage = preg_match('/<img\b/i', (string) $history['message_html']) === 1;
+                            $statusLabel = match ($history['status']) {
+                                'sent' => 'Envoyé',
+                                'failed' => 'Échec',
+                                default => 'En cours',
+                            };
+                            ?>
+                            <details class="mailing-history-item">
+                                <summary>
+                                        <span class="mailing-history-icon"><i class="bi bi-envelope-paper"></i></span>
+                                        <span class="mailing-history-main">
+                                            <strong>
+                                                <?= htmlspecialchars($history['subject'], ENT_QUOTES, 'UTF-8') ?>
+                                                <?php if ($hasImage): ?>
+                                                    <i class="bi bi-paperclip mailing-history-attachment" role="img" aria-label="Image jointe" title="Image jointe"></i>
+                                                <?php endif; ?>
+                                            </strong>
+                                            <small><?= htmlspecialchars(date('d/m/Y à H:i', strtotime($history['created_at'])), ENT_QUOTES, 'UTF-8') ?>
+                                                · <?= htmlspecialchars(trim((string) $history['sender_firstname'] . ' ' . (string) $history['sender_lastname']), ENT_QUOTES, 'UTF-8') ?></small>
+                                        </span>
+                                        <span class="mailing-history-status status-<?= htmlspecialchars($history['status'], ENT_QUOTES, 'UTF-8') ?>">
+                                            <?= htmlspecialchars($statusLabel, ENT_QUOTES, 'UTF-8') ?>
+                                        </span>
+                                        <i class="bi bi-chevron-down mailing-history-chevron"></i>
+                                </summary>
+                                <div class="mailing-history-details">
+                                        <p><strong>À :</strong> <?= htmlspecialchars(implode(', ', $history['to_emails'] ?? []), ENT_QUOTES, 'UTF-8') ?></p>
+                                        <?php if (!empty($history['cc_emails'])): ?>
+                                            <p><strong>Cc :</strong> <?= htmlspecialchars(implode(', ', $history['cc_emails']), ENT_QUOTES, 'UTF-8') ?></p>
+                                        <?php endif; ?>
+                                        <p class="mailing-history-preview"><?= htmlspecialchars($preview, ENT_QUOTES, 'UTF-8') ?></p>
+                                </div>
+                            </details>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+            </section>
         </div>
     </main>
 
@@ -127,11 +181,13 @@ include __DIR__ . '/includes/general/mailing.php';
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.min.js"></script>
-    <script src="js/mailing-editor.js"></script>
+    <script>
+        window.mailingContacts = <?= json_encode($mailingContacts, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+    </script>
+    <script src="js/mailing-editor.js?v=<?= filemtime(__DIR__ . '/js/mailing-editor.js') ?>"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
 </body>
 
 </html>
-
