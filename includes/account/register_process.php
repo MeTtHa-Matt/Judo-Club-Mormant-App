@@ -56,8 +56,9 @@ if (isset($_FILES['pdp']) && $_FILES['pdp']['error'] === UPLOAD_ERR_OK) {
     $allowedMimes = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
 
     $imageInfo = @getimagesize($tmpPath);
-    if ($_FILES['pdp']['size'] <= 3 * 1024 * 1024 && isset($allowedMimes[$mime])
-        && $imageInfo !== false && $imageInfo[0] <= 4000 && $imageInfo[1] <= 4000) {
+    if ($_FILES['pdp']['size'] <= 10 * 1024 * 1024 && isset($allowedMimes[$mime])
+        && $imageInfo !== false && $imageInfo[0] <= 10000 && $imageInfo[1] <= 10000
+        && $imageInfo[0] * $imageInfo[1] <= 40000000) {
         $nouveauNom = 'avatar_' . bin2hex(random_bytes(16)) . '.' . $allowedMimes[$mime];
         $cheminImage = __DIR__ . '/../../img/pdps/' . $nouveauNom;
 

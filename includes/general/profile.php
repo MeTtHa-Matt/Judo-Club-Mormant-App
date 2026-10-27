@@ -63,37 +63,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
     }
 
-    if ($_POST['action'] === 'update_avatar' && isset($_FILES['pdp']) && $_FILES['pdp']['error'] === UPLOAD_ERR_OK) {
-        $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
-        $mime = (new finfo(FILEINFO_MIME_TYPE))->file($_FILES['pdp']['tmp_name']);
-
-        $imageInfo = @getimagesize($_FILES['pdp']['tmp_name']);
-        if (!isset($allowed[$mime]) || $_FILES['pdp']['size'] > 3 * 1024 * 1024
-            || $imageInfo === false || $imageInfo[0] > 4000 || $imageInfo[1] > 4000) {
-            $flashError = "Image invalide (formats acceptés : jpg, png, webp — 3 Mo maximum).";
+    if ($_POST['action'] === 'update_avatar' && isset($_FILES['pdp'])) {
+        if ($_FILES['pdp']['error'] !== UPLOAD_ERR_OK) {
+            $flashError = $_FILES['pdp']['error'] === UPLOAD_ERR_INI_SIZE
+                || $_FILES['pdp']['error'] === UPLOAD_ERR_FORM_SIZE
+                ? 'La photo dépasse la taille maximale autorisée de 10 Mo.'
+                : 'Le téléversement de la photo a échoué.';
         } else {
-            $destDir = "img/pdps/";
-            if (!is_dir($destDir)) {
-                mkdir($destDir, 0755, true);
-            }
-            $filename = "avatar_" . $userId . "_" . bin2hex(random_bytes(12)) . "." . $allowed[$mime];
-            if (move_uploaded_file($_FILES['pdp']['tmp_name'], $destDir . $filename)) {
-                // tenter de supprimer l'ancienne photo uniquement si elle existe
-                $oldPdp = $account['pdp'] ?? '';
-                if (!empty($oldPdp) && $oldPdp !== 'pdp_base.png') {
-                    $oldPath = $destDir . basename($oldPdp);
-                    if (file_exists($oldPath)) {
-                        @unlink($oldPath);
-                    }
-                }
+            $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
+            $mime = (new finfo(FILEINFO_MIME_TYPE))->file($_FILES['pdp']['tmp_name']);
 
-                $update = $pdo->prepare("UPDATE account SET pdp = ? WHERE id = ?");
-                $update->execute([$filename, $userId]);
-                $account['pdp'] = $filename;
-                $_SESSION['pdp'] = $filename;
-                $flashSuccess = "Votre photo de profil a été mise à jour.";
+            $imageInfo = @getimagesize($_FILES['pdp']['tmp_name']);
+            if (!isset($allowed[$mime]) || $_FILES['pdp']['size'] > 10 * 1024 * 1024
+                || $imageInfo === false || $imageInfo[0] > 10000 || $imageInfo[1] > 10000
+                || $imageInfo[0] * $imageInfo[1] > 40000000) {
+                $flashError = "Image invalide (formats acceptés : jpg, png, webp — 10 Mo maximum).";
             } else {
-                $flashError = "Le téléversement de l'image a échoué.";
+                $destDir = "img/pdps/";
+                if (!is_dir($destDir)) {
+                    mkdir($destDir, 0755, true);
+                }
+                $filename = "avatar_" . $userId . "_" . bin2hex(random_bytes(12)) . "." . $allowed[$mime];
+                if (move_uploaded_file($_FILES['pdp']['tmp_name'], $destDir . $filename)) {
+                    // tenter de supprimer l'ancienne photo uniquement si elle existe
+                    $oldPdp = $account['pdp'] ?? '';
+                    if (!empty($oldPdp) && $oldPdp !== 'pdp_base.png') {
+                        $oldPath = $destDir . basename($oldPdp);
+                        if (file_exists($oldPath)) {
+                            @unlink($oldPath);
+                        }
+                    }
+
+                    $update = $pdo->prepare("UPDATE account SET pdp = ? WHERE id = ?");
+                    $update->execute([$filename, $userId]);
+                    $account['pdp'] = $filename;
+                    $_SESSION['pdp'] = $filename;
+                    $flashSuccess = "Votre photo de profil a été mise à jour.";
+                } else {
+                    $flashError = "Le téléversement de l'image a échoué.";
+                }
             }
         }
     }

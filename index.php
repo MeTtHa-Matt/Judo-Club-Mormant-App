@@ -391,9 +391,88 @@ include __DIR__ . '/includes/liens/liens_index_default.php';
 
     <?php include __DIR__ . '/includes/general/footer.php'; ?>
 
+    <?php if (isset($_SESSION['id']) && ($_SESSION['pdp'] ?? 'pdp_base.png') === 'pdp_base.png'): ?>
+        <div class="modal fade" id="profilePhotoReminderModal" tabindex="-1"
+            aria-labelledby="profilePhotoReminderTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 rounded-4 shadow">
+                    <div class="modal-header border-0 pb-0">
+                        <h2 class="modal-title fs-5 fw-bold" id="profilePhotoReminderTitle">
+                            <i class="bi bi-camera-fill text-judo-red me-2"></i>Personnalisez votre profil
+                        </h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                    </div>
+                    <div class="modal-body text-center px-4">
+                        <img src="img/pdps/pdp_base.png" alt="" width="88" height="88"
+                            class="rounded-circle mb-3 shadow-sm">
+                        <p class="mb-0">
+                            Ajouter une photo aidera l’administrateur à différencier les comptes.
+                            Vous pourrez la modifier à tout moment.
+                        </p>
+                    </div>
+                    <div class="modal-footer border-0 pt-0 flex-column flex-sm-row">
+                        <button type="button" class="btn btn-outline-secondary flex-fill" data-bs-dismiss="modal">
+                            Me le rappeler plus tard
+                        </button>
+                        <form action="profile.php" method="POST" enctype="multipart/form-data" class="flex-fill">
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(jcm_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
+                            <input type="hidden" name="action" value="update_avatar">
+                            <input type="file" name="pdp" id="profilePhotoReminderInput"
+                                accept="image/jpeg,image/png,image/webp" class="d-none">
+                            <button type="button" class="btn btn-judo-red w-100" id="profilePhotoReminderButton">
+                                Ajouter ma photo
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
+    <?php if (isset($_SESSION['id']) && ($_SESSION['pdp'] ?? 'pdp_base.png') === 'pdp_base.png'): ?>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const reminder = document.getElementById('profilePhotoReminderModal');
+                const photoInput = document.getElementById('profilePhotoReminderInput');
+                const photoButton = document.getElementById('profilePhotoReminderButton');
+                const reminderKey = 'jcm-profile-photo-reminder-<?= (int) $_SESSION['id'] ?>';
+                const reminderInterval = 30 * 24 * 60 * 60 * 1000;
+
+                photoButton.addEventListener('click', function () {
+                    photoInput.click();
+                });
+
+                photoInput.addEventListener('change', function () {
+                    if (photoInput.files.length > 0) {
+                        photoInput.form.submit();
+                    }
+                });
+
+                try {
+                    const lastShown = Number(localStorage.getItem(reminderKey) || 0);
+                    if (Date.now() - lastShown < reminderInterval) return;
+                } catch (error) {
+                    console.warn('Impossible de vérifier le délai du rappel photo.', error);
+                }
+
+                if (document.querySelector('.modal.show')) return;
+
+                const markReminderShown = function () {
+                    try {
+                        localStorage.setItem(reminderKey, String(Date.now()));
+                    } catch (error) {
+                        console.warn('Impossible d’enregistrer le délai du rappel photo.', error);
+                    }
+                };
+
+                reminder.addEventListener('shown.bs.modal', markReminderShown, { once: true });
+                bootstrap.Modal.getOrCreateInstance(reminder).show();
+            });
+        </script>
+    <?php endif; ?>
 </body>
 
 </html>

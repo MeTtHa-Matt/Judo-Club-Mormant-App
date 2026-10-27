@@ -60,7 +60,7 @@ include __DIR__ . "/includes/general/profile.php";
                     <i class="bi bi-camera-fill"></i>
                 </label>
             </div>
-            <p class="text-muted small mt-2 mb-2 fst-italic">Cliquez sur le logo "<i class="bi bi-camera-fill"></i>" pour modifier votre photo de profil.</p>
+            <p class="text-muted small mt-2 mb-2 fst-italic">Cliquez sur le logo "<i class="bi bi-camera-fill"></i>" pour modifier votre photo de profil (jpg, png ou webp, 10 Mo maximum).</p>
             <div class="profile-identity-body">
                 <h2 class="h4 fw-bold mb-1">
                     <?= htmlspecialchars($account['firstname'] . ' ' . $account['lastname']) ?>
@@ -262,4 +262,3 @@ include __DIR__ . "/includes/general/profile.php";
         crossorigin="anonymous"></script>
 </body>
 </html>
-
