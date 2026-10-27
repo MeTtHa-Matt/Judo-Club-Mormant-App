@@ -216,7 +216,7 @@ function userHasCompetitionInscription(int $competitionId, ?int $userId): bool
                 </h2>
             </div>
 
-            <div class="card border-0 shadow-sm rounded-4 reglement-card">
+            <div class="card border-0 shadow-sm rounded-4 reglement-card upcoming-events-card">
                 <?php if (empty($competitionsAVenir)): ?>
                     <div class="p-4 text-center text-muted">
                         <i class="bi bi-calendar-x fs-2 d-block mb-2 text-judo-red"></i>

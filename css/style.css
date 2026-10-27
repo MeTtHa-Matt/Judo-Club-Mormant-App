@@ -3674,11 +3674,28 @@ section {
 .upcoming-list {
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: 1rem;
+}
+
+.upcoming-events-card {
+  overflow: visible;
+  border-top: 0 !important;
+  background: transparent;
+  box-shadow: none !important;
+}
+
+.card.upcoming-events-card::before {
+  display: none;
+}
+
+.card.upcoming-events-card:hover {
+  box-shadow: none !important;
 }
 
 .upcoming-list .upcoming-item {
   display: flex;
+  min-width: 0;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 0.75rem;
   padding: 1rem 1.1rem;
@@ -3690,17 +3707,21 @@ section {
   box-shadow: 0 6px 18px rgba(17, 17, 17, 0.04);
 }
 
-.upcoming-list .upcoming-item:hover {
+.upcoming-list .upcoming-item:hover,
+.upcoming-list .upcoming-item:focus-visible {
   background: linear-gradient(
     135deg,
     rgba(230, 0, 18, 0.08) 0%,
     rgba(255, 255, 255, 1) 100%
   );
+  border-color: rgba(230, 0, 18, 0.3);
   transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(230, 0, 18, 0.12);
 }
 
 .upcoming-date {
   flex-shrink: 0;
+  white-space: nowrap;
   font-weight: 700;
   font-size: 0.8rem;
   color: var(--judo-dark);
@@ -3708,7 +3729,11 @@ section {
 }
 
 .upcoming-name {
-  flex-grow: 1;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-weight: 700;
   color: var(--judo-red);
   text-transform: uppercase;
@@ -3766,7 +3791,6 @@ section {
   }
 
   .upcoming-list .upcoming-item {
-    flex-wrap: wrap;
     padding: 0.9rem 1.25rem;
   }
 }
