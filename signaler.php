@@ -84,7 +84,7 @@ include __DIR__ . '/includes/general/signaler.php';
                             <?php else: ?>
                                 <div class="mb-4">
                                     <label for="reportEmail" class="form-label fw-semibold">Votre email</label>
-                                    <input id="reportEmail" name="email" type="email" class="form-control form-control-lg" placeholder="vous@exemple.fr" required>
+                                    <input id="reportEmail" name="email" type="email" class="form-control form-control-lg" placeholder="vous@exemple.fr" value="<?= htmlspecialchars($reportFormEmail, ENT_QUOTES, 'UTF-8') ?>" required>
                                 </div>
                             <?php endif; ?>
 
@@ -119,7 +119,7 @@ include __DIR__ . '/includes/general/signaler.php';
                                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['report_csrf']) ?>">
                                 <label for="reportAccessEmail" class="form-label fw-semibold">Votre email</label>
                                 <div class="input-group">
-                                    <input id="reportAccessEmail" name="email" type="email" class="form-control" placeholder="vous@exemple.fr" required>
+                                    <input id="reportAccessEmail" name="email" type="email" class="form-control" placeholder="vous@exemple.fr" value="<?= htmlspecialchars($reportFormEmail, ENT_QUOTES, 'UTF-8') ?>" required>
                                     <button type="submit" class="btn btn-judo-outline"><i class="bi bi-envelope me-1"></i>Recevoir un code</button>
                                 </div>
                             </form>

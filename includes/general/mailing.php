@@ -42,8 +42,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     jcm_require_csrf();
 }
 
-$flashSuccess = null;
-$flashError = null;
+$mailingFlash = $_SESSION['mailing_flash'] ?? [];
+unset($_SESSION['mailing_flash']);
+$flashSuccess = $mailingFlash['success'] ?? null;
+$flashError = $mailingFlash['error'] ?? null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'send_mail') {
     $rawSubject = $_POST['subject'] ?? null;
@@ -200,6 +202,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'send_
             }
         }
     }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $_SESSION['mailing_flash'] = [
+        'success' => $flashSuccess,
+        'error' => $flashError,
+    ];
+    header('Location: mailing.php', true, 303);
+    exit;
 }
 
 $eligibleAccounts = $pdo->query(

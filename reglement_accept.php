@@ -31,6 +31,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: ' . $returnTo);
         exit;
     }
+
+    header('Location: reglement_accept.php', true, 303);
+    exit;
 }
 ?>
 <!DOCTYPE html>
@@ -307,4 +310,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </body>
 
 </html>
-

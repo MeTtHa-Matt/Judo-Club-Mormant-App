@@ -7,8 +7,10 @@ if (!isset($_SESSION['id'])) {
 
 $userId = (int) $_SESSION['id'];
 
-$flashSuccess = null;
-$flashError = null;
+$profileFlash = $_SESSION['profile_flash'] ?? [];
+unset($_SESSION['profile_flash']);
+$flashSuccess = $profileFlash['success'] ?? null;
+$flashError = $profileFlash['error'] ?? null;
 
 $stmt = $pdo->prepare("SELECT id, firstname, lastname, email, pdp, admin, accept_email FROM account WHERE id = ?");
 $stmt->execute([$userId]);
@@ -20,11 +22,13 @@ if (!$account) {
     exit;
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_once __DIR__ . '/security.php';
     jcm_require_csrf();
 
-    if ($_POST['action'] === 'update_info') {
+    $action = $_POST['action'] ?? '';
+
+    if ($action === 'update_info') {
         $firstname = trim($_POST['firstname'] ?? '');
         $lastname = trim($_POST['lastname'] ?? '');
 
@@ -39,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
     }
 
-    if ($_POST['action'] === 'update_password') {
+    if ($action === 'update_password') {
         $current = $_POST['current_password'] ?? '';
         $new = $_POST['new_password'] ?? '';
         $confirm = $_POST['confirm_password'] ?? '';
@@ -63,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
     }
 
-    if ($_POST['action'] === 'update_avatar' && isset($_FILES['pdp'])) {
+    if ($action === 'update_avatar' && isset($_FILES['pdp'])) {
         if ($_FILES['pdp']['error'] !== UPLOAD_ERR_OK) {
             $flashError = $_FILES['pdp']['error'] === UPLOAD_ERR_INI_SIZE
                 || $_FILES['pdp']['error'] === UPLOAD_ERR_FORM_SIZE
@@ -105,6 +109,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             }
         }
     }
+    $_SESSION['profile_flash'] = [
+        'success' => $flashSuccess,
+        'error' => $flashError,
+    ];
+    header('Location: profile.php', true, 303);
+    exit;
 }
 
 $stmt = $pdo->prepare("

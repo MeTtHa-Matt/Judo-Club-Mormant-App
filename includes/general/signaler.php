@@ -17,10 +17,13 @@ if ($isReportUserAuthenticated) {
     unset($_SESSION['report_verification'], $_SESSION['report_draft']);
 }
 
-$flashSuccess = null;
-$flashError = null;
-$subject = trim((string) ($_SESSION['report_draft']['subject'] ?? ''));
-$message = trim((string) ($_SESSION['report_draft']['message'] ?? ''));
+$reportFlash = $_SESSION['report_flash'] ?? [];
+unset($_SESSION['report_flash']);
+$flashSuccess = $reportFlash['success'] ?? null;
+$flashError = $reportFlash['error'] ?? null;
+$subject = trim((string) ($_SESSION['report_draft']['subject'] ?? $reportFlash['subject'] ?? ''));
+$message = trim((string) ($_SESSION['report_draft']['message'] ?? $reportFlash['message'] ?? ''));
+$reportFormEmail = trim((string) ($reportFlash['email'] ?? ''));
 $step = isset($_SESSION['report_verification']) ? 'verify' : 'report';
 $deviceKey = hash('sha256', ($_SERVER['REMOTE_ADDR'] ?? '') . '|' . ($_SERVER['HTTP_USER_AGENT'] ?? ''));
 
@@ -187,6 +190,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $_SESSION['report_flash'] = [
+        'success' => $flashSuccess,
+        'error' => $flashError,
+        'subject' => $subject,
+        'message' => $message,
+        'email' => trim((string) ($_POST['email'] ?? $reportFormEmail)),
+    ];
+    header('Location: signaler.php', true, 303);
+    exit;
 }
 
 if (!isset($_SESSION['report_csrf'])) {

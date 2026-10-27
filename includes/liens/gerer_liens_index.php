@@ -43,8 +43,10 @@ $defaultLinks = [
     ],
 ];
 
-$errors = [];
-$success = false;
+$linksFlash = $_SESSION['index_links_flash'] ?? [];
+unset($_SESSION['index_links_flash']);
+$errors = $linksFlash['errors'] ?? [];
+$success = (bool) ($linksFlash['success'] ?? false);
 $hasTable = true;
 
 $storedByKey = [];
@@ -95,7 +97,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $hasTable = false;
             $errors[] = 'La table index_links_jcm n\'existe pas encore. Ajoutez le SQL présent dans db.sql.';
         }
+
     }
+
+    $_SESSION['index_links_flash'] = [
+        'errors' => $errors,
+        'success' => $success,
+    ];
+    header('Location: gerer_index_liens.php', true, 303);
+    exit;
 }
 
 $linksToRender = [];
