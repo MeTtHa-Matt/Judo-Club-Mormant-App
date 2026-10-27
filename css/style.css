@@ -3928,6 +3928,12 @@ section {
    RESPONSIVE - COMPETITIONS
    ====================================== */
 
+@media (min-width: 769px) {
+  .calendar-day-events {
+    display: none;
+  }
+}
+
 @media (max-width: 768px) {
   .calendar-weekday {
     font-size: 0.65rem;
