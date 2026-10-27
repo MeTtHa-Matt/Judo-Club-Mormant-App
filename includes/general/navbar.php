@@ -16,6 +16,35 @@ if (isset($_SESSION['admin']) && (int) $_SESSION['admin'] === 1) {
         error_log('Admin report notification error: ' . $exception->getMessage());
     }
 }
+
+$familyIncomingRequest = null;
+$familyMatchCandidate = null;
+if (isset($_SESSION['id']) && isset($pdo)) {
+    require_once __DIR__ . '/../account/family_helpers.php';
+    $familyRequestsTableExists = $pdo->query("SHOW TABLES LIKE 'family_link_requests'")->fetchColumn();
+    if (!$familyRequestsTableExists) {
+        jcm_ensure_family_schema($pdo);
+    }
+    $navbarAccountId = (int) $_SESSION['id'];
+    $familyIncomingRequest = jcm_get_pending_family_link_request($pdo, $navbarAccountId);
+
+    if ($familyIncomingRequest === null) {
+        $navbarFamilyId = jcm_get_or_create_family_for_account($pdo, $navbarAccountId);
+        $pendingProfileId = (int) ($_SESSION['family_match_pending_child_id'] ?? 0);
+        $candidates = jcm_get_family_account_match_candidates(
+            $pdo,
+            $navbarFamilyId,
+            $pendingProfileId > 0 ? $pendingProfileId : null
+        );
+        $familyMatchCandidate = $candidates[0] ?? null;
+
+        if ($familyMatchCandidate === null && $pendingProfileId > 0) {
+            unset($_SESSION['family_match_pending_child_id']);
+            $candidates = jcm_get_family_account_match_candidates($pdo, $navbarFamilyId);
+            $familyMatchCandidate = $candidates[0] ?? null;
+        }
+    }
+}
 ?>
 <nav class="navbar navbar-expand-lg fixed-top custom-navbar">
     <div class="container-fluid px-4 custom-navbar-container">
@@ -162,6 +191,11 @@ if (isset($_SESSION['admin']) && (int) $_SESSION['admin'] === 1) {
     <?php jcm_render_notifications(); ?>
 <?php endif; ?>
 
+<?php
+$familyMatchReturnTo = 'children';
+include __DIR__ . '/../account/family_match_prompt.php';
+?>
+
 <div class="modal fade install-modal" id="install-app-modal" tabindex="-1" aria-labelledby="install-app-modal-title" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -221,3 +255,13 @@ if (isset($_SESSION['admin']) && (int) $_SESSION['admin'] === 1) {
 
 <script src="js/navbar.js"></script>
 <script src="js/page-transition.js?v=<?php echo filemtime(__DIR__ . '/../../js/page-transition.js'); ?>"></script>
+<?php if (!empty($familyIncomingRequest) || !empty($familyMatchCandidate)): ?>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const familyModal = document.getElementById('familyMatchModal');
+            if (familyModal && window.bootstrap) {
+                bootstrap.Modal.getOrCreateInstance(familyModal).show();
+            }
+        });
+    </script>
+<?php endif; ?>

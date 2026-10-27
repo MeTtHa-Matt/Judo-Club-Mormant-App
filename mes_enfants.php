@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/includes/general/access_check.php';
 require_once __DIR__ . '/includes/general/db.php';
+require_once __DIR__ . '/includes/general/security.php';
 require_once __DIR__ . '/includes/general/notifications.php';
 require_once __DIR__ . '/includes/account/family_helpers.php';
 

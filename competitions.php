@@ -12,6 +12,39 @@ if (isset($_SESSION['id'])) {
 
 include __DIR__ . '/includes/competitions/charger_competitions.php';
 
+$profileUpdatePrompt = null;
+$pendingRegistration = $_SESSION['pending_family_child_registration'] ?? null;
+if (
+    isset($_SESSION['id'])
+    && is_array($pendingRegistration)
+    && (int) ($pendingRegistration['account_id'] ?? 0) === (int) $_SESSION['id']
+    && isset($_GET['confirm_profile_update'])
+) {
+    $promptProfileStmt = $pdo->prepare(
+        'SELECT cp.firstname, cp.lastname, cp.annee_naissance, cp.id_ceinture, cp.Poids,
+                c.ceinture
+         FROM child_profiles cp
+         JOIN ceintures c ON c.id = cp.id_ceinture
+         WHERE cp.id = ? AND cp.family_id = ?
+         LIMIT 1'
+    );
+    $promptProfileStmt->execute([
+        (int) ($pendingRegistration['profile_id'] ?? 0),
+        jcm_get_or_create_family_for_account($pdo, (int) $_SESSION['id']),
+    ]);
+    $profileUpdatePrompt = $promptProfileStmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    $pendingDetails = $pendingRegistration['registration'] ?? [];
+    if (!$profileUpdatePrompt || !jcm_person_names_match(
+        (string) $profileUpdatePrompt['firstname'],
+        (string) $profileUpdatePrompt['lastname'],
+        (string) ($pendingDetails['prenom'] ?? ''),
+        (string) ($pendingDetails['nom'] ?? '')
+    )) {
+        unset($_SESSION['pending_family_child_registration']);
+        $profileUpdatePrompt = null;
+    }
+}
+
 function userHasCompetitionInscription(int $competitionId, ?int $userId): bool
 {
     if (!$userId) {
@@ -522,11 +555,75 @@ function userHasCompetitionInscription(int $competitionId, ?int $userId): bool
         </div>
     </div>
 
+    <?php if ($profileUpdatePrompt !== null && is_array($pendingDetails)): ?>
+        <?php
+        $newBeltName = '';
+        foreach ($ceintures as $belt) {
+            if ((int) $belt['id'] === (int) $pendingDetails['id_ceinture']) {
+                $newBeltName = (string) $belt['ceinture'];
+                break;
+            }
+        }
+        ?>
+        <div class="modal fade competition-modal" id="familyChildProfileUpdateModal" tabindex="-1"
+            aria-labelledby="familyChildProfileUpdateTitle" aria-hidden="true"
+            data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="familyChildProfileUpdateTitle">Mettre à jour le profil enfant ?</h5>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            Les informations saisies pour
+                            <strong><?= htmlspecialchars($pendingDetails['prenom'] . ' ' . $pendingDetails['nom']) ?></strong>
+                            diffèrent de celles du profil enregistré dans votre famille.
+                        </p>
+                        <ul class="mb-0">
+                            <?php if ((int) $profileUpdatePrompt['annee_naissance'] !== (int) $pendingDetails['annee_naissance']): ?>
+                                <li>Année de naissance : <?= (int) $profileUpdatePrompt['annee_naissance'] ?> → <?= (int) $pendingDetails['annee_naissance'] ?></li>
+                            <?php endif; ?>
+                            <?php if ((int) $profileUpdatePrompt['id_ceinture'] !== (int) $pendingDetails['id_ceinture']): ?>
+                                <li>Ceinture : <?= htmlspecialchars($profileUpdatePrompt['ceinture']) ?> → <?= htmlspecialchars($newBeltName) ?></li>
+                            <?php endif; ?>
+                            <?php if (($profileUpdatePrompt['Poids'] === null ? null : (int) $profileUpdatePrompt['Poids']) !== (int) $pendingDetails['Poids']): ?>
+                                <li>Poids : <?= $profileUpdatePrompt['Poids'] === null ? 'non renseigné' : (int) $profileUpdatePrompt['Poids'] . ' kg' ?> → <?= (int) $pendingDetails['Poids'] ?> kg</li>
+                            <?php endif; ?>
+                        </ul>
+                        <p class="mt-3 mb-0">Voulez-vous mettre à jour le profil enfant avec ces informations ? Votre inscription sera envoyée dans les deux cas.</p>
+                    </div>
+                    <div class="modal-footer flex-column flex-sm-row">
+                        <form method="post" action="includes/competitions/inscrire_process.php"
+                            class="d-flex flex-column flex-sm-row gap-2 w-100">
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(jcm_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
+                            <input type="hidden" name="confirm_profile_update" value="1">
+                            <input type="hidden" name="profile_update_nonce"
+                                value="<?= htmlspecialchars($pendingRegistration['nonce'], ENT_QUOTES, 'UTF-8') ?>">
+                            <button type="submit" name="profile_update_choice" value="no"
+                                class="btn btn-outline-secondary flex-fill">Non, garder le profil actuel</button>
+                            <button type="submit" name="profile_update_choice" value="yes"
+                                class="btn btn-judo-red flex-fill">Oui, mettre à jour</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+
     <?php include __DIR__ . '/includes/general/footer.php'; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
+    <?php if ($profileUpdatePrompt !== null): ?>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                bootstrap.Modal.getOrCreateInstance(
+                    document.getElementById('familyChildProfileUpdateModal')
+                ).show();
+            });
+        </script>
+    <?php endif; ?>
     <script src="js/competitions.js?v=<?php echo filemtime(__DIR__ . '/js/competitions.js'); ?>"></script>
     <script src="js/modal.js"></script>
 </body>

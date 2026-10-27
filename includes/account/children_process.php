@@ -42,6 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             $stmt = $pdo->prepare("INSERT INTO child_profiles (account_id, family_id, firstname, lastname, annee_naissance, id_ceinture, Poids) VALUES (?, ?, ?, ?, ?, ?, ?)");
             $stmt->execute([$userId, $userFamilyId, $firstname, $lastname, $annee_naissance, $id_ceinture, $poidsValue]);
+            $_SESSION['family_match_pending_child_id'] = (int) $pdo->lastInsertId();
             $_SESSION['children_flash_success'] = 'Profil enfant ajouté avec succès.';
         }
     }
@@ -67,8 +68,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 header('Location: ../../mes_enfants.php');
                 exit;
             }
+            $oldProfileStmt = $pdo->prepare('SELECT firstname, lastname FROM child_profiles WHERE id = ? AND family_id = ?');
+            $oldProfileStmt->execute([$childId, $userFamilyId]);
+            $updatedProfile = $oldProfileStmt->fetch(PDO::FETCH_ASSOC);
             $stmt = $pdo->prepare("UPDATE child_profiles SET firstname = ?, lastname = ?, annee_naissance = ?, id_ceinture = ?, Poids = ? WHERE id = ? AND family_id = ?");
             $stmt->execute([$firstname, $lastname, $annee_naissance, $id_ceinture, $poidsValue, $childId, $userFamilyId]);
+            if ($updatedProfile !== false) {
+                $_SESSION['family_match_pending_child_id'] = $childId;
+                $nameChanged = jcm_normalize_person_name((string) $updatedProfile['firstname'])
+                    !== jcm_normalize_person_name($firstname)
+                    || jcm_normalize_person_name((string) $updatedProfile['lastname'])
+                    !== jcm_normalize_person_name($lastname);
+                if ($nameChanged) {
+                    $invalidateRequests = $pdo->prepare(
+                        'UPDATE family_link_requests
+                         SET status = "stale"
+                         WHERE child_profile_id = ? AND family_id = ?'
+                    );
+                    $invalidateRequests->execute([$childId, $userFamilyId]);
+                }
+            }
             $_SESSION['children_flash_success'] = 'Profil enfant mis à jour.';
         }
     }

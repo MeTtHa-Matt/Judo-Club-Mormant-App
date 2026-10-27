@@ -85,13 +85,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $families = $pdo->query(
-    'SELECT f.id, f.created_at, f.created_by,
-            creator.firstname AS creator_firstname, creator.lastname AS creator_lastname,
-            (SELECT COUNT(*) FROM family_members fm WHERE fm.family_id = f.id) AS member_count,
-            (SELECT COUNT(*) FROM child_profiles cp WHERE cp.family_id = f.id) AS child_count
-     FROM families f
-     LEFT JOIN account creator ON creator.id = f.created_by
-     ORDER BY f.id DESC'
+    'SELECT family_data.*
+     FROM (
+         SELECT f.id, f.created_at, f.created_by,
+                creator.firstname AS creator_firstname, creator.lastname AS creator_lastname,
+                (SELECT COUNT(*) FROM family_members fm WHERE fm.family_id = f.id) AS member_count,
+                (SELECT COUNT(*) FROM child_profiles cp WHERE cp.family_id = f.id) AS child_count
+         FROM families f
+         LEFT JOIN account creator ON creator.id = f.created_by
+     ) family_data
+     WHERE family_data.member_count > 1 OR family_data.child_count > 0
+     ORDER BY family_data.id DESC'
 )->fetchAll(PDO::FETCH_ASSOC);
 
 $membersByFamily = [];
@@ -135,49 +139,55 @@ foreach ($memberStmt->fetchAll(PDO::FETCH_ASSOC) as $member) {
 
     <main class="container my-5">
         <?php if (empty($families)): ?>
-            <div class="alert alert-info">Aucune famille n’est enregistrée.</div>
+            <div class="alert alert-info">Aucune famille avec plusieurs membres ou profils enfants n’est enregistrée.</div>
         <?php else: ?>
-            <div class="d-flex flex-column gap-4">
+            <div class="family-admin-list">
                 <?php foreach ($families as $family): ?>
                     <?php $familyId = (int) $family['id']; ?>
-                    <section class="card border-0 shadow-sm rounded-4 p-4">
-                        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
-                            <div>
-                                <h2 class="h4 fw-bold mb-1">Famille #<?= $familyId ?></h2>
-                                <p class="text-muted mb-0">
-                                    Créée par
-                                    <?= htmlspecialchars(trim(($family['creator_firstname'] ?? '') . ' ' . ($family['creator_lastname'] ?? '')) ?: 'Compte supprimé') ?>
-                                    · <?= (int) $family['member_count'] ?> membre(s)
-                                    · <?= (int) $family['child_count'] ?> profil(s) enfant
-                                </p>
+                    <details class="card family-admin-card">
+                        <summary class="family-admin-summary">
+                            <div class="family-admin-heading">
+                                <span class="family-admin-icon"><i class="bi bi-people-fill"></i></span>
+                                <div class="min-w-0">
+                                    <h2 class="h5 fw-bold mb-1">Famille #<?= $familyId ?></h2>
+                                    <p class="text-muted mb-0 text-break">
+                                        Créée par <?= htmlspecialchars(trim(($family['creator_firstname'] ?? '') . ' ' . ($family['creator_lastname'] ?? '')) ?: 'Compte supprimé') ?>
+                                    </p>
+                                </div>
                             </div>
+                            <div class="family-admin-stats">
+                                <span><i class="bi bi-person-fill"></i><?= (int) $family['member_count'] ?> membre(s)</span>
+                                <span><i class="bi bi-person-hearts"></i><?= (int) $family['child_count'] ?> enfant(s)</span>
+                            </div>
+                            <span class="family-admin-toggle" aria-hidden="true">
+                                <i class="bi bi-chevron-down"></i>
+                            </span>
+                        </summary>
+                        <div class="family-admin-content">
                             <form method="post" action="families.php"
                                 onsubmit="return confirm('Supprimer cette famille ? Les comptes resteront actifs et les profils enfants seront conservés, mais détachés de la famille.');">
                                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(jcm_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
                                 <input type="hidden" name="action" value="delete_family">
                                 <input type="hidden" name="family_id" value="<?= $familyId ?>">
-                                <button type="submit" class="btn btn-outline-danger btn-sm">
-                                    <i class="bi bi-trash me-1"></i>Supprimer la famille
+                                <button type="submit" class="btn btn-outline-danger btn-sm family-admin-delete">
+                                    <i class="bi bi-trash me-1"></i>Supprimer
                                 </button>
                             </form>
-                        </div>
 
                         <?php $members = $membersByFamily[$familyId] ?? []; ?>
-                        <?php if (empty($members)): ?>
-                            <p class="text-muted mb-0">Cette famille ne contient aucun membre.</p>
-                        <?php else: ?>
-                            <div class="list-group list-group-flush">
+                        <?php if (!empty($members)): ?>
+                            <div class="family-admin-members">
                                 <?php foreach ($members as $member): ?>
-                                    <div class="list-group-item d-flex flex-wrap justify-content-between align-items-center gap-3 px-0">
-                                        <div>
-                                            <div class="fw-semibold"><?= htmlspecialchars($member['firstname'] . ' ' . $member['lastname']) ?></div>
-                                            <div class="small text-muted">
-                                                <?= htmlspecialchars($member['email']) ?>
-                                                · <?= htmlspecialchars($member['role']) ?>
+                                    <article class="family-admin-member">
+                                        <div class="family-admin-member-info">
+                                            <div class="fw-semibold text-break">
+                                                <?= htmlspecialchars($member['firstname'] . ' ' . $member['lastname']) ?>
                                                 <?php if ((int) $member['account_id'] === (int) $family['created_by']): ?>
-                                                    · Créateur
+                                                    <span class="badge text-bg-dark ms-1">Créateur</span>
                                                 <?php endif; ?>
                                             </div>
+                                            <div class="small text-muted text-break"><?= htmlspecialchars($member['email']) ?></div>
+                                            <span class="family-admin-role"><?= htmlspecialchars($member['role']) ?></span>
                                         </div>
                                         <?php if (count($members) > 1): ?>
                                             <form method="post" action="families.php"
@@ -186,14 +196,17 @@ foreach ($memberStmt->fetchAll(PDO::FETCH_ASSOC) as $member) {
                                                 <input type="hidden" name="action" value="remove_member">
                                                 <input type="hidden" name="family_id" value="<?= $familyId ?>">
                                                 <input type="hidden" name="member_id" value="<?= (int) $member['account_id'] ?>">
-                                                <button type="submit" class="btn btn-outline-danger btn-sm">Retirer</button>
+                                                <button type="submit" class="btn btn-outline-danger btn-sm family-admin-remove">
+                                                    <i class="bi bi-person-dash me-1"></i>Retirer
+                                                </button>
                                             </form>
                                         <?php endif; ?>
-                                    </div>
+                                    </article>
                                 <?php endforeach; ?>
                             </div>
                         <?php endif; ?>
-                    </section>
+                        </div>
+                    </details>
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
