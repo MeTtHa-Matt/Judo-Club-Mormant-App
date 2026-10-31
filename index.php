@@ -1,8 +1,43 @@
 <?php
 require_once __DIR__ . "/includes/general/access_check.php";
 require_once __DIR__ . "/includes/general/notifications.php";
+require_once __DIR__ . "/includes/general/announcements.php";
 
 include __DIR__ . '/includes/liens/liens_index_default.php';
+
+jcm_ensure_announcement_schema($pdo);
+$announcementStmt = $pdo->query(
+    'SELECT a.id, a.message, a.important, a.created_at, i.image_name
+     FROM jcm_announcements a
+     LEFT JOIN jcm_announcement_images i ON i.announcement_id = a.id
+     ORDER BY a.created_at DESC, a.id DESC, i.id ASC'
+);
+$announcementRows = $announcementStmt->fetchAll(PDO::FETCH_ASSOC);
+$announcements = [];
+foreach ($announcementRows as $row) {
+    $announcementId = (int) $row['id'];
+    if (!isset($announcements[$announcementId])) {
+        $announcements[$announcementId] = [
+            'id' => $announcementId,
+            'message' => $row['message'],
+            'important' => (int) $row['important'],
+            'created_at' => $row['created_at'],
+            'images' => [],
+        ];
+    }
+    if (!empty($row['image_name'])) {
+        $announcements[$announcementId]['images'][] = (string) $row['image_name'];
+    }
+}
+$announcements = array_values($announcements);
+$announcementUnseenIds = [];
+$announcementUserId = (int) ($_SESSION['id'] ?? 0);
+if ($announcementUserId > 0 && $announcements !== []) {
+    $seenStmt = $pdo->prepare('SELECT announcement_id FROM jcm_announcement_views WHERE account_id = ?');
+    $seenStmt->execute([$announcementUserId]);
+    $seenIds = array_map('intval', $seenStmt->fetchAll(PDO::FETCH_COLUMN));
+    $announcementUnseenIds = array_values(array_diff(array_column($announcements, 'id'), $seenIds));
+}
 ?>
 
 <!DOCTYPE html>
@@ -223,9 +258,38 @@ include __DIR__ . '/includes/liens/liens_index_default.php';
                     </div>
                 </div>
             </section>
+
         </div>
 
         <div class="container my-5">
+            <section class="announcement-section mb-5" aria-labelledby="announcement-section-title">
+                <?php if (isset($_SESSION['announcement_flash_success'])): ?>
+                    <div class="alert-judo alert-judo-success mb-4">
+                        <i class="bi bi-check-circle-fill me-2"></i><?= htmlspecialchars((string) $_SESSION['announcement_flash_success'], ENT_QUOTES, 'UTF-8') ?>
+                    </div>
+                    <?php unset($_SESSION['announcement_flash_success']); ?>
+                <?php endif; ?>
+                <?php if (isset($_SESSION['announcement_flash_error'])): ?>
+                    <div class="alert-judo alert-judo-error mb-4">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i><?= htmlspecialchars((string) $_SESSION['announcement_flash_error'], ENT_QUOTES, 'UTF-8') ?>
+                    </div>
+                    <?php unset($_SESSION['announcement_flash_error']); ?>
+                <?php endif; ?>
+                <div class="announcement-section-heading">
+                    <div>
+                        <p class="announcement-eyebrow"><i class="bi bi-pin-angle-fill me-2" aria-hidden="true"></i>La vie du club</p>
+                        <h2 id="announcement-section-title" class="h2 fw-bold text-uppercase section-title mb-2">
+                            Le tableau des <span class="text-judo-red">annonces</span>
+                        </h2>
+                    </div>
+                    <?php if ($announcementUnseenIds !== []): ?>
+                        <span class="announcement-unseen-count"><?= count($announcementUnseenIds) ?> nouvelle<?= count($announcementUnseenIds) > 1 ? 's' : '' ?></span>
+                    <?php endif; ?>
+                </div>
+                <div class="announcement-wall announcement-wall--home announcement-wall--pending" aria-label="Annonces du club">
+                    <?= jcm_render_announcement_notes($announcements, $announcementUnseenIds, 'home') ?>
+                </div>
+            </section>
 
             <section id="inscriptions" class="mb-5 scroll-margin">
                 <div class="row g-4 text-center">
@@ -391,6 +455,167 @@ include __DIR__ . '/includes/liens/liens_index_default.php';
 
     <?php include __DIR__ . '/includes/general/footer.php'; ?>
 
+    <div class="modal fade announcement-modal" id="announcementsModal" tabindex="-1"
+        aria-labelledby="announcementsModalTitle" aria-hidden="true"
+        data-auto-open="<?= $announcementUnseenIds !== [] ? '1' : '0' ?>"
+        data-has-unseen="<?= $announcementUnseenIds !== [] ? '1' : '' ?>"
+        data-announcement-ids="<?= htmlspecialchars((string) json_encode(array_column($announcements, 'id')), ENT_QUOTES, 'UTF-8') ?>"
+        data-process-url="includes/general/announcement_process.php"
+        data-csrf-token="<?= htmlspecialchars(jcm_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
+        <div class="modal-dialog modal-dialog-centered modal-xl modal-fullscreen-sm-down">
+            <div class="modal-content announcement-modal-content">
+                <div class="modal-header announcement-modal-header">
+                    <div>
+                        <p class="announcement-eyebrow mb-1"><i class="bi bi-pin-angle-fill me-2" aria-hidden="true"></i>Judo Club de Mormant</p>
+                        <h2 class="modal-title fs-4 fw-bold" id="announcementsModalTitle">Le tableau des annonces</h2>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer le tableau"></button>
+                </div>
+                <div class="modal-body announcement-modal-body">
+                    <div id="announcementModalBoard">
+                        <p class="announcement-board-hint">Cliquez sur un post-it pour lire l’annonce et voir ses photos.</p>
+                        <div class="announcement-wall announcement-wall--modal announcement-wall--pending" aria-label="Toutes les annonces">
+                            <?= jcm_render_announcement_notes($announcements, $announcementUnseenIds, 'modal') ?>
+                        </div>
+                    </div>
+                    <div id="announcementModalDetail" hidden>
+                        <div id="announcementModalDetailContent"></div>
+                    </div>
+                    <?php foreach ($announcements as $announcement):
+                        $message = (string) $announcement['message'];
+                        $messageParts = preg_split('/(\s+)/u', $message, -1, PREG_SPLIT_DELIM_CAPTURE) ?: [];
+                        $wordCount = count(preg_split('/\s+/u', trim($message), -1, PREG_SPLIT_NO_EMPTY) ?: []);
+                        $imageCount = count($announcement['images']);
+                        $imageIndexes = $imageCount > 0 ? range(0, $imageCount - 1) : [];
+                        $sideOrder = $imageIndexes;
+                        usort($sideOrder, static function (int $first, int $second) use ($announcement): int {
+                            return (crc32($announcement['id'] . ':side:' . $first) <=> crc32($announcement['id'] . ':side:' . $second))
+                                ?: ($first <=> $second);
+                        });
+                        $rightCount = (int) ceil($imageCount / 2);
+                        $imageSides = [];
+                        foreach ($sideOrder as $position => $imageIndex) {
+                            $imageSides[$imageIndex] = $position < $rightCount ? 'right' : 'left';
+                        }
+
+                        $heightOrder = $imageIndexes;
+                        usort($heightOrder, static function (int $first, int $second) use ($announcement): int {
+                            return (crc32($announcement['id'] . ':height:' . $first) <=> crc32($announcement['id'] . ':height:' . $second))
+                                ?: ($first <=> $second);
+                        });
+                        $imageHeights = [];
+                        foreach ($heightOrder as $position => $imageIndex) {
+                            $heightSeed = crc32($announcement['id'] . ':height-slot:' . $imageIndex) & 0x7fffffff;
+                            $heightJitter = $heightSeed / 2147483647;
+                            $imageHeights[$imageIndex] = max(
+                                1,
+                                min(
+                                    max(1, $wordCount),
+                                    (int) floor(($position + $heightJitter) * max(1, $wordCount) / max(1, $imageCount)) + 1,
+                                ),
+                            );
+                        }
+
+                        $imageNotes = [];
+                        foreach ($announcement['images'] as $imageIndex => $imageName) {
+                            $imagePath = jcm_announcement_upload_dir() . DIRECTORY_SEPARATOR . basename($imageName);
+                            $dimensions = is_file($imagePath) ? @getimagesize($imagePath) : false;
+                            $imageWidth = is_array($dimensions) ? (int) $dimensions[0] : 1;
+                            $imageHeight = is_array($dimensions) ? (int) $dimensions[1] : 1;
+                            $imageRatio = $imageWidth / max(1, $imageHeight);
+                            $imageFormat = $imageRatio > 1.2 ? 'landscape' : ($imageRatio < 0.82 ? 'portrait' : 'square');
+                            $imageSeed = crc32($announcement['id'] . ':' . $imageIndex) & 0x7fffffff;
+                            $imageNotes[] = [
+                                'index' => $imageIndex,
+                                'name' => $imageName,
+                                'format' => $imageFormat,
+                                'side' => $imageSides[$imageIndex],
+                                'tilt' => ($imageSeed % 13) - 6,
+                                'after_word' => $imageHeights[$imageIndex],
+                            ];
+                        }
+                        $renderImageNote = static function (array $imageNote): void { ?>
+                            <button type="button"
+                                class="announcement-image-note announcement-image-note--<?= $imageNote['format'] ?> announcement-image-note--<?= $imageNote['side'] ?>"
+                                data-announcement-image="<?= htmlspecialchars(jcm_announcement_image_url($imageNote['name']), ENT_QUOTES, 'UTF-8') ?>"
+                                style="--image-note-tilt: <?= $imageNote['tilt'] ?>deg;"
+                                aria-label="Afficher l’image jointe <?= $imageNote['index'] + 1 ?> en grand">
+                                <span class="announcement-image-note-tape" aria-hidden="true"></span>
+                                <img src="<?= htmlspecialchars(jcm_announcement_image_url($imageNote['name']), ENT_QUOTES, 'UTF-8') ?>"
+                                    alt="Image jointe à l’annonce" loading="lazy">
+                            </button>
+                        <?php };
+                        ?>
+                        <template data-announcement-detail="<?= (int) $announcement['id'] ?>">
+                            <article class="announcement-detail<?= (int) $announcement['important'] === 1 ? ' announcement-detail--important' : '' ?>">
+                                <?php if ($isAdmin): ?>
+                                    <button type="button" class="announcement-detail-delete"
+                                        data-announcement-delete="<?= (int) $announcement['id'] ?>"
+                                        aria-label="Supprimer cette annonce">
+                                        <i class="bi bi-trash3-fill" aria-hidden="true"></i>
+                                    </button>
+                                <?php endif; ?>
+                                <button type="button" class="announcement-detail-close"
+                                    aria-label="Fermer l’annonce et revenir au tableau">
+                                    <i class="bi bi-x-lg" aria-hidden="true"></i>
+                                </button>
+                                <div class="announcement-detail-meta">
+                                    <span><?= htmlspecialchars(date('d/m/Y', strtotime($announcement['created_at'])), ENT_QUOTES, 'UTF-8') ?></span>
+                                    <?php if ((int) $announcement['important'] === 1): ?>
+                                        <span class="announcement-detail-priority"><i class="bi bi-exclamation-circle-fill me-1" aria-hidden="true"></i>Annonce importante</span>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="announcement-detail-content<?= $announcement['images'] !== [] ? ' announcement-detail-content--with-images' : '' ?>">
+                                    <div class="announcement-detail-message">
+                                        <?php $renderedWords = 0; ?>
+                                        <?php foreach ($messageParts as $messagePart): ?>
+                                            <?= nl2br(htmlspecialchars($messagePart, ENT_QUOTES, 'UTF-8')) ?>
+                                            <?php if (trim($messagePart) !== ''): ?>
+                                                <?php $renderedWords++; ?>
+                                                <?php foreach ($imageNotes as $imageNote): ?>
+                                                    <?php if ($imageNote['after_word'] === $renderedWords): ?>
+                                                        <?php $renderImageNote($imageNote); ?>
+                                                    <?php endif; ?>
+                                                <?php endforeach; ?>
+                                            <?php endif; ?>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                                <?php if ($announcement['images'] !== []): ?>
+                                    <dialog class="announcement-image-viewer" aria-label="Image de l’annonce en grand">
+                                        <button type="button" class="announcement-image-viewer-close"
+                                            aria-label="Fermer l’image">
+                                            <i class="bi bi-x-lg" aria-hidden="true"></i>
+                                        </button>
+                                        <img class="announcement-image-viewer-image" alt="Image jointe à l’annonce en grand">
+                                    </dialog>
+                                <?php endif; ?>
+                                <?php if ($isAdmin): ?>
+                                    <dialog class="announcement-delete-dialog"
+                                        aria-labelledby="announcementDeleteTitle<?= (int) $announcement['id'] ?>">
+                                        <div class="announcement-delete-dialog-icon" aria-hidden="true">
+                                            <i class="bi bi-trash3-fill"></i>
+                                        </div>
+                                        <h3 id="announcementDeleteTitle<?= (int) $announcement['id'] ?>">Supprimer cette annonce ?</h3>
+                                        <p>Cette annonce et ses images jointes seront supprimées définitivement.</p>
+                                        <p class="announcement-delete-error" role="alert" hidden></p>
+                                        <div class="announcement-delete-actions">
+                                            <button type="button" class="announcement-delete-cancel">Annuler</button>
+                                            <button type="button" class="announcement-delete-confirm"
+                                                data-announcement-delete-confirm="<?= (int) $announcement['id'] ?>">
+                                                <i class="bi bi-trash3 me-1" aria-hidden="true"></i>Supprimer
+                                            </button>
+                                        </div>
+                                    </dialog>
+                                <?php endif; ?>
+                            </article>
+                        </template>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <?php if (isset($_SESSION['id']) && ($_SESSION['pdp'] ?? 'pdp_base.png') === 'pdp_base.png'): ?>
         <div class="modal fade" id="profilePhotoReminderModal" tabindex="-1"
             aria-labelledby="profilePhotoReminderTitle" aria-hidden="true">
@@ -432,6 +657,7 @@ include __DIR__ . '/includes/liens/liens_index_default.php';
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
+    <script src="js/announcements.js?v=<?php echo filemtime('js/announcements.js'); ?>"></script>
     <?php if (isset($_SESSION['id']) && ($_SESSION['pdp'] ?? 'pdp_base.png') === 'pdp_base.png'): ?>
         <script>
             document.addEventListener('DOMContentLoaded', function () {

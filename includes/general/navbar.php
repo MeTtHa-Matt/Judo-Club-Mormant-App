@@ -80,6 +80,10 @@ if (isset($_SESSION['id']) && isset($pdo)) {
                                 <details class="admin-menu-folder">
                                     <summary class="dropdown-item">Utilisateurs</summary>
                                     <a class="dropdown-item admin-menu-folder-link" href="<?= $appRoot ?>/users.php">Utilisateurs</a>
+                                    <button type="button" class="dropdown-item admin-menu-folder-link"
+                                        data-bs-toggle="modal" data-bs-target="#createAnnouncementModal">
+                                        <i class="bi bi-megaphone-fill me-2" aria-hidden="true"></i>Faire une annonce
+                                    </button>
                                     <a class="dropdown-item admin-menu-folder-link" href="<?= $appRoot ?>/families.php">Famille</a>
                                     <a class="dropdown-item admin-menu-folder-link" href="<?= $appRoot ?>/mailing.php">Envoyer un mail</a>
                                     <a class="dropdown-item admin-menu-folder-link admin-report-nav-link" href="<?= $appRoot ?>/reports.php">
@@ -187,6 +191,58 @@ if (isset($_SESSION['id']) && isset($pdo)) {
     </div>
 </nav>
 
+<?php if (isset($_SESSION['admin']) && (int) $_SESSION['admin'] === 1): ?>
+    <div class="modal fade" id="createAnnouncementModal" tabindex="-1"
+        aria-labelledby="createAnnouncementTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <form action="<?= $appRoot ?>/includes/general/announcement_process.php" method="post" enctype="multipart/form-data">
+                    <div class="modal-header border-0 pb-0">
+                        <div>
+                            <p class="announcement-eyebrow mb-1">Administration du club</p>
+                            <h2 class="modal-title fs-4 fw-bold" id="createAnnouncementTitle">Faire une annonce</h2>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(jcm_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
+                        <input type="hidden" name="action" value="create">
+                        <div class="mb-3">
+                            <label for="announcementMessage" class="form-label fw-semibold">Texte de l’annonce</label>
+                            <textarea class="form-control profile-input" id="announcementMessage" name="message"
+                                rows="7" maxlength="10000" required
+                                placeholder="Écrivez les informations à partager avec les membres…"></textarea>
+                            <div class="form-text">10 000 caractères maximum.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="announcementImages" class="form-label fw-semibold">Images à joindre (facultatif)</label>
+                            <input class="form-control" type="file" id="announcementImages" name="images[]"
+                                accept="image/jpeg,image/png,image/webp" multiple>
+                            <div class="form-text">Ajoutez vos images une par une ou par plusieurs sélections (JPEG, PNG ou WebP, 1 Mo maximum chacune, 5 au total).</div>
+                            <output class="form-text announcement-upload-status" id="announcementImagesStatus"
+                                for="announcementImages" aria-live="polite"></output>
+                            <div class="announcement-upload-file-list" id="announcementImagesList"></div>
+                        </div>
+                        <div class="remember-me-row announcement-important-row">
+                            <span class="announcement-important-copy">
+                                <span class="remember-me-label"><i class="bi bi-exclamation-circle-fill me-1 text-warning" aria-hidden="true"></i>Annonce importante</span>
+                                <small>Le post-it sera mis en évidence sur le tableau.</small>
+                            </span>
+                            <label class="jcm-switch" for="announcementImportant">
+                                <input class="jcm-switch-input" type="checkbox" value="1" id="announcementImportant" name="important">
+                                <span class="jcm-switch-track"><span class="jcm-switch-thumb"></span></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="submit" class="btn btn-judo-red"><i class="bi bi-send-fill me-2" aria-hidden="true"></i>Publier l’annonce</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
+
 <?php if (function_exists('jcm_render_notifications')): ?>
     <?php jcm_render_notifications(); ?>
 <?php endif; ?>
@@ -254,6 +310,7 @@ include __DIR__ . '/../account/family_match_prompt.php';
 <?php endif; ?>
 
 <script src="js/navbar.js"></script>
+<script src="js/announcement-upload.js?v=<?php echo filemtime(__DIR__ . '/../../js/announcement-upload.js'); ?>"></script>
 <script src="js/page-transition.js?v=<?php echo filemtime(__DIR__ . '/../../js/page-transition.js'); ?>"></script>
 <?php if (!empty($familyIncomingRequest) || !empty($familyMatchCandidate)): ?>
     <script>

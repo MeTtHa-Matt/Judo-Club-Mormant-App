@@ -155,6 +155,34 @@ CREATE TABLE IF NOT EXISTS index_links_jcm (
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS jcm_announcements (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    message TEXT NOT NULL,
+    important TINYINT(1) NOT NULL DEFAULT 0,
+    created_by INT DEFAULT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES account(id) ON DELETE SET NULL,
+    INDEX idx_jcm_announcements_created (created_at, id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS jcm_announcement_images (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    announcement_id INT NOT NULL,
+    image_name VARCHAR(80) NOT NULL,
+    FOREIGN KEY (announcement_id) REFERENCES jcm_announcements(id) ON DELETE CASCADE,
+    INDEX idx_jcm_announcement_images_announcement (announcement_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS jcm_announcement_views (
+    announcement_id INT NOT NULL,
+    account_id INT NOT NULL,
+    seen_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (announcement_id, account_id),
+    FOREIGN KEY (announcement_id) REFERENCES jcm_announcements(id) ON DELETE CASCADE,
+    FOREIGN KEY (account_id) REFERENCES account(id) ON DELETE CASCADE,
+    INDEX idx_jcm_announcement_views_account (account_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS judo_analytics_events (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     session_hash CHAR(64) NOT NULL,
